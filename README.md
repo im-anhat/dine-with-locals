@@ -1,1 +1,3 @@
-# dine-with-locals
+# Local/Global Taste
+
+Some descriptions.
