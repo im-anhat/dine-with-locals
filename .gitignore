@@ -9,7 +9,6 @@ Thumbs.db
 
 package-lock.json
 
-.vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project
