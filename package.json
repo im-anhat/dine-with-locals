@@ -4,5 +4,9 @@
   },
   "devDependencies": {
     "prettier": "^3.5.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongoose": "^8.13.1"
   }
 }
