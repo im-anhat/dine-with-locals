@@ -1,16 +1,11 @@
 import express from 'express';
-import connectDB from './config/mongo';
-import userRoutes from './routes/ExampleUserRoutes';
-import errorHandler from './middlewares/ExampleErrorHandler';
+import connectDB from './config/mongo.js';
+import userRoutes from './routes/ExampleUserRoutes.js';
+import errorHandler from './middlewares/ExampleErrorHandler.js';
 
-// Our team can write code here.
 const app = express();
 
-// BELOW IS EXAMPLE ONLY ;)
-
-// const app = express();
-
-// connectDB();
+connectDB();
 
 // app.use(express.json());
 // app.use('/api/users', userRoutes);
