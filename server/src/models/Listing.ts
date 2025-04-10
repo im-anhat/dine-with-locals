@@ -1,16 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import AutoIncrementFactory from 'mongoose-sequence';
-
-const AutoIncrement = AutoIncrementFactory(mongoose as any);
 
 export interface IListing extends Document {
-  userId: number; // foreign key referencing User.userID
-  listingId: number; // auto-incremented listing identifier
-  createdAt: Date;
+  userId: mongoose.Types.ObjectId; // now using ObjectId
   title: string;
-  locationType: 'home' | 'res';
-  location: string;
-  interestTopic?: string;
+  locationType: 'home' | 'res' | 'either';
+  locationId: mongoose.Types.ObjectId; // now using default _id from Location
+  interestTopic?: string[];
   time?: Date;
   cuisine: string[];
   dietary: string[];
@@ -22,18 +17,9 @@ export interface IListing extends Document {
 const ListingSchema: Schema = new Schema(
   {
     userId: {
-      type: Number,
-      ref: 'User', // Reference to the User model
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-    },
-    listingId: {
-      type: Number,
-      unique: true,
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
     },
     title: {
       type: String,
@@ -42,17 +28,17 @@ const ListingSchema: Schema = new Schema(
     },
     locationType: {
       type: String,
-      enum: ['home', 'res'],
+      enum: ['home', 'res', 'either'],
       required: true,
     },
-    location: {
-      type: String,
+    locationId: {
+      type: Schema.Types.ObjectId,
       required: true,
-      trim: true,
+      ref: 'Location',
     },
     interestTopic: {
-      type: String,
-      trim: true,
+      type: [String],
+      default: [],
     },
     time: {
       type: Date,
@@ -75,14 +61,12 @@ const ListingSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      required: true,
+      enum: ['pending', 'waiting', 'approved'],
       default: 'waiting',
+      trim: true,
     },
   },
   { timestamps: true },
 );
-
-// Apply auto-increment plugin to listingID
-ListingSchema.plugin(AutoIncrement as any, { inc_field: 'listingId' });
 
 export default mongoose.model<IListing>('Listing', ListingSchema);
