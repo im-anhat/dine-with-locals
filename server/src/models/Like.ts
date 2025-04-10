@@ -1,20 +1,20 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ILike extends Document {
-  userId: number; // references User.userId
-  blogId: string; // references Blog.blogId (as a string)
+  userId: mongoose.Types.ObjectId; // References User._id
+  blogId: mongoose.Types.ObjectId; // References Blog._id
   createdAt: Date;
 }
 
 const LikeSchema: Schema = new Schema(
   {
     userId: {
-      type: Number,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: 'User',
     },
     blogId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: 'Blog',
     },
@@ -26,7 +26,6 @@ const LikeSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-// Compound index to ensure a user can like a blog only once
 LikeSchema.index({ userId: 1, blogId: 1 }, { unique: true });
 
 export default mongoose.model<ILike>('Like', LikeSchema);
