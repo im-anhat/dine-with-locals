@@ -1,17 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
-import AutoIncrementFactory from 'mongoose-sequence';
-
-const AutoIncrement = AutoIncrementFactory(mongoose as any);
 
 export interface IUser extends Document {
-  userId: number;
   userName: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
   password: string;
   avatar: string;
+  cover?: string;
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
@@ -21,11 +18,6 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema(
   {
-    userId: {
-      type: Number,
-      unique: true,
-      required: true,
-    },
     userName: {
       type: String,
       unique: true,
@@ -35,20 +27,28 @@ const UserSchema: Schema = new Schema(
     firstName: {
       type: String,
       trim: true,
+      required: true,
     },
     lastName: {
       type: String,
       trim: true,
+      required: true,
     },
     phone: {
       type: String,
       trim: true,
+      required: true,
     },
     password: {
       type: String,
       required: true,
     },
     avatar: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    cover: {
       type: String,
       default: '',
       trim: true,
@@ -70,6 +70,7 @@ const UserSchema: Schema = new Schema(
     },
     ethnicity: {
       type: String,
+      enum: ['Asian', 'Black', 'Hispanic', 'White', 'Other'],
       trim: true,
     },
     bio: {
@@ -81,7 +82,6 @@ const UserSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-// Pre-save hook to hash password if it's new or modified
 UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -93,8 +93,5 @@ UserSchema.pre<IUser>('save', async function (next) {
     next(error as any);
   }
 });
-
-// Cast AutoIncrement to any in order to avoid type errors.
-UserSchema.plugin(AutoIncrement as any, { inc_field: 'userId' });
 
 export default mongoose.model<IUser>('User', UserSchema);
