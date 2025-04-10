@@ -1,16 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import AutoIncrementFactory from 'mongoose-sequence';
-
-const AutoIncrement = AutoIncrementFactory(mongoose as any);
 
 export interface IRequest extends Document {
-  requestId: number;
-  userId: number; // References User.userID
+  userId: mongoose.Types.ObjectId; // References User._id
   createdAt: Date;
   title: string;
-  locationType: 'home' | 'res';
-  location: string;
-  interestTopic: string;
+  locationType: 'home' | 'res' | 'either';
+  locationId: mongoose.Types.ObjectId; // References Location._id
+  interestTopic: string[];
   time?: Date;
   cuisine: string[];
   dietaryRestriction: string[];
@@ -21,14 +17,9 @@ export interface IRequest extends Document {
 
 const RequestSchema: Schema = new Schema(
   {
-    requestId: {
-      type: Number,
-      required: true,
-      unique: true,
-    },
     userId: {
-      type: Number,
-      ref: 'User', // Reference to the User model (using userID)
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
     createdAt: {
@@ -42,18 +33,18 @@ const RequestSchema: Schema = new Schema(
     },
     locationType: {
       type: String,
-      enum: ['home', 'res'],
+      enum: ['home', 'res', 'either'],
       required: true,
     },
-    location: {
-      type: String,
+    locationId: {
+      type: Schema.Types.ObjectId,
       required: true,
-      trim: true,
+      ref: 'Location',
     },
     interestTopic: {
-      type: String,
+      type: [String],
+      default: [],
       trim: true,
-      default: '',
     },
     time: {
       type: Date,
@@ -78,14 +69,12 @@ const RequestSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      default: 'pending',
+      enum: ['waiting', 'pending', 'approved'],
+      default: 'waiting',
       trim: true,
     },
   },
   { timestamps: true },
 );
-
-// Apply auto-increment plugin to requestId
-RequestSchema.plugin(AutoIncrement as any, { inc_field: 'requestId' });
 
 export default mongoose.model<IRequest>('Request', RequestSchema);
