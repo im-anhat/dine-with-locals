@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IMatch extends Document {
-  hostId: number; // References a User
-  guestId: number; // References a User
-  listingID?: number; // Optionally references a Listing
-  reqID?: number; // Optionally references a Request
+  hostId: mongoose.Types.ObjectId; // References User._id
+  guestId: mongoose.Types.ObjectId; // References User._id
+  listingId?: mongoose.Types.ObjectId; // References Listing._id
+  requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
   time: Date;
 }
@@ -12,22 +12,22 @@ export interface IMatch extends Document {
 const MatchSchema: Schema = new Schema(
   {
     hostId: {
-      type: Number,
-      ref: 'User', // reference to User collection
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
     guestId: {
-      type: Number,
-      ref: 'User', // reference to User collection
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
-    listingID: {
-      type: Number,
-      ref: 'Listing', // optional reference to Listing collection
+    listingId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Listing',
     },
-    reqID: {
-      type: Number,
-      ref: 'Request', // optional reference to Request collection
+    requestId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Request',
     },
     status: {
       type: String,
@@ -36,14 +36,13 @@ const MatchSchema: Schema = new Schema(
     },
     time: {
       type: Date,
-      default: Date.now,
       required: true,
     },
   },
   { timestamps: true },
 );
 
-// Enforce composite uniqueness on hostID, guestID, and time.
+// Update composite index to use ObjectId fields
 MatchSchema.index({ hostId: 1, guestId: 1, time: 1 }, { unique: true });
 
 export default mongoose.model<IMatch>('Match', MatchSchema);
