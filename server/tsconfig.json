@@ -9,15 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "baseUrl": "./src", // set base URL
-    "paths": {
-      "@config/*": ["config/*"],
-      "@routes/*": ["routes/*"],
-      "@models/*": ["models/*"],
-      "@controllers/*": ["controllers/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@services/*": ["services/*"]
-    }
+    "baseUrl": "./src" // set base URL
   },
   "include": ["src"]
 }
