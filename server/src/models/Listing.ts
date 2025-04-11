@@ -11,7 +11,7 @@ export interface IListing extends Document {
   dietary: string[];
   numGuests?: number;
   additionalInfo: string;
-  status: string;
+  status: 'pending' | 'waiting' | 'approved';
 }
 
 const ListingSchema: Schema = new Schema(
@@ -53,6 +53,7 @@ const ListingSchema: Schema = new Schema(
     },
     numGuests: {
       type: Number,
+      default: 1,
     },
     additionalInfo: {
       type: String,

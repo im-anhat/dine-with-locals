@@ -22,6 +22,7 @@ const BlogSchema: Schema = new Schema(
     blogContent: {
       type: String,
       trim: true,
+      required: true,
     },
     photos: {
       type: [String],

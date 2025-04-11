@@ -7,12 +7,12 @@ export interface IRequest extends Document {
   locationType: 'home' | 'res' | 'either';
   locationId: mongoose.Types.ObjectId; // References Location._id
   interestTopic: string[];
-  time?: Date;
+  time: Date;
   cuisine: string[];
   dietaryRestriction: string[];
   numGuests: number;
   additionalInfo: string;
-  status: string;
+  status: 'waiting' | 'pending' | 'approved';
 }
 
 const RequestSchema: Schema = new Schema(

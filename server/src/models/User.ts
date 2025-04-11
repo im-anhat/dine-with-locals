@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
   userName: string;
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
   phone?: string;
   password: string;
   avatar: string;
@@ -12,7 +12,7 @@ export interface IUser extends Document {
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
-  ethnicity?: string;
+  ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
 }
 

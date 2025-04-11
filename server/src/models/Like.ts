@@ -18,10 +18,6 @@ const LikeSchema: Schema = new Schema(
       required: true,
       ref: 'Blog',
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
   { timestamps: true },
 );
