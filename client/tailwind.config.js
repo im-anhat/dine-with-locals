@@ -1,26 +1,31 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class', // we can consider this if we have time (simple though ;) )
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+
+  // content: Specifies the files Tailwind CSS should scan for class names. 
+  // This is essential for optimizing the final CSS bundle by generating only the necessary or used styles.
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'], //Scan all js, ts, jsx, tsx file in src folder and index.html
+
+  /*
+    theme: we use this section to customize the default design configuration
+      - screens for customizing the default breakpoints.
+      - colors for customizing the default color palette.
+      - spacing for customizing the default spacing and sizing scale.
+  */
   theme: {
+    /*
+      extend: The extend key within the theme section allows us to enhance the default theme. 
+              The values specified here are merged with the existing theme values, 
+              expanding the range of classes available for use. 
+    */
     extend: {
       // Dine with Locals colors -- customize but we need to keep it consistent
       // Just some examples, we will modify them as needed.
       colors: {
-        white: '#FFFFFF',
-        gray: {
-          dinewithlocals: '#f3f4f6',
-        },
-        primary: {
-          DEFAULT: '#1E40AF', // blue-800
-          light: '#3B82F6', // blue-500
-          dark: '#1E3A8A', // blue-900
-        },
-        'dark-bg': '#101214',
-        'dark-secondary': '#1d1f21',
-        'dark-tertiary': '#3b3d40',
-        'blue-primary': '#0275ff',
-        'stroke-dark': '#2d3135',
+        'brand-purple': '#C599B6',
+        'brand-pink': '#E6B2BA',
+        'brand-orange': '#FAD0C4',
+        'brand-shell': '#FFF7F3',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'], // Inter is a popular font for web applications
@@ -41,5 +46,6 @@ export default {
       },
     },
   },
+  //**plugins**: Adds third-party plugins or custom plugins.
   plugins: [],
 };
