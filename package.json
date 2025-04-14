@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "mongoose": "^8.13.1"
+    "mongoose": "^8.13.1",
+    "react": "^19.1.0"
   }
 }
