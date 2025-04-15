@@ -4,9 +4,17 @@ import Button from '../components/ExampleButton';
 const Home: React.FC = () => {
   console.log('Home component rendering');
   return (
-    <div style={{ background: 'white', color: 'black', padding: '20px' }}>
+    <div className="bg-brand-orange text-black p-5">
       <h1>Welcome to Dine with Locals</h1>
       <Button label="Get Started" onClick={() => alert('Starting...')} />
+      <div className="flex items-center justify-center h-screen bg-brand-pink">
+        <div className="p-6 bg-gray rounded shadow-md">
+          <h1 className="bg-brand-purple">Welcome Back!</h1>
+          <p className="mt-2 text-brand-shell">
+            This is a test of the branded color.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
