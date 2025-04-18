@@ -7,9 +7,10 @@ import ContactInfo from '../../components/auth/ContactInfo';
 import AuthenticateInput from '../../components/auth/AuthenticateInput';
 import SubmitSignup from '../../components/auth/SubmitSignup';
 import ProcessBar from '../../components/auth/ProcessBar';
+import { useStep } from '../../hooks/useStep';
 
 export const SignUpPage = () => {
-  const [step, setStep] = useState<number>(1);
+  const { currentStep, setCurrentStep, totalSteps } = useStep();
   //isLoading variable to keep track of the loading state
   const [isLoading, setIsLoading] = useState<boolean>(false);
   //Partial<User> is used to define a variable empty field at the beginning
@@ -35,29 +36,52 @@ export const SignUpPage = () => {
    *
    */
   const nextStep = () => {
-    if (step === 1) {
-      return <RoleSelection />;
-    } else if (step === 2) {
+    if (currentStep === 1) {
+      return (
+        <div>
+          <RoleSelection />
+          <ProcessBar />
+        </div>
+      );
+    } else if (currentStep === 2) {
       //Input for personal information
-      return <PersonalInformationInput />;
-    } else if (step === 3) {
+      return (
+        <div>
+          <PersonalInformationInput />
+          <ProcessBar />
+        </div>
+      );
+    } else if (currentStep === 3) {
       //Input for phone number and social link
-      return <ContactInfo />;
-    } else if (step === 4) {
+      return (
+        <div>
+          <ContactInfo />
+          <ProcessBar />
+        </div>
+      );
+    } else if (currentStep === 4) {
       //Input for username and password
-      return <AuthenticateInput />;
-    } else if (step === 5) {
+      return (
+        <div>
+          <AuthenticateInput />
+          <ProcessBar />
+        </div>
+      );
+    } else if (currentStep === 5) {
       // Submit the form
-      return <SubmitSignup />;
+      return (
+        <div>
+          <SubmitSignup />
+          <ProcessBar />
+        </div>
+      );
+    } else {
+      // If the current step is not valid, return null or a default component
+      return null;
     }
     return null;
   };
-  return (
-    <div>
-      {nextStep()}
-      <ProcessBar step={step} totalSteps={5} />
-    </div>
-  );
+  return <div>{nextStep()}</div>;
 
   //This function update the state of step.
 };

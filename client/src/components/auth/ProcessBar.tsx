@@ -1,22 +1,22 @@
 import React from 'react';
 import Button from '../ExampleButton';
-
+import { useStep } from '../../hooks/useStep';
 //This component is used to display the process bar in the signup page.
 //It will display the current step and the total number of steps.
-function ProcessBar({
-  step,
-  totalSteps,
-}: {
-  step: number;
-  totalSteps: number;
-}) {
-  const increaseStep = () => {};
-  const decreaseStep = () => {};
+function ProcessBar() {
+  const { currentStep: step, setCurrentStep, totalSteps } = useStep();
 
+  const handleStepChange = (newStep: number) => {
+    if (newStep < 1 || newStep > totalSteps) {
+      return;
+    } else {
+      setCurrentStep(newStep);
+    }
+  };
   return (
     <div>
-      <button onClick={increaseStep}>Back</button>
-      <button onClick={decreaseStep}>Next</button>
+      <button onClick={() => handleStepChange(step - 1)}>Back</button>
+      <button onClick={() => handleStepChange(step + 1)}>Next</button>
       <div>
         {step} of {totalSteps}
       </div>

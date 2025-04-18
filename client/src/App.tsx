@@ -4,15 +4,22 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/ExampleHome';
 import './styles/main.css';
 import SignUpPage from './pages/auth/SignUpPage';
+import { StepProvider } from './contexts/StepContext';
+import { UserProvider } from './contexts/UserContext';
 
 const App: React.FC = () => {
   return (
+    //value={{ currentStep, setCurrentStep, totalSteps }}
     <AuthProvider>
-      <Home />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
+      <StepProvider totalSteps={5}>
+        <UserProvider>
+          <Home />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<SignUpPage />} />
+          </Routes>
+        </UserProvider>
+      </StepProvider>
     </AuthProvider>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import ProcessBar from './ProcessBar';
 
 function ContactInfo() {
   return (
