@@ -35,11 +35,11 @@ export const SignUpPage = () => {
   const nextStep = () => {
     if (step === 1) {
       // Check if the user has selected a role
-      <RoleSelection
-        role={userData.role}
-        setUserData={setUserData}
-        incrementStep={incrementStep}
-      />;
+      // <RoleSelection
+      //   role={userData.role}
+      //   setUserData={setUserData}
+      //   incrementStep={incrementStep}
+      // />;
     } else if (step === 2) {
       // Check if the user has entered a name
       <PersonalInformationInput />;
