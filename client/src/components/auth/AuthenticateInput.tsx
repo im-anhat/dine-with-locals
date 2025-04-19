@@ -2,6 +2,8 @@ import React from 'react';
 import ProcessBar from './ProcessBar';
 
 function AuthenticateInput() {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
   return (
     <div>
       <input type="text" placeholder="Username" />
