@@ -14,11 +14,7 @@ export const SignUpPage = () => {
   //isLoading variable to keep track of the loading state
   const [isLoading, setIsLoading] = useState<boolean>(false);
   //Partial<User> is used to define a variable empty field at the beginning
-  const [userData, setUserData] = useState<Partial<User>>({
-    role: 'Host',
-    ethnicity: 'Asian',
-    hobbies: [],
-  });
+
   /**
    * Goes to the following step (out of 5) of the signup process.
    * Step 1: Define role (Host, Guest, Both)

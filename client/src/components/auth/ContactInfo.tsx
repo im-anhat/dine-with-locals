@@ -5,8 +5,8 @@ import { useUserContext } from '../../hooks/useUserContext';
 function ContactInfo() {
   const { user, setUser } = useUserContext(); //setUser is used to update the user object
   //user is the user object that is passed from the parent component
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [socialLink, setSocialLink] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [socialLink, setSocialLink] = useState<string>('');
 
   const setInfo = () => {
     const newUser = { ...user, phone: phoneNumber, socialLink: socialLink };

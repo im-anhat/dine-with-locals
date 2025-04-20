@@ -27,6 +27,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     role: 'Host',
     hobbies: [],
     ethnicity: 'Asian',
+    password: '',
     bio: '',
   };
   const [user, setUser] = React.useState<User>(initialUser);

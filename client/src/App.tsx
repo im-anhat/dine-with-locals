@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthProvider } from './contexts/ExampleAuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/ExampleHome';
 import './styles/main.css';
