@@ -56,7 +56,11 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Cover Photo */}
           <div className="h-48 bg-gradient-to-r from-brand-purple to-brand-pink relative">
-            {/* Cover photo would go here */}
+            <img
+              src="https://images.template.net/wp-content/uploads/2014/11/Natural-Facebook-Cover-Photo.jpg"
+              alt="Cover Photo"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Profile Info */}
@@ -284,9 +288,6 @@ const ProfilePage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-800">
                   My Blog Posts
                 </h2>
-                <button className="text-sm text-brand-purple hover:underline">
-                  View all
-                </button>
               </div>
 
               {loading ? (

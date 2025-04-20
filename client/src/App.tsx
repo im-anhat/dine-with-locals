@@ -7,7 +7,7 @@ const App: React.FC = () => {
   return (
     <UserProvider>
       <div className="min-h-screen flex">
-        {/* Left Sidebar - Placeholder for the navigation bar that will be implemented by your teammate */}
+        {/* Left Sidebar - Placeholder for the navigation bar that will be implemented by c Tam */}
         <div className="w-64 bg-brand-purple/10 border-r border-brand-purple/20 flex flex-col">
           <div className="p-6 border-b border-brand-purple/20">
             <h1 className="text-2xl font-bold text-brand-purple">DwL Logo</h1>
