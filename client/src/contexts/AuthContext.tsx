@@ -1,11 +1,11 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
-import { User } from '../../../shared/types/User';
+import { AuthenticatedUser } from '../../../shared/types/User';
 //This context store authentication-related state: logged in status, user data, access tokens
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthenticatedUser | null;
   isAuthenticated: boolean;
-  login: (user: User) => void;
+  login: (user: AuthenticatedUser) => void;
   logout: () => void;
 }
 
@@ -14,14 +14,25 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
+type AuthAction =
+  | { type: 'LOGIN'; payload: AuthenticatedUser }
+  | { type: 'LOGOUT' };
+
+interface AuthState {
+  user: AuthenticatedUser | null;
+}
+
 //Reducer function to manage the state of the user based on the action
 //works similarly with useState but is typically used when you have complex state logic.
 //The reducer function that specifies how the state gets updated.
 //take the state and action as arguments, and should return the next state. State and action can be of any types
-export const authReducer = (state: any, action: any) => {
+export const authReducer = (
+  state: AuthState,
+  action: AuthAction,
+): AuthState => {
   switch (action.type) {
     case 'LOGIN':
-      return { user: action.payload }; //payload: the data associated with the action
+      return { user: action.payload };
     case 'LOGOUT':
       return { user: null };
     default:
@@ -30,7 +41,7 @@ export const authReducer = (state: any, action: any) => {
 };
 
 interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 //Provide authentication-related data and login/logout methods for all child componenents
@@ -53,15 +64,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   //Use effect to keep updating the site based on the local storage, even after reload the web
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user) {
-      dispatch({ type: 'LOGIN', payload: user });
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser) as AuthenticatedUser;
+        dispatch({ type: 'LOGIN', payload: user });
+      } catch (err) {
+        console.error('Invalid user data in localStorage');
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
+  const login = (user: AuthenticatedUser) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    dispatch({ type: 'LOGIN', payload: user });
+  };
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    dispatch({ type: 'LOGOUT' });
+  };
+
   return (
     //Provide the state and dispatch function to the context so that other components can access it.
-    <AuthContext.Provider value={{ ...state, dispatch }}>
+    <AuthContext.Provider
+      value={{ user: state.user, isAuthenticated: !!state.user, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
