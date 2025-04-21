@@ -3,6 +3,8 @@ import { UserProvider } from './contexts/UserContext';
 import ProfilePage from './pages/ProfilePage';
 import './styles/index.css';
 
+//The type React.FC is a type definition for type checking for functional components
+//and ensures that children are implicitly typed
 const App: React.FC = () => {
   return (
     <UserProvider>

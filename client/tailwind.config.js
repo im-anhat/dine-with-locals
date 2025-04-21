@@ -22,10 +22,18 @@ export default {
       // Dine with Locals colors -- customize but we need to keep it consistent
       // Just some examples, we will modify them as needed.
       colors: {
-        'brand-purple': '#C599B6',
-        'brand-pink': '#E6B2BA',
-        'brand-orange': '#FAD0C4',
-        'brand-shell': '#FFF7F3',
+        "brand-orange": {
+          50: '#fff7ed',
+          300: '#fdba74',
+        },
+        "brand-coral": {
+          300: '#e57373', // lightest red
+          400: '#ef5350', // medium red
+          500: '#e53935', // dark red
+        },
+        "brand-stone": {
+          700: '#44403c',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'], // Inter is a popular font for web applications
