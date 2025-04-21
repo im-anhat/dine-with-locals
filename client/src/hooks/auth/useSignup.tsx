@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { User } from '../../../shared/types/User';
+import { User } from '../../../../shared/types/User';
 
 export const useSignUp = () => {
   const [isLoading, setIsLoading] = useState(false);

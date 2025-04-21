@@ -1,6 +1,6 @@
 import React from 'react';
 import ProcessBar from './ProcessBar';
-import { useUserContext } from '../../hooks/useUserContext';
+import { useUserContext } from '../../hooks/auth/useUserContext';
 
 function RoleSelection() {
   type Role = 'Host' | 'Guest' | 'Both';

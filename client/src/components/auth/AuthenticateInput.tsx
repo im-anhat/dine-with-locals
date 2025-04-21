@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProcessBar from './ProcessBar';
-import { useUserContext } from '../../hooks/useUserContext';
+import { useUserContext } from '../../hooks/auth/useUserContext';
 
 function AuthenticateInput() {
   const [username, setUsername] = useState('');

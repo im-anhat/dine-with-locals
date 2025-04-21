@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProcessBar from './ProcessBar';
-import { useUserContext } from '../../hooks/useUserContext';
+import { useUserContext } from '../../hooks/auth/useUserContext';
 
 function ContactInfo() {
   const { user, setUser } = useUserContext(); //setUser is used to update the user object

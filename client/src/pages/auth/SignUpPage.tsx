@@ -1,13 +1,11 @@
-import React from 'react';
-import { useState } from 'react';
-import { User } from '../../../../shared/types/User';
+import React, { useState } from 'react';
 import RoleSelection from '../../components/auth/RoleSelection';
 import PersonalInformationInput from '../../components/auth/PersonalInformationInput';
 import ContactInfo from '../../components/auth/ContactInfo';
 import AuthenticateInput from '../../components/auth/AuthenticateInput';
 import SubmitSignup from '../../components/auth/SubmitSignup';
 import ProcessBar from '../../components/auth/ProcessBar';
-import { useStep } from '../../hooks/useStep';
+import { useStep } from '../../hooks/auth/useStep';
 
 export const SignUpPage = () => {
   const { currentStep, setCurrentStep, totalSteps } = useStep();
