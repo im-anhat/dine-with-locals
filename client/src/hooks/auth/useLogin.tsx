@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { UserLogin } from '../../../shared/types/User';
+import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
 export const useLogin = () => {
   const [error, setError] = useState(null);
