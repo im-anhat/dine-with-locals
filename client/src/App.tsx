@@ -1,12 +1,12 @@
 import React from 'react';
 import { AuthProvider } from './contexts/ExampleAuthContext';
-import Home from './pages/ExampleHome';
+import FeedPage from './pages/FeedPage';
 import './styles/main.css';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Home />
+      <FeedPage />
     </AuthProvider>
   );
 };
