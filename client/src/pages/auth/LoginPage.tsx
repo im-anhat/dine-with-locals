@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useLogin } from '../../hooks/auth/useLogin';
-
+import { UserLogin } from '../../../../shared/types/User';
 function LoginPage() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const { handleLogin } = useLogin();
+
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    await useLogin();
+    const userLogin: UserLogin = {
+      userName: userName,
+      password: password,
+    };
+    await handleLogin(userLogin);
   };
   return (
     <div>
