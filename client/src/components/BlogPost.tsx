@@ -20,20 +20,20 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
           <img
             src={blog.userId.avatar}
             alt={`${blog.userId.firstName} ${blog.userId.lastName}`}
-            className="w-12 h-12 rounded-full object-cover border border-gray-100"
+            className="w-12 h-12 rounded-full object-cover border border-brand-stone-100 shadow-sm"
           />
           <div className="ml-3">
-            <div className="font-medium text-gray-800">
+            <div className="font-medium text-brand-stone-800">
               {blog.userId.firstName} {blog.userId.lastName}
             </div>
-            <div className="flex items-center text-xs text-gray-500">
+            <div className="flex items-center text-xs text-brand-stone-500">
               <span>@{blog.userId.userName}</span>
               <span className="mx-1">•</span>
               <span>{formattedDate}</span>
             </div>
           </div>
         </div>
-        <button className="text-gray-400 hover:text-gray-600">
+        <button className="text-brand-stone-400 hover:text-brand-coral-500 transition-colors">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -47,8 +47,10 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
 
       {/* Post Content */}
       <div className="px-4 pb-2">
-        <h3 className="font-semibold text-lg mb-1">{blog.blogTitle}</h3>
-        <p className="text-gray-700 mb-3">{blog.blogContent}</p>
+        <h3 className="font-semibold text-lg mb-1 text-brand-stone-800">
+          {blog.blogTitle}
+        </h3>
+        <p className="text-brand-stone-600 mb-3">{blog.blogContent}</p>
       </div>
 
       {/* Post Images */}
@@ -70,9 +72,9 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
       )}
 
       {/* Post Actions */}
-      <div className="px-4 py-3 border-t border-gray-100 flex justify-between">
+      <div className="px-4 py-3 border-t border-brand-stone-100 flex justify-between">
         <div className="flex space-x-6">
-          <button className="flex items-center text-gray-600 hover:text-brand-pink">
+          <button className="flex items-center text-brand-stone-600 hover:text-brand-coral-500 transition-colors">
             <svg
               className="w-5 h-5 mr-1"
               fill="none"
@@ -89,7 +91,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
             </svg>
             <span className="text-sm">Like</span>
           </button>
-          <button className="flex items-center text-gray-600 hover:text-brand-purple">
+          <button className="flex items-center text-brand-stone-600 hover:text-brand-teal-500 transition-colors">
             <svg
               className="w-5 h-5 mr-1"
               fill="none"
@@ -106,7 +108,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
             </svg>
             <span className="text-sm">Comment</span>
           </button>
-          <button className="flex items-center text-gray-600 hover:text-brand-orange">
+          <button className="flex items-center text-brand-stone-600 hover:text-brand-coral-300 transition-colors">
             <svg
               className="w-5 h-5 mr-1"
               fill="none"
@@ -124,7 +126,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
             <span className="text-sm">Share</span>
           </button>
         </div>
-        <div className="flex items-center text-xs text-gray-500">
+        <div className="flex items-center text-xs text-brand-stone-500">
           <span>925 likes</span>
           <span className="mx-2">•</span>
           <span>23 comments</span>
@@ -132,19 +134,19 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog }) => {
       </div>
 
       {/* Comment Input */}
-      <div className="px-4 py-3 border-t border-gray-100 flex items-center">
+      <div className="px-4 py-3 border-t border-brand-stone-100 flex items-center">
         <img
           src={blog.userId.avatar}
           alt="Current user"
-          className="w-8 h-8 rounded-full object-cover"
+          className="w-8 h-8 rounded-full object-cover border border-brand-stone-100"
         />
         <div className="flex-grow mx-2 relative">
           <input
             type="text"
             placeholder="Add a comment..."
-            className="bg-gray-100 rounded-full py-2 px-4 w-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/30"
+            className="bg-brand-stone-50 rounded-full py-2 px-4 w-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-coral-300 border border-brand-stone-200"
           />
-          <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-brand-purple">
+          <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-brand-stone-400 hover:text-brand-coral-500 transition-colors">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
