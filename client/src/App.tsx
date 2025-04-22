@@ -6,7 +6,7 @@ import './styles/main.css';
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <FeedPage />
+      <FeedPage/>
     </AuthProvider>
   );
 };

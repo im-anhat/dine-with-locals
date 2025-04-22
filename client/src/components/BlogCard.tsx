@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { HeartIcon, MessageCircleIcon, SendIcon } from "lucide-react";
 import { Blog } from "../../../shared/types/Blog";
+import { formatDistanceToNow } from "date-fns";
 
 interface BlogCardProps {
   blog: Blog;
@@ -26,20 +27,36 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
     setSelectedPhotoIndex(null);
   };
 
+  // Handle case where userId might be a string (ID) or an object
+  const user = typeof blog.userId === 'object' ? blog.userId : { 
+    _id: 'unknown',
+    firstName: 'Unknown',
+    lastName: 'User',
+    userName: 'unknown',
+    avatar: ''
+  };
+
   // Generate display name from user data
-  const displayName = `${blog.userId.firstName} ${blog.userId.lastName}`;
-  const userInitials = blog.userId.firstName.charAt(0) + blog.userId.lastName.charAt(0);
+  const displayName = `${user.firstName} ${user.lastName}`;
+  const userInitials = user.firstName.charAt(0) + user.lastName.charAt(0);
+
+  // Format date - handle both string dates and Date objects
+  const formattedDate = blog.createdAt ? 
+    (typeof blog.createdAt === 'string' && blog.createdAt.includes('ago')) ?
+      blog.createdAt : // Already formatted like "2 hours ago"
+      formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true }) : // Format ISO date
+    'Recently';
 
   return (
     <Card className="mb-6 overflow-hidden">
       <CardHeader className="flex flex-row items-center gap-4 p-4">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={blog.userId.avatar} alt={displayName} />
+          <AvatarImage src={user.avatar} alt={displayName} />
           <AvatarFallback>{userInitials.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <p className="font-semibold">{displayName}</p>
-          <p className="text-sm text-muted-foreground">@{blog.userId.userName} • {blog.createdAt}</p>
+          <p className="text-sm text-muted-foreground">@{user.userName} • {formattedDate}</p>
         </div>
       </CardHeader>
       
@@ -47,7 +64,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
         <h3 className="text-xl font-semibold mb-2">{blog.blogTitle}</h3>
         <p className="mb-4">{blog.blogContent}</p>
 
-        {blog.photos.length > 0 && (
+        {blog.photos && blog.photos.length > 0 && (
           <div className="relative mb-4">
             <div className={`grid ${blog.photos.length === 1 ? 'grid-cols-1' : blog.photos.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-2`}>
               {blog.photos.slice(0, blog.photos.length > 4 ? 4 : blog.photos.length).map((photo, index) => (
@@ -73,8 +90,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
         )}
 
         <div className="flex items-center text-sm text-muted-foreground">
-          <span className="mr-4">{blog.likes} likes</span>
-          <span>{blog.comments} comments</span>
+          <span className="mr-4">{blog.likes || 0} likes</span>
+          <span>{blog.comments || 0} comments</span>
         </div>
       </CardContent>
       
