@@ -4,8 +4,7 @@ import bcrypt from 'bcrypt';
 import { SALT } from '../seeds/constants.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { UserLogin } from '../../../shared/types/User.js';
-import { User } from '../../../shared/types/User.js';
+import { UserLogin, User } from '../../../shared/types/User.js';
 
 dotenv.config(); //Load environment variables from .env file
 
@@ -27,7 +26,7 @@ const createToken = (_id: any) => {
 
 // login a user
 const loginUser = async (req: Request, res: Response) => {
-  const { userLogin } = req.body;
+  const userLogin: UserLogin = req.body;
 
   try {
     const user = await UserModel.login(userLogin);

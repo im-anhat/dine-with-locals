@@ -11,11 +11,10 @@ import validator from 'validator'; // Importing validator for email validation
 // Model<User> gives methods like .find(), .create(), .findOne() etc. on the model.
 // (1) Schema constructor
 // (2) Model
-interface IUserMethods extends Model<User> {
-  signup(this: UserModel, user: User): Promise<User & Document>;
-  login(this: UserModel, user: UserLogin): Promise<User & Document>;
+interface IUserModel extends Model<User> {
+  signup(user: User): Promise<User & Document>;
+  login(user: UserLogin): Promise<User & Document>;
 }
-
 //Repllace the IUser interface with the imported User interface from shared/types/User.ts
 
 // export interface IUser extends Document {
@@ -35,7 +34,7 @@ interface IUserMethods extends Model<User> {
 
 // Create a new Model type that knows about IUserMethods...
 // Mongoose models do not have an explicit generic parameter for statics.
-type UserModel = Model<User, {}, IUserMethods>;
+type UserModel = Model<User, IUserModel>;
 
 // Models are fancy constructors compiled from Schema definitions. An instance of a model is called a document.
 // Models are responsible for creating and reading documents from the underlying MongoDB database.
@@ -46,7 +45,7 @@ type UserModel = Model<User, {}, IUserMethods>;
  * @param model interface
  * @param methods interface
  * */
-const UserSchema: Schema = new Schema<User, UserModel, IUserMethods>(
+const UserSchema: Schema = new Schema<User, IUserModel>(
   {
     userName: {
       type: String,
