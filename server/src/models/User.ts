@@ -147,8 +147,8 @@ async function signup(this: UserModel, user: User): Promise<User & Document> {
   if (!validator.isStrongPassword(password)) {
     throw new Error('Password not strong enough');
   }
-  if (!validator.isURL(socialLink)) {
-    throw new Error('Password not strong enough');
+  if (socialLink && !validator.isURL(socialLink)) {
+    throw new Error('Social link not valid');
   }
 
   // Check if the userName is already in use

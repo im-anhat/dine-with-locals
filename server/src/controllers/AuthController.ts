@@ -28,7 +28,7 @@ const createToken = (_id: any): string => {
  * @param res - The response object used to send the response
  * @returns A JSON response containing the JWT token or an error message
  */
-const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   const userLogin: UserLogin = req.body;
 
   try {
@@ -50,14 +50,15 @@ const loginUser = async (req: Request, res: Response) => {
  * @param res - The response object used to send the response
  * @returns A JSON response containing the JWT token or an error message
  */
-const signupUser = async (req: Request, res: Response) => {
-  const { userSignup } = req.body;
+export const signupUser = async (req: Request, res: Response) => {
+  const userSignup: User = req.body;
 
   try {
     const user = await UserModel.signup(userSignup);
     const token = createToken(user._id);
     res.status(200).json({ token });
   } catch (error: any) {
+    // console.error('Error during signup:', error);
     res.status(400).json({ error: error.message });
   }
 };
