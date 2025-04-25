@@ -6,6 +6,7 @@ export interface User {
   lastName: string;
   phone: string;
   avatar: string;
+  cover: string;
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
@@ -16,4 +17,17 @@ export interface User {
 export interface UserLogin {
   userName: string;
   password: string;
+}
+
+export interface AuthenticatedUser {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  avatar: string;
+  socialLink: string;
+  role: 'Host' | 'Guest' | 'Both';
+  hobbies: string[];
+  ethnicity: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
+  bio: string;
 }

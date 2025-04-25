@@ -1,26 +1,52 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Model, Schema, model, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { User, UserLogin } from '../../../shared/types/User.js';
 import validator from 'validator'; // Importing validator for email validation
 //Relative imports must include the file extension (like .js)
 //Even though the original file is writing .ts files, they will compile to .js
 
-export interface IUser extends Document {
-  userName: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  password: string;
-  avatar: string;
-  cover?: string;
-  socialLink: string;
-  role: 'Host' | 'Guest' | 'Both';
-  hobbies: string[];
-  ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
-  bio: string;
+// 1. Create an interface for the methods
+// This interface extends the standard Mongoose model interface with custom static methods.
+// Pass method interface as the 3rd generic parameter to
+// Model<User> gives methods like .find(), .create(), .findOne() etc. on the model.
+// (1) Schema constructor
+// (2) Model
+interface IUserMethods extends Model<User> {
+  signup(this: UserModel, user: User): Promise<User & Document>;
+  login(this: UserModel, user: UserLogin): Promise<User & Document>;
 }
 
-const UserSchema: Schema = new Schema(
+//Repllace the IUser interface with the imported User interface from shared/types/User.ts
+
+// export interface IUser extends Document {
+//   userName: string;
+//   firstName: string;
+//   lastName: string;
+//   phone?: string;
+//   password: string;
+//   avatar: string;
+//   cover?: string;
+//   socialLink: string;
+//   role: 'Host' | 'Guest' | 'Both';
+//   hobbies: string[];
+//   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
+//   bio: string;
+// }
+
+// Create a new Model type that knows about IUserMethods...
+// Mongoose models do not have an explicit generic parameter for statics.
+type UserModel = Model<User, {}, IUserMethods>;
+
+// Models are fancy constructors compiled from Schema definitions. An instance of a model is called a document.
+// Models are responsible for creating and reading documents from the underlying MongoDB database.
+
+/**
+ * 2. Create a Schema corresponding to the document interface.
+ * @param document interface
+ * @param model interface
+ * @param methods interface
+ * */
+const UserSchema: Schema = new Schema<User, UserModel, IUserMethods>(
   {
     userName: {
       type: String,
@@ -86,31 +112,8 @@ const UserSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-//A Mongoose middleware that runs before a document is saved.
-// It checks if the password field has been modified, and if so, it hashes the password using bcrypt.
-// If the password is not modified, it simply calls next() to proceed with the save operation.
-// If an error occurs during the hashing process, it calls next() with the error to handle it appropriately.
-// This middleware is crucial for ensuring that user passwords are securely hashed before being stored in the database.
-// This is important for security, as it ensures that passwords are not stored in plain text in the database.
-// The middleware uses bcrypt to generate a salt and hash the password.
-// If the password is not modified, it simply calls next() to proceed with the save operation.
-// UserSchema.pre<IUser>('save', async function (next) {
-//   if (!this.isModified('password')) return next();
-
-//   try {
-//     //// The middleware uses bcrypt to generate a salt and hash the password.
-//     // This is important for security, as it ensures that passwords are not stored in plain text in the database.
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//     next();
-//   } catch (error) {
-//     next(error as any); // If the password is not modified, it simply calls next() to proceed with the save operation.
-//   }
-// });
-
-// export default mongoose.model<IUser>('User', UserSchema);
-
-UserSchema.statics.signup = async function (user: User) {
+//-------------STATIC METHODS FOR MODEL------------------
+async function signup(this: UserModel, user: User): Promise<User & Document> {
   const {
     userName,
     firstName,
@@ -122,6 +125,8 @@ UserSchema.statics.signup = async function (user: User) {
     role,
     hobbies,
   } = user;
+
+  //Check if mandatory fields are filled
   if (!userName || !password) {
     throw new Error('All fields must be filled');
   }
@@ -135,21 +140,37 @@ UserSchema.statics.signup = async function (user: User) {
     throw new Error('Password not strong enough');
   }
 
-  const exists = await (this as mongoose.Model<IUser>).findOne({ userName });
+  // Check if the userName is already in use
+  const existing = await this.findOne({ userName });
+  if (existing) {
+    throw new Error('Username already in use');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  // hashes the password using the salt.
+  const hash = await bcrypt.hash(password, salt);
+
+  const exists = await this.create({
+    ...user,
+    password: hash,
+  });
 
   if (exists) {
     throw new Error('Email already in use');
   }
   return exists;
-};
+}
 
-UserSchema.statics.login = async function (user: UserLogin) {
+async function login(
+  this: UserModel,
+  user: UserLogin,
+): Promise<User & Document> {
   const { userName, password } = user;
   if (!userName || !password) {
     throw new Error('All fields must be filled');
   }
 
-  const returnUser = await (this as mongoose.Model<IUser>).findOne({
+  const returnUser = await this.findOne({
     userName,
   });
   if (!returnUser) {
@@ -161,6 +182,11 @@ UserSchema.statics.login = async function (user: UserLogin) {
     throw Error('Incorrect password');
   }
   return returnUser;
-};
+}
+// 2. Add static methods to the schema
+UserSchema.static('signup', signup);
+UserSchema.static('login', login);
 
-module.exports = mongoose.model('User', UserSchema);
+// 3. Create a Model.
+const UserModel = model<User, UserModel>('User', UserSchema);
+export default UserModel;
