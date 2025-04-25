@@ -1,0 +1,32 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_NO_WARNINGS=1 nodemon --watch src --exec \"node --loader ts-node/esm\" src/app.ts",
+    "seed": "NODE_NO_WARNINGS=1 node --loader ts-node/esm src/seeds/seed.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.1",
+    "mongoose-sequence": "^6.0.1",
+    "nodemon": "^3.1.9",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/mongoose-sequence": "^3.0.11",
+    "@types/node": "^22.13.17",
+    "ts-node": "^10.9.2"
+  }
+}

@@ -1,0 +1,30 @@
+public and assets directory: use which one?
+
+1. public: logos, favicons, and other static files that are high-level.
+import React from 'react';
+
+const PublicAssetExample = () => {
+  return (
+    <div>
+      <h2>Using Public Assets</h2>
+      <img src="/vite.svg" alt="Vite Logo" /> ----------> direct location
+    </div>
+  );
+};
+
+export default PublicAssetExample;
+
+2: asset: images, fonts, and other files that are more modular.
+import React from 'react';
+import exampleImage from '../assets/example.png'; --------> import asset
+
+const AssetExample = () => {
+  return (
+    <div>
+      <h2>Using Imported Assets</h2>
+      <img src={exampleImage} alt="Example" />
+    </div>
+  );
+};
+
+export default AssetExample;
