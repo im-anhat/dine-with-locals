@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUserContext } from '../../hooks/useUserContext';
+import { useUserContext } from '../../hooks/auth/useUserContext';
 import { set } from 'mongoose';
 
 function PersonalInformationInput() {

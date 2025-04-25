@@ -24,6 +24,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     phone: '',
     avatar: '',
     socialLink: '',
+    cover: '',
     role: 'Host',
     hobbies: [],
     ethnicity: 'Asian',

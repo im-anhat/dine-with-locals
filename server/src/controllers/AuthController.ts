@@ -55,10 +55,7 @@ const signupUser = async (req: Request, res: Response) => {
 
   try {
     const user = await UserModel.signup(userSignup);
-
-    // create a token
     const token = createToken(user._id);
-
     res.status(200).json({ token });
   } catch (error: any) {
     res.status(400).json({ error: error.message });

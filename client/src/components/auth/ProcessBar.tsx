@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../ExampleButton';
-import { useStep } from '../../hooks/useStep';
+import { useStep } from '../../hooks/auth/useStep';
 //This component is used to display the process bar in the signup page.
 //It will display the current step and the total number of steps.
 function ProcessBar() {

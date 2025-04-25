@@ -2,8 +2,7 @@ import React from 'react';
 import { createContext, useContext, useState } from 'react';
 // import { StepContext } from '../contexts/StepContext';
 // import { StepContextType } from '../contexts/StepContext';
-import { UserContextType } from '../contexts/UserContext';
-import { UserContext } from '../contexts/UserContext';
+import { UserContext, UserContextType } from '../../contexts/UserContext';
 
 // Custom hook to use the StepContext
 export const useUserContext = (): UserContextType => {
