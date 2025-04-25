@@ -1,21 +1,23 @@
-import mongoose, { Model, Schema, model, Document } from 'mongoose';
+import { Model, Schema, model, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { User, UserLogin } from '../../../shared/types/User.js';
 import validator from 'validator'; // Importing validator for email validation
+import { SALT } from '../seeds/constants.js'; // Importing the SALT constant for password hashing
 //Relative imports must include the file extension (like .js)
 //Even though the original file is writing .ts files, they will compile to .js
 
-// 1. Create an interface for the methods
-// This interface extends the standard Mongoose model interface with custom static methods.
-// Pass method interface as the 3rd generic parameter to
-// Model<User> gives methods like .find(), .create(), .findOne() etc. on the model.
-// (1) Schema constructor
-// (2) Model
+/**
+ * This model interface extends the standard Mongoose model interface with custom static methods.
+ * Extending Model<User> gives methods like .find(), .create(), .findOne() etc. on the model.
+ * (1) Schema constructor
+ * (2) Model
+ **/
 interface UserModel extends Model<User> {
   signup(user: User): Promise<User & Document>;
   login(user: UserLogin): Promise<User & Document>;
 }
-//Repllace the IUser interface with the imported User interface from shared/types/User.ts
+
+//-------------Repllace the IUser interface with the imported User interface from shared/types/User.ts----------
 
 // export interface IUser extends Document {
 //   userName: string;
@@ -31,6 +33,7 @@ interface UserModel extends Model<User> {
 //   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
 //   bio: string;
 // }
+//-------------------------------------------------------------------------------------------------------------
 
 // Create a new Model type that knows about IUserMethods...
 // Mongoose models do not have an explicit generic parameter for statics.
@@ -43,7 +46,7 @@ interface UserModel extends Model<User> {
  * @param model interface
  * @param methods interface
  * */
-const UserSchema: Schema = new Schema<User, IUserModel>(
+const UserSchema: Schema<User, UserModel> = new Schema<User, UserModel>(
   {
     userName: {
       type: String,
@@ -109,8 +112,19 @@ const UserSchema: Schema = new Schema<User, IUserModel>(
   { timestamps: true },
 );
 
-//-------------STATIC METHODS FOR MODEL------------------
+//-----------------------STATIC METHODS FOR MODEL----------------------------
+
+/**
+ * This static method is used to create a new User document in users collection.
+ * @param this - The UserModel instance
+ * @param user - The user object containing user details
+ * @returns A promise that resolves to the created User document
+ * @throws Error if any of the required fields are missing or invalid
+ * @throws Error if the input is not valid
+ * @throws Error if the user creation fails
+ */
 async function signup(this: UserModel, user: User): Promise<User & Document> {
+  // Destructure the user object to get the required fields
   const {
     userName,
     firstName,
@@ -123,7 +137,7 @@ async function signup(this: UserModel, user: User): Promise<User & Document> {
     hobbies,
   } = user;
 
-  //Check if mandatory fields are filled
+  //Input validation
   if (!userName || !password) {
     throw new Error('All fields must be filled');
   }
@@ -143,37 +157,51 @@ async function signup(this: UserModel, user: User): Promise<User & Document> {
     throw new Error('Username already in use');
   }
 
-  const salt = await bcrypt.genSalt(10);
+  // salt used to hash the password.
+  const salt = await bcrypt.genSalt(SALT);
   // hashes the password using the salt.
   const hash = await bcrypt.hash(password, salt);
 
+  //Create a new document in the collection
   const exists = await this.create({
     ...user,
     password: hash,
   });
 
-  if (exists) {
-    throw new Error('Email already in use');
-  }
   return exists;
 }
-
+/**
+ * This static method is used to authenticate a user during login.
+ * It checks if the provided username and password match an existing user in the database.
+ * If the credentials are valid, it returns the user document.
+ * If the credentials are invalid, it throws an error.
+ * @param this - The UserModel instance
+ * @param user - The userLogin object containing username and password
+ * @returns A promise that resolves to the retrieved User document
+ * @throws Error if any of the required fields are missing or invalid
+ * @throws Error if the input is not valid
+ * @throws Error if the user creation fails
+ */
 async function login(
   this: UserModel,
   user: UserLogin,
 ): Promise<User & Document> {
+  // Destructure the user object to get the required fields
   const { userName, password } = user;
+
+  //Input validation
   if (!userName || !password) {
     throw new Error('All fields must be filled');
   }
 
+  // Check if the userName is already in use
   const returnUser = await this.findOne({
     userName,
   });
   if (!returnUser) {
     throw new Error('Username not found');
   }
-
+  // Check if the password is correct
   const match = await bcrypt.compare(password, returnUser.password);
   if (!match) {
     throw Error('Incorrect password');
