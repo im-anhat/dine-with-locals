@@ -15,6 +15,7 @@ import './models/Request.js';
 // Import routes after models are registered
 import blogRoutes from './routes/BlogRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
+import MatchRoutes from './routes/MatchRoutes.js';
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.use(express.json());
 // Routes
 app.use('/api/blogs', blogRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/matches', MatchRoutes);
+
 
 // Start server
 const PORT = process.env.PORT || 3000;

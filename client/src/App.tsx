@@ -36,7 +36,6 @@ const App: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           <ProfilePage />
-          <div>hello</div>
         </div>
       </div>
     </UserProvider>
