@@ -13,7 +13,6 @@ const App: React.FC = () => {
     <AuthProvider>
       <StepProvider totalSteps={5}>
         <UserProvider>
-          <Home />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<SignUpPage />} />
