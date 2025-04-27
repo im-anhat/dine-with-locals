@@ -75,7 +75,7 @@ export const SignUpPage = () => {
     }
     return null;
   };
-  return <div>{nextStep()}</div>;
+  return <div className="p-20 mt-20">{nextStep()}</div>;
 
   //This function update the state of step.
 };
