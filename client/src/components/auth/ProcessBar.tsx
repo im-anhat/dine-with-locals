@@ -12,7 +12,7 @@ function ProcessBar() {
     }
   };
   return (
-    <div className="flex justify-end mt-4 mr-10 absolute bottom-20 right-20">
+    <div className="flex justify-end mt-4 mr-10 absolute bottom-10 right-20">
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
           <button

@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     //value={{ currentStep, setCurrentStep, totalSteps }}
     <AuthProvider>
-      <StepProvider totalSteps={5}>
+      <StepProvider totalSteps={3}>
         <UserProvider>
           <Routes>
             <Route path="/" element={<Home />} />
