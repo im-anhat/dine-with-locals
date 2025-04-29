@@ -5,6 +5,8 @@ export interface StepContextType {
   currentStep: number;
   setCurrentStep: (step: number) => void;
   totalSteps: number;
+  goNext: () => void;
+  goBack: () => void;
 }
 
 //<StepContextType | undefined> means the context will either hold a value of type StepContextType or undefined.
@@ -35,9 +37,20 @@ export const StepProvider: React.FC<StepProviderProps> = ({
   totalSteps,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-
+  const goNext = () => {
+    if (currentStep <= totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+  const goBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
   return (
-    <StepContext.Provider value={{ currentStep, setCurrentStep, totalSteps }}>
+    <StepContext.Provider
+      value={{ currentStep, setCurrentStep, totalSteps, goBack, goNext }}
+    >
       {children}
     </StepContext.Provider>
   );

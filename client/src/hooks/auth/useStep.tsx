@@ -9,5 +9,6 @@ export const useStep = (): StepContextType => {
   if (!context) {
     throw new Error('useStep must be used within a StepProvider');
   }
+
   return context;
 };

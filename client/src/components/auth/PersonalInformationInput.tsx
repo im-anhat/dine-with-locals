@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useUserContext } from '../../hooks/auth/useUserContext';
-import { set } from 'mongoose';
-
+import { useStep } from '../../hooks/auth/useStep';
 function PersonalInformationInput() {
   //Dung useEffect dđể lấy data từ trong local storage everytime restart the page.
   //Lúc nào cũng cần
@@ -18,6 +17,7 @@ function PersonalInformationInput() {
   const [hobby, setHobby] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [socialLink, setSocialLink] = useState<string>('');
+  const { goNext } = useStep();
   const setInfo = () => {
     const newUser = {
       ...user,
@@ -47,12 +47,12 @@ function PersonalInformationInput() {
     }
   };
   return (
-    <div>
+    <div className="flex flex-row justify-center">
       {/* Align all the components horizontally */}
       <div className="flex flex-col max-w-xl gap-2">
         {/* Heading */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
             Personal Information
           </h1>
         </div>
@@ -167,7 +167,10 @@ function PersonalInformationInput() {
         </div>
 
         <button
-          onClick={() => setInfo()}
+          onClick={() => {
+            setInfo();
+            goNext();
+          }}
           className="flex justify-center px-4 py-2 mt-2 rounded-full text-white bg-brand-coral-300 border-brand-coral-500 hover:bg-brand-coral-400"
         >
           Save
