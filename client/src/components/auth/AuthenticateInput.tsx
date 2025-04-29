@@ -21,6 +21,7 @@ function AuthenticateInput() {
     e.preventDefault();
     await signup(user);
   };
+
   const setInfo = () => {
     if (validateInput()) {
       const newUser = { ...user, userName: username, password: password };
