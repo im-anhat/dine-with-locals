@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Shadcn added styles */
 @layer base {
   :root {
     --background: 0 0% 100%;

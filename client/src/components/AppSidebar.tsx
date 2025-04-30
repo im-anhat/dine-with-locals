@@ -1,6 +1,5 @@
 import { 
   LayoutDashboard,
-  Soup,
   Newspaper,
   Map,
   LayoutList,
@@ -11,19 +10,18 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar"
 
-import Logo from "../public/logo.svg";
+import NavGroup from "@/components/sidebar/nav-main"
+import NavUser from "@/components/sidebar/nav-user"
+
+import { useUser } from "@/contexts/UserContext";
+
 
 // Menu items.
 const items = {
-  navMain: [
+  navExplore: [
     {
       title: "Dashboard",
       url: "/",
@@ -55,51 +53,29 @@ const items = {
 };
 
 export function AppSidebar() {
+  const { currentUser } = useUser();
+
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
         <img className="w-16 h-16" src="/logo.svg" alt="" />
       </SidebarHeader>
 
+      {/* Main navigation */}
       <SidebarContent>
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Explore</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.navMain.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Manage Bookings Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Manage Bookings</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.navManageBookings.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroup groupLabel='Explore' items={items.navExplore} />
+        <NavGroup groupLabel='Manage Bookings' items={items.navManageBookings} />
       </SidebarContent>
+
+      {/* Footer: User Profile */}
+      <SidebarFooter>
+        {currentUser ? (
+          <NavUser />
+        ) : (
+          <p className="p-4 text-sm">Not logged in</p>
+        )}
+        
+      </SidebarFooter>
     </Sidebar>
   );
 }
