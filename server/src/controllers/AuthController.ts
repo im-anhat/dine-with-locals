@@ -56,9 +56,8 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 
   // Check if the userName is already in use
-  const returnUser = await UserModel.findOne({
-    userName,
-  });
+  const returnUser = await UserModel.findOne({ userName });
+  //This has error
   if (!returnUser) {
     throw new Error('Username not found');
   }
@@ -69,8 +68,8 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await UserModel.login(req.body);
-    const token = createToken(user._id);
+    const user = await UserModel.findOne({ userName });
+    const token = createToken(userName);
     res.status(200).json({ token });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
@@ -89,7 +88,6 @@ export const loginUser = async (req: Request, res: Response) => {
  */
 export const signupUser = async (req: Request, res: Response) => {
   try {
-    // const user = await UserModel.signup(req.body);
     const {
       userName,
       firstName,

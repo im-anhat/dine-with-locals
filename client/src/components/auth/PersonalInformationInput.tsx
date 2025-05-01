@@ -41,6 +41,7 @@ function PersonalInformationInput() {
    */
   const handleAddHobby = (e: React.KeyboardEvent) => {
     //If the user press Enter and the the current input in the input box is not empty
+    console.log(hobby);
     if (e.key === 'Enter' && hobby.trim() !== '') {
       setHobbies([...hobbies, hobby]); //Add the current input to the list of hobbies
       setHobby('');
