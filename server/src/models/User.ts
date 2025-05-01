@@ -166,11 +166,13 @@ async function signup(this: UserModel, user: User): Promise<User & Document> {
   // hashes the password using the salt.
   const hash = await bcrypt.hash(password, salt);
 
-  //Create a new document in the collection
+  //Create a new document in the collection - a Promise object
+  // --> The final object when await action is finishes
   const exists = await this.create({
     ...user,
     password: hash,
   });
+  console.log('Exists', exists);
 
   return exists;
 }

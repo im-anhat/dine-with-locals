@@ -14,5 +14,5 @@ export interface User {
   bio: string;
 }
 
-type AuthenticatedUser = Omit<User, 'password'>;
-type UserLogin = Pick<User, 'userName' | 'password'>;
+export type AuthenticatedUser = Omit<User, 'password'>;
+export type UserLogin = Pick<User, 'userName' | 'password'>;

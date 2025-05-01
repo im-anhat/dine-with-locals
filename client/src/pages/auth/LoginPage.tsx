@@ -11,12 +11,14 @@ function LoginPage() {
 
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
     const userLogin: UserLogin = {
       userName: userName,
       password: password,
     };
     await handleLogin(userLogin);
   };
+
   return (
     <div className="flex flex-row justify-center p-20 mt-10">
       <div className="flex flex-col gap-2 w-1/2">
@@ -33,10 +35,8 @@ function LoginPage() {
         <input
           name="password"
           placeholder="Password"
-          value={userName}
-          onChange={(e) => {
-            e.target.value;
-          }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-900"
         />
         <button

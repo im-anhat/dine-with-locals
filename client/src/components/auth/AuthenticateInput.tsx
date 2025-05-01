@@ -25,6 +25,10 @@ function AuthenticateInput() {
     }
     return false;
   };
+
+  /**
+   * This function use the useSignup hook to send the data from frontend to backend.
+   */
   const handleSignup = async (e: React.FormEvent<HTMLButtonElement>) => {
     console.log('Here');
     e.preventDefault();

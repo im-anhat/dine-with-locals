@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
+import BASE_URL from '../../../../shared/constants/constants';
+
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,9 +15,7 @@ export const useLogin = () => {
     setError(null);
     try {
       //ADD API END POINT
-      const result = await axios.post('', {
-        user,
-      });
+      const result = await axios.post(`${BASE_URL}api/auth/login`, user);
       //result should return this type LocalStorageUser
       console.log('Success:', result.data);
       // Update the auth context

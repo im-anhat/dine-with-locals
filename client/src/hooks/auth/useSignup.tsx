@@ -11,8 +11,10 @@ export const useSignUp = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${BASE_URL}api/auth/signup`, user); //API endpoint here
+      const response = await axios.post(`${BASE_URL}api/auth/signup`, user);
       console.log('Signup successful:', response.data);
+      // Save the user to local storage
+      localStorage.setItem('token', response.data.token);
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(
