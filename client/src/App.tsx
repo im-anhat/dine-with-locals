@@ -12,13 +12,11 @@ const App: React.FC = () => {
   return (
     //value={{ currentStep, setCurrentStep, totalSteps }}
     <AuthProvider>
-      <UserProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </UserProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
     </AuthProvider>
   );
 };
