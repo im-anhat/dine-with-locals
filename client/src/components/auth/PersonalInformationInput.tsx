@@ -49,7 +49,7 @@ function PersonalInformationInput() {
   return (
     <div className="flex flex-row justify-center">
       {/* Align all the components horizontally */}
-      <div className="flex flex-col max-w-xl gap-2">
+      <div className="flex flex-col max-w-1/3 gap-2">
         {/* Heading */}
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">

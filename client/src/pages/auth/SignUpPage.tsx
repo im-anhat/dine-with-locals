@@ -2,7 +2,12 @@ import { useState } from 'react';
 
 import ProcessBar from '../../components/auth/ProcessBar';
 import { useStep } from '../../hooks/auth/useStep';
+import { StepProvider } from '../../contexts/StepContext';
 import UserInput from './UserInput';
+import { User } from '../../../../shared/types/User';
+
+type AuthenticatedUser = Omit<User, 'password'>;
+type UserLogin = Pick<User, 'userName' | 'password'>;
 
 export const SignUpPage = () => {
   //isLoading variable to keep track of the loading state
@@ -17,13 +22,14 @@ export const SignUpPage = () => {
    */
 
   return (
-    <div className="p-20 mt-20">
-      <div>
-        <UserInput />
-        <ProcessBar />
-        {/* Replace this with only back button */}
+    <StepProvider totalSteps={3}>
+      <div className="p-20 mt-20">
+        <div>
+          <UserInput />
+          <ProcessBar />
+        </div>
       </div>
-    </div>
+    </StepProvider>
   );
 
   //This function update the state of step.

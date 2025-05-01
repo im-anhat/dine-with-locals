@@ -12,12 +12,21 @@ function AuthenticateInput() {
 
   const validateInput = () => {
     //Will implement more robust username and password checking in the future.
-    if (!user && !password && !checkPassword && password === checkPassword) {
+    console.log(user);
+    if (
+      !username ||
+      !password ||
+      !checkPassword ||
+      password === checkPassword
+    ) {
       return true;
+    } else {
+      console.log('Things are wrong here');
     }
     return false;
   };
   const handleSignup = async (e: React.FormEvent<HTMLButtonElement>) => {
+    console.log('Here');
     e.preventDefault();
     await signup(user);
   };
@@ -30,7 +39,7 @@ function AuthenticateInput() {
   };
   return (
     <div className="flex flex-row justify-center">
-      <div className="flex flex-col max-w-xl gap-2">
+      <div className="flex flex-col max-w-1/3 gap-2">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Username and Password
@@ -95,6 +104,7 @@ function AuthenticateInput() {
         >
           Submit
         </button>
+        <div>{error || null}</div>
       </div>
     </div>
   );

@@ -138,7 +138,11 @@ async function signup(this: UserModel, user: User): Promise<User & Document> {
   } = user;
 
   //Input validation
-  if (!userName || !password) {
+  console.log(userName);
+  console.log(password);
+  console.log(!userName || !password);
+
+  if (!userName?.trim() || !password?.trim()) {
     throw new Error('All fields must be filled');
   }
   if (!validator.isMobilePhone(phone, 'any')) {

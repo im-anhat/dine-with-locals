@@ -15,7 +15,9 @@ export const useSignUp = () => {
       console.log('Signup successful:', response.data);
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError(err.response?.data?.message || 'Signup failed');
+      setError(
+        err.response?.data?.message || 'error sent back in useSignup can',
+      );
     } finally {
       setIsLoading(false);
     }

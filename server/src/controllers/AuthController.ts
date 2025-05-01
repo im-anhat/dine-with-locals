@@ -56,9 +56,10 @@ export const signupUser = async (req: Request, res: Response) => {
   try {
     const user = await UserModel.signup(userSignup);
     const token = createToken(user._id);
+
     res.status(200).json({ token });
   } catch (error: any) {
-    // console.error('Error during signup:', error);
+    console.error('Error during signup:', error.message);
     res.status(400).json({ error: error.message });
   }
 };
