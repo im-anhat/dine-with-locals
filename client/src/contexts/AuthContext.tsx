@@ -1,7 +1,15 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
 import { AuthenticatedUser } from '../../../shared/types/User';
-//This context store authentication-related state: logged in status, user data, access tokens
 
+//This context store authentication-related state: logged in status, user data
+
+/**
+ * This interface includes 4 components
+ * @param user User's data that's already excluded password.
+ * @param isAuthenticated a boolean to check if the user is authenticated or not
+ * @param login a function to update the state to LOGIN and this AuthenticatedUser context will be accessed through payload
+ * @param logou a function to update the state to LOGOUT and set the payload = NULL
+ */
 interface AuthContextType {
   user: AuthenticatedUser | null;
   isAuthenticated: boolean;
@@ -14,18 +22,29 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
+/**
+ * This interface defines the structure of the action object that will be dispatched to the reducer.
+ * @param type A string that indicates the type of action being performed. In this case, it can be either 'LOGIN' or 'LOGOUT'.
+ * @param payload The data associated with the action. For the 'LOGIN' action, it will be an AuthenticatedUser object. For the 'LOGOUT' action, it is not used.
+ */
 type AuthAction =
   | { type: 'LOGIN'; payload: AuthenticatedUser }
   | { type: 'LOGOUT' };
 
+/**
+ * This interface defines the structure of the authentication state.
+ * @param user The authenticated user's data, or null if no user is logged in.
+ */
 interface AuthState {
   user: AuthenticatedUser | null;
 }
 
-//Reducer function to manage the state of the user based on the action
-//works similarly with useState but is typically used when you have complex state logic.
-//The reducer function that specifies how the state gets updated.
-//take the state and action as arguments, and should return the next state. State and action can be of any types
+/**
+ * Reducer function to manage the state of the user based on the action.
+ * @param state the current state of the authentication context.
+ * @param action the action object that contains the type of action and any associated payload.
+ * @returns the next state
+ */
 export const authReducer = (
   state: AuthState,
   action: AuthAction,
@@ -77,12 +96,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (user: AuthenticatedUser) => {
-    localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('user', JSON.stringify(user));
     dispatch({ type: 'LOGIN', payload: user });
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
+    // localStorage.removeItem('user');
     dispatch({ type: 'LOGOUT' });
   };
 
