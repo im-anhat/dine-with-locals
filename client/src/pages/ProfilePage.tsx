@@ -3,20 +3,10 @@ import { useUser } from '../contexts/UserContext';
 import { getBlogsByUserId, BlogWithUser } from '../services/BlogService';
 import BlogPost from '../components/BlogPost';
 import { getUserById } from '../services/UserService';
+import { getReviewsByUserId, Review } from '../services/ReviewService';
 import { User } from '../../../shared/types/User';
 import axios from 'axios';
-
-// Dummy review data
-const dummyReviews = [
-  {
-    id: 1,
-    reviewer: 'im-anhat',
-    rating: 5,
-    content:
-      'Great guest! Very respectful and engaging. Had amazing conversations about tech and science.',
-    date: 'March 25, 2025',
-  },
-];
+import { get } from 'mongoose';
 
 interface ProfilePageProps {
   userId?: string; // Optional: if not provided, will display current user's profile
@@ -25,22 +15,22 @@ interface ProfilePageProps {
 const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const { currentUser } = useUser();
   const [profileUser, setProfileUser] = useState<User | null>(null);
-  const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState<boolean>(false);
   const [matches, setMatches] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const topThreeReviews = reviews.slice(0, 3); // we show only 3
 
+  // fetch owner of the page
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // If userId is provided, fetch that user's data
-        // Otherwise, use the current logged in user
         if (userId) {
-          // Check if this is the current user's own profile
           setIsOwnProfile(currentUser?._id === userId);
 
           // If not the current user, fetch the user data
@@ -65,6 +55,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     fetchUserData();
   }, [userId, currentUser]);
 
+  // fetch blogs 
   useEffect(() => {
     const fetchUserBlogs = async () => {
       if (profileUser?._id) {
@@ -87,13 +78,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     }
   }, [profileUser?._id]);
 
+
+  // Matches
   useEffect(() => {
     const fetchMatches = async () => {
       // Only fetch matches if profileUser._id is defined
       if (profileUser?._id) {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/matches/${profileUser._id}`,
+            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}api/matches/${profileUser._id}`,
           );
           setMatches(response.data);
         } catch (error) {
@@ -107,6 +100,24 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     if (profileUser?._id) {
       fetchMatches();
     }
+  }, [profileUser?._id]);
+
+  // fetch reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (profileUser?._id) {
+        const profileReviews = await getReviewsByUserId(profileUser._id);
+        if (profileReviews) {
+            setReviews(profileReviews);
+        } else {
+          setReviews([]);
+        }
+      } else {
+        setReviews([]);
+      }
+    };
+
+    fetchReviews();
   }, [profileUser?._id]);
 
   if (!profileUser) {
@@ -250,7 +261,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 <div className="flex items-center justify-between">
                   <span className="text-brand-stone-600">Reviews</span>
                   <span className="bg-gradient-to-r from-brand-coral-400 to-brand-coral-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                    {dummyReviews.length}
+                   {reviews.length}
                   </span>
                 </div>
               </div>
@@ -310,15 +321,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
               </div>
 
               <div className="space-y-6">
-                {dummyReviews.map((review) => (
+                {topThreeReviews.map((review) => (
                   <div
-                    key={review.id}
+                    key={review._id}
                     className="border-b border-brand-stone-100 pb-4 last:border-0 last:pb-0"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
                         <span className="font-medium text-brand-stone-700">
-                          @{review.reviewer}
+                          @{review.reviewerId.userName}
                         </span>
                         <span className="mx-2 text-brand-stone-300">•</span>
                         <div className="flex">
@@ -339,7 +350,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                         </div>
                       </div>
                       <span className="text-xs text-brand-stone-500">
-                        {review.date}
+                      {new Date(review.updatedAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                       </span>
                     </div>
                     <p className="text-brand-stone-600">{review.content}</p>
