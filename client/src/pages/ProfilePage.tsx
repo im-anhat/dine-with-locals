@@ -86,7 +86,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
       if (profileUser?._id) {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}api/matches/${profileUser._id}`,
+            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/'}api/matches/${profileUser._id}`,
           );
           setMatches(response.data);
         } catch (error) {

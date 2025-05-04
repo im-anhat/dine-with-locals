@@ -35,7 +35,7 @@ const App: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <ProfilePage userId='67f7f8281260844f9625ee32' />
+          <ProfilePage userId='67f7f8281260844f9625ee33' />
         </div>
       </div>
     </UserProvider>
