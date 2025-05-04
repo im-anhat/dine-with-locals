@@ -1,6 +1,6 @@
 import React from 'react'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + 'api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + 'api' || 'http://localhost:3000/api';
 
 interface PopulatedUser {
   _id: string;
