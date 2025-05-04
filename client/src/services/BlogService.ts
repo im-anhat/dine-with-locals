@@ -1,7 +1,7 @@
 import { IBlog } from '../../../server/src/models/Blog';
 import mongoose from 'mongoose';
 
-const API_BASE_URL = 'http://localhost:3000/api'; // Update with actual API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + 'api';
 
 // Define a simplified user type that matches what we'll get from the populated response
 interface PopulatedUser {
