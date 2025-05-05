@@ -18,7 +18,6 @@ const pathMappings: Record<string, string> = {
 };
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({ currentPath }) => {
-  console.log('TopNavbar rendering with currentPath:', currentPath);
   const navigate = useNavigate(); // navigate to previous page in the top navbar tab
   const displayPath = currentPath.map((path) => pathMappings[path] || path.charAt(0).toUpperCase() + path.slice(1));
 
