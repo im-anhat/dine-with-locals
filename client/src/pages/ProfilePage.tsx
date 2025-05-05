@@ -6,7 +6,6 @@ import { getUserById } from '../services/UserService';
 import { getReviewsByUserId, Review } from '../services/ReviewService';
 import { User } from '../../../shared/types/User';
 import axios from 'axios';
-import { get } from 'mongoose';
 
 interface ProfilePageProps {
   userId?: string; // Optional: if not provided, will display current user's profile
@@ -21,6 +20,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewContent, setReviewContent] = useState('');
+  const [reviewRating, setReviewRating] = useState(3);
   const topThreeReviews = reviews.slice(0, 3); // we show only 3
 
   // fetch owner of the page
@@ -55,7 +58,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     fetchUserData();
   }, [userId, currentUser]);
 
-  // fetch blogs 
+  // fetch blogs
   useEffect(() => {
     const fetchUserBlogs = async () => {
       if (profileUser?._id) {
@@ -77,7 +80,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
       fetchUserBlogs();
     }
   }, [profileUser?._id]);
-
 
   // Matches
   useEffect(() => {
@@ -108,7 +110,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
       if (profileUser?._id) {
         const profileReviews = await getReviewsByUserId(profileUser._id);
         if (profileReviews) {
-            setReviews(profileReviews);
+          setReviews(profileReviews);
         } else {
           setReviews([]);
         }
@@ -119,6 +121,42 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
 
     fetchReviews();
   }, [profileUser?._id]);
+
+  // Modular review submit handler for inline form
+  const handleInlineSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !profileUser) return;
+    setSubmittingReview(true);
+    setReviewError(null);
+    try {
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL + 'api' ||
+        'http://localhost:3000/api';
+      const res = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: profileUser._id,
+          reviewerId: currentUser._id,
+          rating: reviewRating,
+          content: reviewContent,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to submit review');
+      }
+      setReviewContent('');
+      setReviewRating(3);
+      // Refresh reviews
+      const updatedReviews = await getReviewsByUserId(profileUser._id);
+      setReviews(updatedReviews);
+    } catch (err: any) {
+      setReviewError(err.message || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (!profileUser) {
     return (
@@ -261,7 +299,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 <div className="flex items-center justify-between">
                   <span className="text-brand-stone-600">Reviews</span>
                   <span className="bg-gradient-to-r from-brand-coral-400 to-brand-coral-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-                   {reviews.length}
+                    {reviews.length}
                   </span>
                 </div>
               </div>
@@ -319,7 +357,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                   Show more reviews
                 </button>
               </div>
-
               <div className="space-y-6">
                 {topThreeReviews.map((review) => (
                   <div
@@ -350,17 +387,63 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                         </div>
                       </div>
                       <span className="text-xs text-brand-stone-500">
-                      {new Date(review.updatedAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
+                        {new Date(review.updatedAt).toLocaleDateString(
+                          'en-US',
+                          {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          },
+                        )}
                       </span>
                     </div>
                     <p className="text-brand-stone-600">{review.content}</p>
                   </div>
                 ))}
               </div>
+              {/* Inline review form for other users */}
+              {!isOwnProfile && currentUser && currentUser._id !== profileUser._id && (
+                <form
+                  onSubmit={handleInlineSubmitReview}
+                  className="mt-8 bg-brand-stone-50 rounded-lg p-6 border border-brand-stone-200 shadow-sm"
+                >
+                  <h3 className="text-md font-semibold text-brand-coral-700 mb-4">Leave a Review for {profileUser.firstName}</h3>
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="text-brand-stone-700 font-medium mr-2">Rating:</span>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        className={`focus:outline-none ${star <= reviewRating ? 'text-brand-coral-500' : 'text-brand-stone-300'}`}
+                        onClick={() => setReviewRating(star)}
+                        aria-label={`Set rating to ${star}`}
+                      >
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mb-4">
+                    <textarea
+                      className="w-full border border-brand-stone-200 rounded-md p-2 focus:ring-2 focus:ring-brand-coral-300"
+                      rows={4}
+                      placeholder="Share your experience..."
+                      value={reviewContent}
+                      onChange={e => setReviewContent(e.target.value)}
+                      required
+                    />
+                  </div>
+                  {reviewError && <div className="text-brand-coral-500 mb-2 text-sm">{reviewError}</div>}
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-md bg-brand-coral-500 text-white font-medium hover:bg-brand-coral-600 disabled:opacity-60"
+                      disabled={submittingReview || !reviewContent.trim()}
+                    >
+                      {submittingReview ? 'Submitting...' : 'Submit Review'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
             {/* Blog Posts Section */}
