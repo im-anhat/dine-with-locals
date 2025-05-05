@@ -13,7 +13,10 @@ import './models/Match.js';
 import './models/Request.js';
 import './models/Review.js';
 
-// Import routes
+// Import routes after models are registered
+import blogRoutes from './routes/BlogRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
+import MatchRoutes from './routes/MatchRoutes.js';
 import reviewRoutes from './routes/ReviewRoutes.js';
 
 const app = express();
@@ -26,6 +29,10 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+
+app.use('/api/blogs', blogRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/matches', MatchRoutes);
 app.use('/api/reviews', reviewRoutes);
 
 // Start server
