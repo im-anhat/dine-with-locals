@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../components/ExampleButton';
+import { Card } from '@/components/ui/card';
 
 const Home: React.FC = () => {
   console.log('Home component rendering');

@@ -8,6 +8,7 @@
     "prettier": "^3.5.3"
   },
   "dependencies": {
+    "@fluidjs/multer-cloudinary": "^1.0.4",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "mongoose": "^8.13.1",
