@@ -11,6 +11,8 @@ import './models/Listing.js';
 import './models/Location.js';
 import './models/Match.js';
 import './models/Request.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+        
 
 // Import routes after models are registered
 
@@ -25,6 +27,7 @@ app.use(cors());
 // Routes
 // app.use('/api/users', userRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/upload', uploadRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

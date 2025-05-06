@@ -13,7 +13,6 @@ import { Blog } from '../../../shared/types/Blog';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 
-// Updated to use Vite environment variables
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const FeedPage: React.FC = () => {
@@ -56,43 +55,65 @@ const FeedPage: React.FC = () => {
     setIsDialogOpen(false);
   };
 
-  const handleCreatePost = async (data: { title: string; content: string }) => {
+  const handleCreatePost = async (data: { title: string; content: string; photos: File[] }) => {
     try {
       setIsSubmitting(true);
+      
+      let imageUrls: string[] = [];
+      
+      // Upload images to Cloudinary 
+      if (data.photos.length > 0) {
+        const formData = new FormData();
+        data.photos.forEach((photo) => {
+          formData.append('images', photo);
+        });
 
+        console.log("Uploading images to Cloudinary...");
+        const uploadResponse = await axios.post(`${API_URL}/upload/images`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        imageUrls = uploadResponse.data.imageUrls;
+        console.log("Images uploaded successfully:", imageUrls);
+      }
+      
       // Use a valid MongoDB ObjectId from our test data
-      const currentUserId = '67f7f8281260844f9625ee33'; // Test user ID
-
-      console.log('Creating blog with:', {
+      const currentUserId = "67f7f8281260844f9625ee33"; // Test user ID
+      
+      console.log("Creating blog with:", {
         userId: currentUserId,
         blogTitle: data.title,
         blogContent: data.content,
+        photos: imageUrls
       });
-
-      // Make API call to create blog
+      
+      // Make API call to create blog post
       const response = await axios.post(`${API_URL}/blogs`, {
         userId: currentUserId,
         blogTitle: data.title,
         blogContent: data.content,
+        photos: imageUrls
       });
 
-      console.log('New blog created:', response.data);
-
+      console.log("New blog created:", response.data);
+      
       // Add new blog to the list
       setBlogs([response.data, ...blogs]);
-
+      
       toast({
-        title: 'Success',
-        description: 'Your blog post has been created!',
+        title: "Success",
+        description: "Your blog post has been created!",
       });
-
+      
       setIsDialogOpen(false);
     } catch (error) {
-      console.error('Error creating blog:', error);
+      console.error("Error creating blog:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to create blog post. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to create blog post. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

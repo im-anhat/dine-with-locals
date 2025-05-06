@@ -117,7 +117,7 @@ const PostInput: React.FC<PostInputProps> = ({
           type="button"
           variant="outline"
           onClick={handleClickUpload}
-          className="w-full"
+          className="w-full bg-brand-coral-300"
         >
           <ImageIcon className="h-4 w-4 mr-2" />
           Add Photos
@@ -156,7 +156,9 @@ const PostInput: React.FC<PostInputProps> = ({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button 
+        className="bg-brand-coral-300"
+        type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Posting...' : 'Post'}
         </Button>
       </div>
