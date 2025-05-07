@@ -3,15 +3,24 @@ import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { HeartIcon, MessageCircleIcon, SendIcon } from 'lucide-react';
+import { HeartIcon, MessageCircleIcon, SendIcon, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 interface BlogCardProps {
   blog: Blog;
+  onEdit: (blog: Blog) => void;
+  onDelete: (blogId: string) => void;
+  currentUserId?: string;
 }
 
-const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
+const BlogCard: React.FC<BlogCardProps> = ({ blog, onEdit, onDelete, currentUserId }) => {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
@@ -42,6 +51,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
           userName: 'unknown',
           avatar: '',
         };
+  
+  // Check if current user is the author of the post
+  const isAuthor = currentUserId && (user._id === currentUserId);
 
   // Generate display name from user data
   const displayName = `${user.firstName} ${user.lastName}`;
@@ -56,17 +68,39 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
 
   return (
     <Card className="mb-6 overflow-hidden">
-      <CardHeader className="flex flex-row items-center gap-4 p-4">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={user.avatar} alt={displayName} />
-          <AvatarFallback>{userInitials.toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <p className="font-semibold">{displayName}</p>
-          <p className="text-sm text-muted-foreground">
-            @{user.userName} • {formattedDate}
-          </p>
+      <CardHeader className="flex flex-row items-center justify-between p-4">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user.avatar} alt={displayName} />
+            <AvatarFallback>{userInitials.toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="font-semibold">{displayName}</p>
+            <p className="text-sm text-muted-foreground">
+              @{user.userName} • {formattedDate}
+            </p>
+          </div>
         </div>
+        
+        {isAuthor && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(blog)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit post
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(blog._id)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete post
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
 
       <CardContent className="p-4 pt-0">

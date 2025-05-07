@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -8,18 +8,31 @@ interface PostInputProps {
   onSubmit: (data: { title: string; content: string; photos: File[] }) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  initialValues?: {
+    title: string;
+    content: string;
+  };
 }
 
 const PostInput: React.FC<PostInputProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  initialValues,
 }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState(initialValues?.title || '');
+  const [content, setContent] = useState(initialValues?.content || '');
   const [photos, setPhotos] = useState<File[]>([]);
   const [errors, setErrors] = useState({ title: '', content: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update form when initialValues change (for editing mode)
+  useEffect(() => {
+    if (initialValues) {
+      setTitle(initialValues.title);
+      setContent(initialValues.content);
+    }
+  }, [initialValues]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -120,7 +133,7 @@ const PostInput: React.FC<PostInputProps> = ({
           className="w-full bg-brand-coral-300"
         >
           <ImageIcon className="h-4 w-4 mr-2" />
-          Add Photos
+          {initialValues ? 'Change Photos' : 'Add Photos'}
         </Button>
       </div>
 
@@ -159,7 +172,7 @@ const PostInput: React.FC<PostInputProps> = ({
         <Button 
         className="bg-brand-coral-300"
         type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Posting...' : 'Post'}
+          {isSubmitting ? 'Saving...' : initialValues ? 'Update' : 'Post'}
         </Button>
       </div>
     </form>
