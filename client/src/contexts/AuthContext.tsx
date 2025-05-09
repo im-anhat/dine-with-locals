@@ -6,6 +6,7 @@ import { AuthenticatedUser } from '../../../shared/types/User';
 /**
  * This interface includes 4 components
  * @param user User's data that's already excluded password.
+ * @param token the token generated from backend
  * @param isAuthenticated a boolean to check if the user is authenticated or not
  * @param login a function to update the state to LOGIN and this AuthenticatedUser context will be accessed through payload
  * @param logou a function to update the state to LOGOUT and set the payload = NULL
@@ -13,6 +14,7 @@ import { AuthenticatedUser } from '../../../shared/types/User';
 interface AuthContextType {
   user: AuthenticatedUser | null;
   isAuthenticated: boolean;
+  // token: string;
   login: (user: AuthenticatedUser) => void;
   logout: () => void;
 }
@@ -51,6 +53,7 @@ export const authReducer = (
 ): AuthState => {
   switch (action.type) {
     case 'LOGIN':
+      console.log('Reducer updating state with user:', action.payload); // Log the payload
       return { user: action.payload };
     case 'LOGOUT':
       return { user: null };
@@ -91,13 +94,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (err) {
         console.error('Invalid user data in localStorage');
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
       }
     }
   }, []);
 
-  const login = (user: AuthenticatedUser) => {
+  const login = (userData: AuthenticatedUser) => {
     // localStorage.setItem('user', JSON.stringify(user));
-    dispatch({ type: 'LOGIN', payload: user });
+    console.log('Updating context with user in AuthContext:', userData); // Debug log
+    dispatch({ type: 'LOGIN', payload: userData });
+
   };
 
   const logout = () => {
@@ -108,7 +114,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     //Provide the state and dispatch function to the context so that other components can access it.
     <AuthContext.Provider
-      value={{ user: state.user, isAuthenticated: !!state.user, login, logout }}
+      value={{
+        user: state.user,
+        isAuthenticated: !!state.user,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLogin } from '../../hooks/auth/useLogin';
 import { UserLogin } from '../../../../shared/types/User';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../hooks/auth/useAuthContext';
 
 function LoginPage() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const { handleLogin } = useLogin();
 
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
@@ -17,7 +19,20 @@ function LoginPage() {
       password: password,
     };
     await handleLogin(userLogin);
+    console.log("navigating..");
+    console.log(user);
+    // navigate('/dashboard', { replace: true });
   };
+  // Navigate to dashboard after user is updated in AuthContext
+  // The user context in AuthContext is not updating properly
+  // Navigate to dashboard is not run
+  useEffect(() => {
+    console.log("Get to the useEffect inside Login Page");
+    if (user) {
+      console.log("Navigate to dashboard")
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   return (
     <div className="flex flex-row justify-center p-20 mt-10">

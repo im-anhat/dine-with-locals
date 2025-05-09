@@ -1,23 +1,21 @@
 import React from 'react';
-import { AuthProvider } from './contexts/AuthContext';
-import { Routes, Route } from 'react-router-dom';
-import Home from './pages/ExampleHome';
-import './styles/main.css';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthContext } from './hooks/auth/useAuthContext';
+import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
-import { StepProvider } from './contexts/StepContext';
-import { UserProvider } from './contexts/UserContext';
+import DashoardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
+import './styles/main.css';
 
 const App: React.FC = () => {
+  const  { user } = useAuthContext();
   return (
-    //value={{ currentStep, setCurrentStep, totalSteps }}
-    <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
-    </AuthProvider>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/signup" element={!user ? (<SignUpPage />) : (<Navigate to="/" replace />)} />
+      <Route path="/login" element={!user ? (<LoginPage />) : (<Navigate  to="/dashboard" replace/>)}/>
+      <Route path="/dashboard" element={<DashoardPage />} />
+    </Routes>
   );
 };
 

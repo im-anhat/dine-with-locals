@@ -2,7 +2,11 @@ import UserModel from '../models/User.js';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { UserLogin, User } from '../../../shared/types/User.js';
+import {
+  UserLogin,
+  User,
+  AuthenticatedUser,
+} from '../../../shared/types/User.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import { SALT } from '../seeds/constants.js';
@@ -13,31 +17,12 @@ dotenv.config();
 /**
  * Creates a JWT token for the user
  * @param _id - The user's ID
+ * @param userName user's username
  * @returns The JWT token as a string
  */
-const createToken = (_id: any): string => {
-  //jwt.sign(payload, secretOrPrivateKey, [options, callback])
-  return jwt.sign({ _id }, process.env.SECRET!, { expiresIn: '3d' });
-  // Use `!` to tell TypeScript you're sure it won't be undefined
+const createToken = (userName: string, _id: string): string => {
+  return jwt.sign({ userName, _id }, process.env.SECRET!, { expiresIn: '3d' });
 };
-
-// async function login(
-//   this: UserModel,
-//   user: UserLogin,
-// ): Promise<User & Document> {
-//   // Destructure the user object to get the required fields
-//   const { userName, password } = user;
-
-//   return returnUser;
-// }
-// // 2. Add static methods to the schema
-// UserSchema.static('signup', signup);
-// UserSchema.static('login', login);
-
-// // 3. Create a Model.
-// const UserModel = model<User, UserModel>('User', UserSchema);
-// export default UserModel;
-
 /**
  * This function handles user login.
  * It receives the user login data from the request body,
@@ -68,9 +53,14 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await UserModel.findOne({ userName });
-    const token = createToken(userName);
-    res.status(200).json({ token });
+    // Generate a token with userName and _id
+    const token = createToken(returnUser.userName, returnUser._id.toString());
+    const user = returnUser.toObject();
+    //Partial is utilities type that makes all properties of type User optional. Return a type that represents all subsets of a given type.
+    //Delete operator in TypeScript requires the property being deleted to be optional
+    delete (user as Partial<User>).password;
+    // console.log(user);
+    res.status(200).json({ token: token, userData: user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
@@ -99,9 +89,6 @@ export const signupUser = async (req: Request, res: Response) => {
       role,
       hobbies,
     } = req.body;
-    console.log(userName);
-    console.log(password);
-    console.log(!userName || !password);
 
     if (!userName || !password) {
       throw new Error('Username and password must be filled');
@@ -139,12 +126,12 @@ export const signupUser = async (req: Request, res: Response) => {
       role,
       hobbies,
     });
-    const token = createToken(user._id);
+    // const token = createToken(user._id);
 
-    res.status(200).json({ token });
+    res.status(200).json({ Message: 'Sign up success' });
   } catch (error: any) {
     //Error during signup: User validation failed: _id: Cast to ObjectId failed for value "" (type string) at path "_id" because of "BSONError"
     console.error('Error during signup:', error.message);
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ Error: error.message });
   }
 };

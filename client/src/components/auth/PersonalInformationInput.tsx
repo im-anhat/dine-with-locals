@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useStep } from '../../hooks/auth/useStep';
+import { z } from 'zod';
+
 function PersonalInformationInput() {
   //Dung useEffect dđể lấy data từ trong local storage everytime restart the page.
   //Lúc nào cũng cần

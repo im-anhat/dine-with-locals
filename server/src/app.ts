@@ -8,7 +8,9 @@ const app = express();
 
 connectDB();
 
+//Parse user request -> Json format
 app.use(express.json());
+//Only receive request from some specific routes.
 app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);

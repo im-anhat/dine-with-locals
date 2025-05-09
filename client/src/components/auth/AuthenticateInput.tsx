@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ProcessBar from './ProcessBar';
 import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useSignUp } from '../../hooks/auth/useSignup';
+import { useNavigate } from 'react-router-dom';
 
 function AuthenticateInput() {
   const [username, setUsername] = useState('');
@@ -9,6 +10,7 @@ function AuthenticateInput() {
   const [checkPassword, setCheckPassword] = useState('');
   const { user, setUser } = useUserContext();
   const { signup, isLoading, error } = useSignUp();
+  const navigate = useNavigate();
 
   const validateInput = () => {
     //Will implement more robust username and password checking in the future.
@@ -36,6 +38,7 @@ function AuthenticateInput() {
     e.preventDefault();
     if (validateInput()) {
       await signup({ ...user, userName: username, password: password });
+      navigate('/login');
     }
   };
 

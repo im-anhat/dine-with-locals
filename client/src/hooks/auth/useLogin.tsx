@@ -2,27 +2,33 @@ import { useState } from 'react';
 import axios from 'axios';
 import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
-import BASE_URL from '../../../../shared/constants/constants';
+// import BASE_URL from '../../../../shared/constants/constants';
 
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const { login } = useAuthContext();
 
   const handleLogin = async (user: UserLogin) => {
     setIsLoading(true);
     setError(null);
     try {
-      //ADD API END POINT
-      const result = await axios.post(`${BASE_URL}api/auth/login`, user);
-      //result should return this type LocalStorageUser
-      console.log('Success:', result.data);
-      // Update the auth context
-      login(result.data); //login = (user: AuthenticatedUser)
+      /**
+       * Backend will return json object has 2 fields: token and user
+       * res.status(200).json({ token: token, user: user });
+       */
+      const result = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}api/auth/login`,
+        user,
+      );
+      
+      const { token, userData } = result.data;
       // Save the user to local storage
-      localStorage.setItem('token', result.data.token);
-
+      // Save the token and user data to local storage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      // Update the auth context
+      login(userData); //login = (user: AuthenticatedUser)
       setIsLoading(false);
     } catch (err: any) {
       setError(err.response?.data.message || err.message);
