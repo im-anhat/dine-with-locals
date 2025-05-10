@@ -1,5 +1,6 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
 import { AuthenticatedUser } from '../../../shared/types/User';
+import { getUserById } from '../services/UserService';
 import { jwtDecode } from 'jwt-decode';
 
 //This context store authentication-related state: logged in status, user data
@@ -88,22 +89,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   //Use effect to keep updating the site based on the local storage, even after reload the web
   useEffect(() => {
     const token = localStorage.getItem('token');
-    //=====================PARSE _id from token==========================//
-    // if (token) {
-    //   const userId = jwtDecode(token);
-    // }
-    
-    // const storedUser = userId;
-    
 
-    if (storedUser) {
+    //=====================PARSE _id from token==========================//
+    if (token) {
       try {
-        const user = JSON.parse(storedUser) as AuthenticatedUser;
-        dispatch({ type: 'LOGIN', payload: user });
-      } catch (err) {
-        console.error('Invalid user data in localStorage');
-        localStorage.removeItem('token');
-      }
+        const decodedToken: { _id: string } = jwtDecode(token);
+        const userId = decodedToken._id;
+
+        const fetchUserData = async () => {
+          try {
+            if (userId) {
+              // If not the current user, fetch the user data
+              const userData = await getUserById(userId);
+              if (userData) {
+                dispatch({ type: 'LOGIN', payload: userData });
+              }
+            }
+          } catch (error) {
+            console.error('Invalid token:', error);
+            localStorage.removeItem('token');
+          }
+        };
+        fetchUserData();
+      } catch (error) {}
     }
   }, []);
 
@@ -111,7 +119,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // localStorage.setItem('user', JSON.stringify(user));
     console.log('Updating context with user in AuthContext:', userData); // Debug log
     dispatch({ type: 'LOGIN', payload: userData });
-
   };
 
   const logout = () => {

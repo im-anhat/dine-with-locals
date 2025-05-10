@@ -1,46 +1,49 @@
-import React, { createContext, ReactNode, useEffect } from 'react';
-import { User } from '../../../shared/types/User';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { User, AuthenticatedUser } from '../../../shared/types/User';
 
-export interface UserContextType {
-  user: User;
-  setUser: (user: User) => void;
+interface UserContextType {
+  currentUser: AuthenticatedUser | null;
+  setCurrentUser: (user: User | null) => void;
 }
-export const UserContext = createContext<UserContextType | undefined>(
-  undefined,
-);
 
-//This UserProviderProps interface ensures that the UserProvider component receives valid children.
+const defaultUserContext: UserContextType = {
+  currentUser: null,
+  setCurrentUser: () => {},
+};
+
+const UserContext = createContext<UserContextType>(defaultUserContext);
+
+export const useUser = () => useContext(UserContext);
+
 interface UserProviderProps {
-  //children: In React, children refers to any content that is passed between the opening and closing tags of a component
-  children: ReactNode; //ReactNode is a flexible type that can represent any content that React can render.
+  children: ReactNode;
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const initialUser: User = {
-    _id: '',
-    userName: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    avatar: '',
-    socialLink: '',
-    cover: '',
-    role: 'Host',
-    hobbies: [],
+  // Mock user data from the database for development
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>({
+    _id: '67f7f8281260844f9625ee33',
+    userName: 'bsi-quy',
+    firstName: 'Quy',
+    lastName: 'Nguyen',
+    phone: '7201234567',
+    location: 'Canada',
+    cover:
+      'https://a0.anyrgb.com/pngimg/1146/1162/gulpjs-foreach-loop-shuriken-study-skills-computer-programming-github-computer-security-ninja-knowledge-avatar.png',
+    avatar:
+      'https://a0.anyrgb.com/pngimg/1146/1162/gulpjs-foreach-loop-shuriken-study-skills-computer-programming-github-computer-security-ninja-knowledge-avatar.png',
+    socialLink: 'https://www.linkedin.com/in/quy-duong-nguyen/',
+    role: 'Guest',
+    hobbies: ['Cooking', 'Traveling', 'Science', 'Politics'],
     ethnicity: 'Asian',
-    password: '',
-    bio: '',
-  };
-  const [user, setUser] = React.useState<User>(initialUser);
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-  //Everytime user changes --> print out user
+    bio: 'I am a software engineer.',
+  });
 
-  //Use reducer --> manage state better --> dispatch actions to update the state
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ currentUser, setCurrentUser }}>
       {children}
     </UserContext.Provider>
   );
 };
+
+export default UserContext;

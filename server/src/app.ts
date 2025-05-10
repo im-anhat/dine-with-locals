@@ -1,6 +1,6 @@
 import express from 'express';
 import connectDB from './config/mongo.js';
-import userRoutes from './routes/ExampleUserRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import cors from 'cors';
 
