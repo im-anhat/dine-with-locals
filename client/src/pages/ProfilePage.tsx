@@ -27,6 +27,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [isAllReviewsOpen, setIsAllReviewsOpen] = useState<boolean>(false);
 
   // fetch owner of the page
   useEffect(() => {
@@ -140,6 +141,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     }
   };
 
+  // Toggle all reviews modal
+  const toggleAllReviewsModal = () => {
+    setIsAllReviewsOpen((prev) => !prev);
+  };
+
   if (!profileUser) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -179,6 +185,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
               reviews={reviews}
               isOwnProfile={isOwnProfile}
               profileFirstName={profileUser.firstName}
+              isAllReviewsOpen={isAllReviewsOpen}
+              onToggleAllReviews={toggleAllReviewsModal}
             />
 
             {/* Blog Posts Section Component */}

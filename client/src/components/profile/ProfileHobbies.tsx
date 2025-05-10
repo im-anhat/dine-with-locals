@@ -36,9 +36,6 @@ const ProfileHobbies: React.FC<ProfileHobbiesProps> = ({ profileUser }) => {
           <span className="px-3 py-1 bg-brand-coral-50 text-brand-coral-700 border border-brand-coral-200 rounded-full text-sm">
             Japanese
           </span>
-          <span className="px-3 py-1 bg-brand-teal-50 text-brand-teal-700 border border-brand-teal-200 rounded-full text-sm">
-            Italian
-          </span>
         </div>
       </div>
     </div>
