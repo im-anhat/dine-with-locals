@@ -98,10 +98,21 @@ const UserSchema: Schema<User> = new Schema<User>(
       type: [String],
       default: [],
     },
-    location: {
+    streetAddress: {
       type: String,
       default: '',
-      trim: true,
+    },
+    zipNumber: {
+      type: String,
+      default: '',
+    },
+    city: {
+      type: String,
+      default: '',
+    },
+    country: {
+      type: String,
+      default: '',
     },
     ethnicity: {
       type: String,
