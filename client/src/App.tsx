@@ -8,12 +8,20 @@ import LoginPage from './pages/auth/LoginPage';
 import './styles/main.css';
 
 const App: React.FC = () => {
-  const  { user } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/signup" element={!user ? (<SignUpPage />) : (<Navigate to="/" replace />)} />
-      <Route path="/login" element={!user ? (<LoginPage />) : (<Navigate  to="/dashboard" replace/>)}/>
+      <Route
+        path="/signup"
+        element={isAuthenticated ? <SignUpPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />
+        }
+      />
       <Route path="/dashboard" element={<DashoardPage />} />
     </Routes>
   );

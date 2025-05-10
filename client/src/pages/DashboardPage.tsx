@@ -2,12 +2,13 @@ import React from 'react';
 import { useLogout } from '../hooks/auth/useLogout';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../hooks/auth/useAuthContext';
+import { useUser } from '../contexts/UserContext';
 
 function DashboardPage() {
   const { userLogout } = useLogout();
-  const { user, isAuthenticated } = useAuthContext();
+  const { currentUser } = useUser();
+  const { isAuthenticated } = useAuthContext();
   const navigate = useNavigate();
-  console.log('Current user in context:', user); // Debug log
   console.log('Is authenticated:', isAuthenticated); // Debug log
   const logout = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -28,8 +29,8 @@ function DashboardPage() {
         <h1>User's information</h1>
         {isAuthenticated ? (
           <div>
-            <div>First name: {user?.firstName}</div>
-            <div>Last name: {user?.lastName}</div>
+            <div>First name: {currentUser?.firstName}</div>
+            <div>Last name: {currentUser?.lastName}</div>
           </div>
         ) : (
           <div></div>

@@ -1,51 +1,58 @@
 import React, { useState } from 'react';
-import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useStep } from '../../hooks/auth/useStep';
 import { z } from 'zod';
 
-function PersonalInformationInput() {
-  //Dung useEffect dđể lấy data từ trong local storage everytime restart the page.
-  //Lúc nào cũng cần
-  //Empty dependency array --> load every time the web reload
-  //No dependcy array --> Run non stop
-  // const setInfo = () => {
-
-  type Ethnicity = 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
-  const { user, setUser } = useUserContext();
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [ethnicity, setEthnicity] = useState<Ethnicity>('Asian');
-  const [hobbies, setHobbies] = useState<string[]>([]);
-  const [hobby, setHobby] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
-  const [socialLink, setSocialLink] = useState<string>('');
-  const { goNext } = useStep();
-  const setInfo = () => {
-    const newUser = {
-      ...user,
-      firstName: firstName,
-      lastName: lastName,
-      ethnicity: ethnicity,
-      hobbies: hobbies,
-      phone: phoneNumber,
-      socialLink: socialLink,
-    };
-    setUser(newUser);
+type Ethnicity = 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
+interface PersonalInformationInputProps {
+  user: {
+    role: 'Host' | 'Guest';
+    firstName: string;
+    lastName: string;
+    hobby: string;
+    hobbies: string[];
+    phone: string;
+    socialLink: string;
   };
+  setFirstName: (firstName: string) => void;
+  setLastName: (lastName: string) => void;
+  setEthnicity: (ethnicities: Ethnicity) => void;
+  setHobbies: (hobbies: string[]) => void;
+  setHobby: (hobby: string) => void;
+  setStreetAddress: (streetAddress: string) => void;
+  setZipNumber: (zipNumber: string) => void;
+  setCity: (city: string) => void;
+  setCountry: (country: string) => void;
+  setPhone: (phoneNumber: string) => void;
+  setSocialLink: (socialLink: string) => void;
+}
+
+function PersonalInformationInput({
+  user,
+  setFirstName,
+  setLastName,
+  setEthnicity,
+  setHobbies,
+  setHobby,
+  setStreetAddress,
+  setZipNumber,
+  setCity,
+  setCountry,
+  setPhone,
+  setSocialLink,
+}: PersonalInformationInputProps) {
+  const { goNext } = useStep();
+
   /**
-   * Handle the hobby input and add a hobby to the list
-   * In JavaScript, arrays are just another kind of object, you should treat arrays in React state as read-only
-   * This means that you shouldn’t reassign items inside an array like arr[0] = 'bird',
-   * and you also shouldn’t use methods that mutate the array, such as push() and pop().
-   * Every time you want to update an array, you’ll want to pass a new array to your state setting function
-   * you can create a new array from the original array in your state by calling its non-mutating methods
-   * like filter() and map()
+   * Handle the hobby input and add a hobby to the list. In JavaScript, arrays are just another kind of object, you should treat arrays in React state as read-only
+   * This means that you shouldn’t reassign items inside an array like arr[0] = 'bird' nor use methods that mutate the array: push() and pop().
+   * To update an array in React: pass a new array to setState function
+   * => Create a new array from the original array in your state by calling its non-mutating methods: filter() and map()
    */
   const handleAddHobby = (e: React.KeyboardEvent) => {
     //If the user press Enter and the the current input in the input box is not empty
-    console.log(hobby);
-    if (e.key === 'Enter' && hobby.trim() !== '') {
-      setHobbies([...hobbies, hobby]); //Add the current input to the list of hobbies
+    console.log(user.hobby);
+    if (e.key === 'Enter' && user.hobby.trim() !== '') {
+      setHobbies([...user.hobbies, user.hobby]); //Add the current input to the list of hobbies
       setHobby('');
     }
   };
@@ -71,7 +78,7 @@ function PersonalInformationInput() {
               type="text"
               placeholder="Dan"
               name="firstName"
-              value={firstName}
+              value={user.firstName}
               onChange={(e) => {
                 setFirstName(e.target.value);
               }}
@@ -88,7 +95,7 @@ function PersonalInformationInput() {
               type="text"
               name="lastName"
               placeholder="Nguyen"
-              value={lastName}
+              value={user.lastName}
               onChange={(e) => {
                 setLastName(e.target.value);
               }}
@@ -105,7 +112,7 @@ function PersonalInformationInput() {
           </label>
           <input
             type="text"
-            value={hobby}
+            value={user.hobby}
             name="hobbies"
             onChange={(e) => setHobby(e.target.value)}
             onKeyDown={handleAddHobby} //Call this function everytime user enter any key, check for if they enter Enter key
@@ -113,10 +120,10 @@ function PersonalInformationInput() {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
           {/* Hobbies Display */}
-          {hobbies.length != 0 ? (
+          {user.hobbies.length != 0 ? (
             <div className="mt-1 flex flex-wrap gap-1">
               {/* validate only 10 hobbies */}
-              {hobbies.map((hobby, index) => (
+              {user.hobbies.map((hobby, index) => (
                 <div
                   key={index}
                   className="bg-brand-teal-100 px-4 py-1 rounded-md flex items-center gap-2"
@@ -126,7 +133,7 @@ function PersonalInformationInput() {
                   <button
                     onClick={() =>
                       setHobbies(
-                        hobbies.filter((currHobby) => currHobby !== hobby),
+                        user.hobbies.filter((currHobby) => currHobby !== hobby),
                       )
                     }
                   >
@@ -149,8 +156,8 @@ function PersonalInformationInput() {
             type="text"
             name="phone"
             placeholder="Phone Number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            value={user.phone}
+            onChange={(e) => setPhone(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
         </div>
@@ -163,7 +170,7 @@ function PersonalInformationInput() {
             type="text"
             name="social"
             placeholder="Social Link"
-            value={socialLink}
+            value={user.socialLink}
             onChange={(e) => setSocialLink(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
@@ -171,8 +178,8 @@ function PersonalInformationInput() {
 
         <button
           onClick={() => {
-            setInfo();
             goNext();
+            console.log(user);
           }}
           className="flex justify-center px-4 py-2 mt-2 rounded-full text-white bg-brand-coral-300 border-brand-coral-500 hover:bg-brand-coral-400"
         >

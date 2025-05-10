@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import ProcessBar from './ProcessBar';
-import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useSignUp } from '../../hooks/auth/useSignup';
 import { useNavigate } from 'react-router-dom';
+import { UserSignUp } from '../../../../shared/types/User';
 
-function AuthenticateInput() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+interface AuthenticateInputProp {
+  user: UserSignUp;
+  setUserName: (username: string) => void;
+  setPassword: (password: string) => void;
+}
+function AuthenticateInput({
+  user,
+  setUserName,
+  setPassword,
+}: AuthenticateInputProp) {
   const [checkPassword, setCheckPassword] = useState('');
-  const { user, setUser } = useUserContext();
   const { signup, isLoading, error } = useSignUp();
   const navigate = useNavigate();
 
@@ -16,10 +21,10 @@ function AuthenticateInput() {
     //Will implement more robust username and password checking in the future.
     console.log(user);
     if (
-      !username ||
-      !password ||
+      !user.userName ||
+      !user.password ||
       !checkPassword ||
-      password === checkPassword
+      user.password === checkPassword
     ) {
       return true;
     } else {
@@ -37,7 +42,7 @@ function AuthenticateInput() {
   const handleSignup = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (validateInput()) {
-      await signup({ ...user, userName: username, password: password });
+      await signup(user);
       navigate('/login');
     }
   };
@@ -59,9 +64,9 @@ function AuthenticateInput() {
             type="text"
             name="username"
             placeholder="Username"
-            value={username}
+            value={user.userName}
             onChange={(e) => {
-              setUsername(e.target.value);
+              setUserName(e.target.value);
             }}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
@@ -75,7 +80,7 @@ function AuthenticateInput() {
             type="password"
             name="password"
             placeholder="Password"
-            value={password}
+            value={user.password}
             onChange={(e) => {
               setPassword(e.target.value);
             }}

@@ -4,7 +4,7 @@ import { IoMdArrowRoundBack } from 'react-icons/io';
 //This component is used to display the process bar in the signup page.
 //It will display the current step and the total number of steps.
 function ProcessBar() {
-  const { currentStep: step, totalSteps, goBack, goNext } = useStep();
+  const { goBack } = useStep();
 
   return (
     <div className="flex justify-end mt-4 mr-10 absolute top-5 left-10">

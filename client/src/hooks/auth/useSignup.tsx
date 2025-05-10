@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { User } from '../../../../shared/types/User';
+import { UserSignUp } from '../../../../shared/types/User';
 // import BASE_URL from '../../../../shared/constants/constants';
 
 export const useSignUp = () => {
   // console.log(`${import.meta.env.VITE_API_BASE_URL}}api/auth/signup`);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const signup = async (user: User) => {
+
+  /**
+   * This async function use POST request to send user's data and send back to the backend
+   * @param user user's data
+   */
+  const signup = async (user: UserSignUp) => {
     setIsLoading(true);
     setError(null);
     try {

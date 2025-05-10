@@ -1,5 +1,13 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from 'react';
 import { User, AuthenticatedUser } from '../../../shared/types/User';
+import { getUserById } from '../services/UserService';
+import { jwtDecode } from 'jwt-decode';
 
 interface UserContextType {
   currentUser: AuthenticatedUser | null;
@@ -27,7 +35,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     firstName: 'Quy',
     lastName: 'Nguyen',
     phone: '7201234567',
-    location: 'Canada',
+    streetAddress: '68 Sumner Heights Dr',
+    zipNumber: '12345',
+    city: 'North York',
+    country: 'Canada',
     cover:
       'https://a0.anyrgb.com/pngimg/1146/1162/gulpjs-foreach-loop-shuriken-study-skills-computer-programming-github-computer-security-ninja-knowledge-avatar.png',
     avatar:
@@ -38,6 +49,29 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     ethnicity: 'Asian',
     bio: 'I am a software engineer.',
   });
+  useEffect(() => {
+    const token = localStorage.get('token');
+    const fetchUserData = async () => {
+      if (token) {
+        try {
+          const decodedToken: { _id: string } = jwtDecode(token);
+          const fetchUserData = async () => {
+            try {
+              const userData = await getUserById(decodedToken._id);
+              setCurrentUser(userData);
+            } catch (error) {
+              console.error('Failed to fetch user data:', error);
+            }
+          };
+          fetchUserData();
+        } catch (error) {
+          console.error('Invalid token:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>

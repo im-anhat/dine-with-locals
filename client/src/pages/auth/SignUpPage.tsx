@@ -1,8 +1,6 @@
 import { useState } from 'react';
-
 import ProcessBar from '../../components/auth/ProcessBar';
 import { StepProvider } from '../../contexts/StepContext';
-import { UserProvider } from '../../contexts/UserContext';
 import UserInput from './UserInput';
 
 export const SignUpPage = () => {
@@ -15,14 +13,12 @@ export const SignUpPage = () => {
 
   return (
     <StepProvider totalSteps={3}>
-      <UserProvider>
-        <div className="p-20 mt-20">
-          <div>
-            <UserInput />
-            <ProcessBar />
-          </div>
+      <div className="p-20 mt-20">
+        <div>
+          <UserInput />
+          <ProcessBar />
         </div>
-      </UserProvider>
+      </div>
     </StepProvider>
   );
 };

@@ -8,13 +8,9 @@ function LoginPage() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
   const { handleLogin } = useLogin();
 
-  /**
-   * This function will handle the login information
-   * @param e 
-   */
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -23,18 +19,17 @@ function LoginPage() {
       password: password,
     };
     await handleLogin(userLogin);
- 
   };
   /**
-   * Navigate to dashboard after user is updated in AuthContext
-   * */ 
+   * Navigate to dashboard after isAuthenticated is updated in AuthContext
+   * */
   useEffect(() => {
-    console.log("Get to the useEffect inside Login Page");
-    if (user) {
-      console.log("Navigate to dashboard")
+    console.log('Get to the useEffect inside Login Page');
+    if (isAuthenticated) {
+      console.log('Navigate to dashboard');
       navigate('/dashboard', { replace: true });
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex flex-row justify-center p-20 mt-10">

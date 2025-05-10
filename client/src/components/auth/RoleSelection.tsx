@@ -1,19 +1,22 @@
 import React from 'react';
 import ProcessBar from './ProcessBar';
-import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useStep } from '../../hooks/auth/useStep';
 
-function RoleSelection() {
-  type Role = 'Host' | 'Guest';
+interface RoleSelectionProps {
+  setRole: (role: 'Host' | 'Guest') => void;
+}
 
-  const { user, setUser } = useUserContext();
+function RoleSelection({ setRole }: RoleSelectionProps) {
+  // type Role = 'Host' | 'Guest';
+
+  // const { user, setUser } = useUserContext();
   const { goNext } = useStep();
 
-  const setInfo = (choice: Role) => {
-    const newUser = { ...user, role: choice };
-    console.log('This is new user', newUser);
-    setUser(newUser);
-  };
+  // const setInfo = (choice: Role) => {
+  //   const newUser = { ...user, role: choice };
+  //   console.log('This is new user', newUser);
+  //   setUser(newUser);
+  // };
   return (
     <div className="flex flex-row justify-center">
       <div className="flex flex-col">
@@ -24,7 +27,7 @@ function RoleSelection() {
           <div className="flex gap-6 justify-start">
             <button
               onClick={() => {
-                setInfo('Host');
+                setRole('Host');
                 goNext();
               }}
               className="w-36 py-4 bg-brand-coral-300 text-white text-xl rounded-full shadow-md hover:bg-brand-coral-400 transition"
@@ -33,7 +36,7 @@ function RoleSelection() {
             </button>
             <button
               onClick={() => {
-                setInfo('Guest');
+                setRole('Guest');
                 goNext();
               }}
               className="w-36 py-4 bg-brand-coral-300 text-white text-xl rounded-full shadow-md hover:bg-brand-coral-400 transition"
