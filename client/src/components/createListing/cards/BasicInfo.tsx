@@ -239,7 +239,8 @@ const BasicInfoCard = ({ form, fileInputRef }: BasicInfoCardProps) => {
                 />
               </FormControl>
               <FormDescription>
-                Add interest topics separated by commas
+                Add some topics you can talk about with your guests (press Enter
+                to add)
               </FormDescription>
               <FormMessage />
             </FormItem>
