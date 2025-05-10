@@ -69,7 +69,7 @@ function PersonalInformationInput() {
             </label>
             <input
               type="text"
-              placeholder="First Name"
+              placeholder="Dan"
               name="firstName"
               value={firstName}
               onChange={(e) => {
@@ -87,7 +87,7 @@ function PersonalInformationInput() {
             <input
               type="text"
               name="lastName"
-              placeholder="Last Name"
+              placeholder="Nguyen"
               value={lastName}
               onChange={(e) => {
                 setLastName(e.target.value);
@@ -109,7 +109,7 @@ function PersonalInformationInput() {
             name="hobbies"
             onChange={(e) => setHobby(e.target.value)}
             onKeyDown={handleAddHobby} //Call this function everytime user enter any key, check for if they enter Enter key
-            placeholder="Press Enter to add your hobbies"
+            placeholder="Press Enter key to add your hobbies"
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
           {/* Hobbies Display */}

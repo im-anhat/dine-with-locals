@@ -20,8 +20,8 @@ dotenv.config();
  * @param userName user's username
  * @returns The JWT token as a string
  */
-const createToken = (userName: string, _id: string): string => {
-  return jwt.sign({ userName, _id }, process.env.SECRET!, { expiresIn: '3d' });
+const createToken = (_id: string): string => {
+  return jwt.sign({ _id }, process.env.SECRET!, { expiresIn: '3d' });
 };
 /**
  * This function handles user login.
@@ -39,10 +39,9 @@ export const loginUser = async (req: Request, res: Response) => {
   if (!userName || !password) {
     throw new Error('All fields must be filled');
   }
-
   // Check if the userName is already in use
   const returnUser = await UserModel.findOne({ userName });
-  //This has error
+  // This has error
   if (!returnUser) {
     throw new Error('Username not found');
   }
@@ -54,13 +53,12 @@ export const loginUser = async (req: Request, res: Response) => {
 
   try {
     // Generate a token with userName and _id
-    const token = createToken(returnUser.userName, returnUser._id.toString());
+    const token = createToken(returnUser._id.toString());
     const user = returnUser.toObject();
     //Partial is utilities type that makes all properties of type User optional. Return a type that represents all subsets of a given type.
     //Delete operator in TypeScript requires the property being deleted to be optional
-    delete (user as Partial<User>).password;
-    // console.log(user);
-    res.status(200).json({ token: token, userData: user });
+    // delete (user as Partial<User>).password;
+    res.status(200).json({ token: token, message: 'Login Successful' });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

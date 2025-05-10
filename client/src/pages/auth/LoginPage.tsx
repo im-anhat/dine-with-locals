@@ -11,6 +11,10 @@ function LoginPage() {
   const { user } = useAuthContext();
   const { handleLogin } = useLogin();
 
+  /**
+   * This function will handle the login information
+   * @param e 
+   */
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -19,13 +23,11 @@ function LoginPage() {
       password: password,
     };
     await handleLogin(userLogin);
-    console.log("navigating..");
-    console.log(user);
-    // navigate('/dashboard', { replace: true });
+ 
   };
-  // Navigate to dashboard after user is updated in AuthContext
-  // The user context in AuthContext is not updating properly
-  // Navigate to dashboard is not run
+  /**
+   * Navigate to dashboard after user is updated in AuthContext
+   * */ 
   useEffect(() => {
     console.log("Get to the useEffect inside Login Page");
     if (user) {

@@ -90,13 +90,18 @@ const UserSchema: Schema<User> = new Schema<User>(
     },
     role: {
       type: String,
-      enum: ['Host', 'Guest', 'Both'],
+      enum: ['Host', 'Guest'],
       required: true,
       default: 'Guest',
     },
     hobbies: {
       type: [String],
       default: [],
+    },
+    location: {
+      type: String,
+      default: '',
+      trim: true,
     },
     ethnicity: {
       type: String,
@@ -217,6 +222,8 @@ const UserSchema: Schema<User> = new Schema<User>(
 // 2. Add static methods to the schema
 // UserSchema.static('signup', signup);
 // UserSchema.static('login', login);
+
+//======================================================================//
 
 // 3. Create a Model.
 const UserModel = model<User>('User', UserSchema);

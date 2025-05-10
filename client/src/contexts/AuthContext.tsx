@@ -1,5 +1,6 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
 import { AuthenticatedUser } from '../../../shared/types/User';
+import { jwtDecode } from 'jwt-decode';
 
 //This context store authentication-related state: logged in status, user data
 
@@ -86,14 +87,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   //Use effect to keep updating the site based on the local storage, even after reload the web
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    //=====================PARSE _id from token==========================//
+    // if (token) {
+    //   const userId = jwtDecode(token);
+    // }
+    
+    // const storedUser = userId;
+    
+
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser) as AuthenticatedUser;
         dispatch({ type: 'LOGIN', payload: user });
       } catch (err) {
         console.error('Invalid user data in localStorage');
-        localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
     }

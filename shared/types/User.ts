@@ -6,9 +6,10 @@ export interface User {
   lastName: string;
   phone: string;
   avatar: string;
+  location: string;
   cover: string;
   socialLink: string;
-  role: 'Host' | 'Guest' | 'Both';
+  role: 'Host' | 'Guest';
   hobbies: string[];
   ethnicity: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;

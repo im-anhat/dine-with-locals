@@ -4,7 +4,7 @@ import { useUserContext } from '../../hooks/auth/useUserContext';
 import { useStep } from '../../hooks/auth/useStep';
 
 function RoleSelection() {
-  type Role = 'Host' | 'Guest' | 'Both';
+  type Role = 'Host' | 'Guest';
 
   const { user, setUser } = useUserContext();
   const { goNext } = useStep();
@@ -39,15 +39,6 @@ function RoleSelection() {
               className="w-36 py-4 bg-brand-coral-300 text-white text-xl rounded-full shadow-md hover:bg-brand-coral-400 transition"
             >
               Guest
-            </button>
-            <button
-              onClick={() => {
-                setInfo('Both');
-                goNext();
-              }}
-              className="w-36 py-4 bg-brand-coral-300 text-white text-xl rounded-full shadow-md hover:bg-brand-coral-400 transition"
-            >
-              Both
             </button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
+import { jwtDecode } from "jwt-decode";
 // import BASE_URL from '../../../../shared/constants/constants';
 
 export const useLogin = () => {
@@ -14,21 +15,28 @@ export const useLogin = () => {
     setError(null);
     try {
       /**
-       * Backend will return json object has 2 fields: token and user
-       * res.status(200).json({ token: token, user: user });
+       * Backend will return json object has 1 field: token
+       * res.status(200).json({ token: token});
        */
       const result = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/auth/login`,
         user,
       );
       
-      const { token, userData } = result.data;
-      // Save the user to local storage
-      // Save the token and user data to local storage
+      const { token } = result.data;
+
+     
+      // Save token encrypted with _id and user name.
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      // Update the auth context
-      login(userData); //login = (user: AuthenticatedUser)
+
+      // Decrypt token to get _id use post request to send back to server to get the information.
+      // Then update the context with the information sent from backend
+      //===================MORE CODE HERE=================================//
+
+      const userId = jwtDecode(token, { header: true });
+
+      // login(userData); //login = (user: AuthenticatedUser)
+      //=================================================================//
       setIsLoading(false);
     } catch (err: any) {
       setError(err.response?.data.message || err.message);
