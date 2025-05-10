@@ -3,7 +3,7 @@ import { z } from 'zod';
 const baseSchema = z.object({
   title: z.string().min(2).max(50),
   description: z.string().min(10).max(500),
-  imagesUrl: z.array(z.string().url()).nonempty(),
+  images: z.array(z.instanceof(File)).optional(),
   locationId: z.string().nonempty(),
   interestTopic: z.array(z.string()).optional(),
   time: z.date().optional(),
@@ -16,8 +16,8 @@ const baseSchema = z.object({
 // Dining-specific
 const diningSchema = baseSchema.extend({
   category: z.literal('dining'),
-  cuisine: z.array(z.string()).nonempty(),
-  dietary: z.array(z.string()).nonempty(),
+  cuisine: z.array(z.string()).optional(),
+  dietary: z.array(z.string()).optional(),
 });
 
 // Travel-specific
