@@ -16,7 +16,11 @@ interface UserContextType {
 
 const defaultUserContext: UserContextType = {
   currentUser: null,
-  setCurrentUser: () => {},
+  setCurrentUser: (user: User | null) => {
+    throw new Error(
+      'setCurrentUser function must be overridden by UserProvider',
+    );
+  },
 };
 
 const UserContext = createContext<UserContextType>(defaultUserContext);

@@ -2,13 +2,16 @@ import { useState } from 'react';
 import axios from 'axios';
 import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
-import { jwtDecode } from "jwt-decode";
-// import BASE_URL from '../../../../shared/constants/constants';
+import { jwtDecode } from 'jwt-decode';
+import { getUserById } from '../../services/UserService';
+import { useUserContext } from '../useUserContext';
 
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthContext();
+  const { setCurrentUser } = useUserContext();
+  // const { currentUser, setCurrentUser } = useUserContext();
 
   const handleLogin = async (user: UserLogin) => {
     setIsLoading(true);
@@ -22,21 +25,23 @@ export const useLogin = () => {
         `${import.meta.env.VITE_API_BASE_URL}api/auth/login`,
         user,
       );
-      
       const { token } = result.data;
-
-     
       // Save token encrypted with _id and user name.
       localStorage.setItem('token', token);
+      //Update AuthContext
+      login();
 
-      // Decrypt token to get _id use post request to send back to server to get the information.
-      // Then update the context with the information sent from backend
-      //===================MORE CODE HERE=================================//
-
-      const userId = jwtDecode(token, { header: true });
-
-      // login(userData); //login = (user: AuthenticatedUser)
-      //=================================================================//
+      //Update UserContext
+      const decodedToken: { _id: string } = jwtDecode(token);
+      const fetchUserData = async () => {
+        try {
+          const user = await getUserById(decodedToken._id);
+          setCurrentUser(user);
+        } catch (err) {
+          console.error('Failed to fetch user data:', error);
+        }
+      };
+      fetchUserData();
       setIsLoading(false);
     } catch (err: any) {
       setError(err.response?.data.message || err.message);

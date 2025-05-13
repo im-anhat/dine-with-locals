@@ -19,6 +19,7 @@ function LoginPage() {
       password: password,
     };
     await handleLogin(userLogin);
+    console.log('Called after handleLogin');
   };
   /**
    * Navigate to dashboard after isAuthenticated is updated in AuthContext
