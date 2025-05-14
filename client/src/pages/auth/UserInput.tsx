@@ -49,6 +49,7 @@ function UserInput() {
         setCity={setCity}
         setCountry={setCountry}
         setPhone={setPhone}
+        setState={setState}
       />
     ),
     3: (

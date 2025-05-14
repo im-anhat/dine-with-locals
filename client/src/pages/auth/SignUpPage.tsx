@@ -13,7 +13,7 @@ export const SignUpPage = () => {
 
   return (
     <StepProvider totalSteps={3}>
-      <div className="p-20 mt-20">
+      <div className="p-20 mt-10">
         <div>
           <UserInput />
           <ProcessBar />

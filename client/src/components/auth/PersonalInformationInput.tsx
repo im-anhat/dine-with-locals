@@ -22,6 +22,7 @@ interface PersonalInformationInputProps {
   setStreetAddress: (streetAddress: string) => void;
   setZipNumber: (zipNumber: string) => void;
   setCity: (city: string) => void;
+  setState: (state: string) => void;
   setCountry: (country: string) => void;
   setPhone: (phoneNumber: string) => void;
 }
@@ -33,6 +34,7 @@ function PersonalInformationInput({
   setStreetAddress,
   setZipNumber,
   setCity,
+  setState,
   setCountry,
   setPhone,
 }: PersonalInformationInputProps) {
@@ -48,7 +50,6 @@ function PersonalInformationInput({
             Personal Information
           </h1>
         </div>
-
         {/* First name and Last Name */}
         <div className="flex flex-row gap-4">
           {/* Firstname */}
@@ -87,7 +88,6 @@ function PersonalInformationInput({
           {/* End last name */}
         </div>
         {/* End first name and last name */}
-
         {/* Phone Number and Social Links */}
         <div className="w-full">
           <label htmlFor="phone" className="block text-gray-500 text-sm">
@@ -102,21 +102,77 @@ function PersonalInformationInput({
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
         </div>
-
+        {/* address: string; city: string; state: string; country: string; zipCode:
+        string; */}
         <div className="w-full">
-          <label htmlFor="social" className="block text-gray-500 text-sm">
-            URLs
+          <label htmlFor="address" className="block text-gray-500 text-sm">
+            Address
           </label>
           <input
             type="text"
-            name="social"
-            placeholder="Social Link"
+            name="address"
+            placeholder="8841 Main Street"
             value={user.address}
             onChange={(e) => setStreetAddress(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
         </div>
+        <div className="w-full">
+          <label htmlFor="city" className="block text-gray-500 text-sm">
+            City
+          </label>
+          <input
+            type="text"
+            name="city"
+            placeholder="8841 Main Street"
+            value={user.city}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
+          />
+        </div>
+        <div className="w-full">
+          <label htmlFor="state" className="block text-gray-500 text-sm">
+            State
+          </label>
+          <input
+            type="text"
+            name="state"
+            placeholder="Virginia"
+            value={user.state}
+            onChange={(e) => setState(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
+          />
+        </div>
 
+        <div className="flex flex-row gap-4">
+          <div className="w-32 flex-1">
+            <label htmlFor="zipcode" className="block text-gray-500 text-sm">
+              ZIP Code
+            </label>
+            <input
+              type="text"
+              name="zipcode"
+              placeholder="22003"
+              value={user.zipCode}
+              onChange={(e) => setZipNumber(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
+            />
+          </div>
+
+          <div className="w-64 flex-2">
+            <label htmlFor="country" className="block text-gray-500 text-sm">
+              Country
+            </label>
+            <input
+              type="text"
+              name="state"
+              placeholder="United States"
+              value={user.country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
+            />
+          </div>
+        </div>
         <button
           onClick={() => {
             goNext();

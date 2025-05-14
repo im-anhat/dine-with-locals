@@ -12,6 +12,7 @@ export interface User {
   ethnicity: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   cover: string;
+  locationId: string;
 }
 
 export type UserSignUp = Pick<

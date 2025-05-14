@@ -33,7 +33,7 @@ function LoginPage() {
 
   return (
     <div className="flex flex-row justify-center p-20 mt-10">
-      <div className="flex flex-col gap-2 w-1/2">
+      <div className="flex flex-col gap-2 max-w-1/3">
         <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
           Login
         </h1>
