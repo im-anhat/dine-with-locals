@@ -1,6 +1,3 @@
-/**
- * There are 17 fields in the UserInterface
- */
 export interface User {
   _id: string;
   userName: string;
@@ -9,18 +6,17 @@ export interface User {
   lastName: string;
   phone: string;
   avatar: string;
-  streetAddress: string;
-  zipNumber: string;
-  city: string;
-  country: string;
-  cover: string;
   socialLink: string;
   role: 'Host' | 'Guest';
   hobbies: string[];
   ethnicity: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
+  cover: string;
 }
 
-export type UserSignUp = Omit<User, '_id' | 'avatar' | 'cover' | 'bio'>;
+export type UserSignUp = Pick<
+  User,
+  'userName' | 'password' | 'firstName' | 'lastName' | 'phone' | 'role'
+>;
 export type AuthenticatedUser = Omit<User, 'password'>;
 export type UserLogin = Pick<User, 'userName' | 'password'>;

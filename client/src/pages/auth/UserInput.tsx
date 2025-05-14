@@ -12,31 +12,26 @@ function UserInput() {
   const [role, setRole] = useState<Role>('Guest');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  const [ethnicity, setEthnicity] = useState<Ethnicity>('Asian');
-  const [hobbies, setHobbies] = useState<string[]>([]);
-  const [hobby, setHobby] = useState<string>('');
-  const [streetAddress, setStreetAddress] = useState<string>('');
-  const [zipNumber, setZipNumber] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
   const [city, setCity] = useState<string>('');
+  const [state, setState] = useState<string>('');
   const [country, setCountry] = useState<string>('');
+  const [zipCode, setZipCode] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-  const [socialLink, setSocialLink] = useState<string>('');
+
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
 
   const user = {
+    role,
     firstName,
     lastName,
-    ethnicity,
-    hobby,
-    hobbies,
     phone,
-    socialLink,
-    role,
-    streetAddress,
-    zipNumber,
+    address,
     city,
+    state,
     country,
+    zipCode,
     password,
     userName,
   };
@@ -49,15 +44,11 @@ function UserInput() {
         user={user}
         setFirstName={setFirstName}
         setLastName={setLastName}
-        setEthnicity={setEthnicity}
-        setHobbies={setHobbies}
-        setHobby={setHobby}
-        setStreetAddress={setStreetAddress}
-        setZipNumber={setZipNumber}
+        setStreetAddress={setAddress}
+        setZipNumber={setZipCode}
         setCity={setCity}
         setCountry={setCountry}
         setPhone={setPhone}
-        setSocialLink={setSocialLink}
       />
     ),
     3: (

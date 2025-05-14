@@ -14,12 +14,18 @@ const App: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route
         path="/signup"
-        element={isAuthenticated ? <SignUpPage /> : <Navigate to="/" replace />}
+        element={
+          !isAuthenticated ? <SignUpPage /> : <Navigate to="/" replace />
+        }
       />
       <Route
         path="/login"
         element={
-          isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />
+          !isAuthenticated ? (
+            <LoginPage />
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
         }
       />
       <Route path="/dashboard" element={<DashoardPage />} />

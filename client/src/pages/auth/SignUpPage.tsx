@@ -7,7 +7,7 @@ export const SignUpPage = () => {
   /**
    * Goes to the following step (out of 5) of the signup process.
    * Step 1: Define role (Host, Guest, Both)
-   * Step 2: Collect user's personal details: first and last name, ethnicity, hobbies, phone number and social link, username and password
+   * Step 2: Collect user's personal details: first and last name, address, phone number , username and password
    * Step 3: Submit the form
    */
 

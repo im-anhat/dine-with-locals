@@ -49,29 +49,30 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     ethnicity: 'Asian',
     bio: 'I am a software engineer.',
   });
-  useEffect(() => {
-    const token = localStorage.get('token');
-    const fetchUserData = async () => {
-      if (token) {
-        try {
-          const decodedToken: { _id: string } = jwtDecode(token);
-          const fetchUserData = async () => {
-            try {
-              const userData = await getUserById(decodedToken._id);
-              setCurrentUser(userData);
-            } catch (error) {
-              console.error('Failed to fetch user data:', error);
-            }
-          };
-          fetchUserData();
-        } catch (error) {
-          console.error('Invalid token:', error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const token = localStorage.get('token');
+  //   console.log(token);
+  //   const fetchUserData = async () => {
+  //     if (token) {
+  //       try {
+  //         const decodedToken: { _id: string } = jwtDecode(token);
+  //         const fetchUserData = async () => {
+  //           try {
+  //             const userData = await getUserById(decodedToken._id);
+  //             setCurrentUser(userData);
+  //           } catch (error) {
+  //             console.error('Failed to fetch user data:', error);
+  //           }
+  //         };
+  //         fetchUserData();
+  //       } catch (error) {
+  //         console.error('Invalid token:', error);
+  //       }
+  //     }
+  //   };
 
-    fetchUserData();
-  }, []);
+  //   fetchUserData();
+  // }, []);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>
