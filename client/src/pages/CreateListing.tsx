@@ -10,6 +10,11 @@ import BasicInfoCard from '@/components/createListing/cards/BasicInfo';
 import EventDetailsCard from '@/components/createListing/cards/EventDetails';
 import DiningSpecificCard from '@/components/createListing/cards/DiningSpecific';
 import AdditionalInfoCard from '@/components/createListing/cards/AdditionalInfo';
+import { useUser } from "@/contexts/UserContext";
+import axios from 'axios';
+import { uploadImages } from '@/services/uploadImages';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 const CreateListing = () => {
     const form = useForm<z.infer<typeof formSchema>>({
@@ -31,9 +36,32 @@ const CreateListing = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const { currentUser } = useUser();
+
+  const handleCreateListing = async (values: z.infer<typeof formSchema>) => {
     // Handle form submission
-    console.log(values);
+    // Will probably need to check if the user is 1) a host and 2) logged in
+    const listingData = {...values, userId: currentUser?._id };
+    console.log('Listing Data:', listingData);
+
+    // Upload images to Cloudinary
+    const imageUrls = (values.images) ? await uploadImages(values.images) : [];
+
+    const finalListingData = {
+      ...listingData,
+      images: imageUrls,
+    };
+    console.log('Final Listing Data with Images:', JSON.stringify(finalListingData, null, 2));
+
+    // Send the listing data to the server
+    try {
+      const response = await axios.post(`${API_URL}/listings`, finalListingData);
+      console.log('Listing created successfully:', response.data);
+    } catch (error) {
+      console.error('Error creating listing:', error);
+      // Handle error (e.g., show a notification)
+      return;
+    }
     
     // Reset the form after submission
     form.reset({
@@ -69,7 +97,7 @@ const CreateListing = () => {
 
       {/* the form container */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 py-4 md:px-32">
+        <form onSubmit={form.handleSubmit(handleCreateListing)} className="space-y-8 py-4 md:px-32">
           <BasicInfoCard form={form} fileInputRef={fileInputRef} />
 
           <EventDetailsCard form={form} />
