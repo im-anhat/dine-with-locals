@@ -79,13 +79,13 @@ export const signupUser = async (req: Request, res: Response) => {
     const hash = await bcrypt.hash(password, salt);
 
     const user = await UserModel.create({
-      userName,
-      firstName,
-      lastName,
-      phone,
-      password,
-      role,
-      locationId,
+      userName: userName,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      password: hash,
+      role: role,
+      locationId: locationId,
     });
     const token = createToken(user._id.toString());
 
