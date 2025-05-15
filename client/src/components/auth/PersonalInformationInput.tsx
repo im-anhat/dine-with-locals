@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStep } from '../../hooks/auth/useStep';
+import { useLocation } from '../../hooks/useLocation';
 import { z } from 'zod';
 
-type Ethnicity = 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
 interface PersonalInformationInputProps {
   user: {
     role: 'Host' | 'Guest';
     firstName: string;
     lastName: string;
     phone: string;
+    password: string;
+    userName: string;
+    locationId: string;
+  };
+  location: {
     address: string;
     city: string;
     state: string;
     country: string;
     zipCode: string;
-    password: string;
-    userName: string;
   };
   setFirstName: (firstName: string) => void;
   setLastName: (lastName: string) => void;
@@ -25,10 +28,12 @@ interface PersonalInformationInputProps {
   setState: (state: string) => void;
   setCountry: (country: string) => void;
   setPhone: (phoneNumber: string) => void;
+  setLocationId: (locationId: string) => void;
 }
 
 function PersonalInformationInput({
   user,
+  location,
   setFirstName,
   setLastName,
   setStreetAddress,
@@ -37,8 +42,22 @@ function PersonalInformationInput({
   setState,
   setCountry,
   setPhone,
+  setLocationId,
 }: PersonalInformationInputProps) {
   const { goNext } = useStep();
+  const { createLocation } = useLocation();
+  const handleSubmit = async () => {
+    const res = await createLocation({
+      address: location.address,
+      city: location.city,
+      state: location.state,
+      country: location.country,
+      zipCode: location.zipCode,
+    });
+    setLocationId(res.locationId);
+    goNext();
+  };
+  //useEffect(() => {}, [user.locationId]);
 
   return (
     <div className="flex flex-row justify-center">
@@ -112,7 +131,7 @@ function PersonalInformationInput({
             type="text"
             name="address"
             placeholder="8841 Main Street"
-            value={user.address}
+            value={location.address}
             onChange={(e) => setStreetAddress(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
@@ -125,7 +144,7 @@ function PersonalInformationInput({
             type="text"
             name="city"
             placeholder="8841 Main Street"
-            value={user.city}
+            value={location.city}
             onChange={(e) => setCity(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
@@ -138,7 +157,7 @@ function PersonalInformationInput({
             type="text"
             name="state"
             placeholder="Virginia"
-            value={user.state}
+            value={location.state}
             onChange={(e) => setState(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
@@ -153,7 +172,7 @@ function PersonalInformationInput({
               type="text"
               name="zipcode"
               placeholder="22003"
-              value={user.zipCode}
+              value={location.zipCode}
               onChange={(e) => setZipNumber(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
             />
@@ -167,17 +186,14 @@ function PersonalInformationInput({
               type="text"
               name="state"
               placeholder="United States"
-              value={user.country}
+              value={location.country}
               onChange={(e) => setCountry(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
             />
           </div>
         </div>
         <button
-          onClick={() => {
-            goNext();
-            console.log(user);
-          }}
+          onClick={handleSubmit}
           className="flex justify-center px-4 py-2 mt-2 rounded-full text-white bg-brand-coral-300 border-brand-coral-500 hover:bg-brand-coral-400"
         >
           Save

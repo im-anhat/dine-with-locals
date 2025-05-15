@@ -1,5 +1,5 @@
 import { Request, Response, RequestHandler } from 'express';
-import Location from '../models/Location.js';
+import Location, { ILocation } from '../models/Location.js';
 
 export const createNewLocation = async (req: Request, res: Response) => {
   const { address, city, state, country, zipCode } = req.body;
@@ -12,7 +12,7 @@ export const createNewLocation = async (req: Request, res: Response) => {
       zipCode,
     });
     res.status(200).json({
-      locationId: location._id,
+      locationId: location._id.toString(),
       message: 'Location created successfully in location collection',
     });
   } catch (err) {

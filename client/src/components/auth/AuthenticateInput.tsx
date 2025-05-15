@@ -3,13 +3,23 @@ import { useSignUp } from '../../hooks/auth/useSignup';
 import { useNavigate } from 'react-router-dom';
 import { UserSignUp } from '../../../../shared/types/User';
 
+interface LocationInterface {
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+}
+
 interface AuthenticateInputProp {
   user: UserSignUp;
+  location: LocationInterface;
   setUserName: (username: string) => void;
   setPassword: (password: string) => void;
 }
 function AuthenticateInput({
   user,
+  location,
   setUserName,
   setPassword,
 }: AuthenticateInputProp) {

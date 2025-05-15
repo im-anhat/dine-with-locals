@@ -2,7 +2,6 @@ import UserModel from '../models/User.js';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import validator from 'validator';
 import bcrypt from 'bcrypt';
 import { SALT } from '../seeds/constants.js';
 
@@ -88,7 +87,7 @@ export const signupUser = async (req: Request, res: Response) => {
       role,
       locationId,
     });
-    // const token = createToken(user._id);
+    const token = createToken(user._id.toString());
 
     res.status(200).json({ Message: 'Sign up success' });
   } catch (error: any) {

@@ -18,22 +18,25 @@ function UserInput() {
   const [country, setCountry] = useState<string>('');
   const [zipCode, setZipCode] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [locationId, setLocationId] = useState('');
 
   const user = {
     role,
     firstName,
     lastName,
     phone,
+    password,
+    userName,
+    locationId,
+  };
+  const location = {
     address,
     city,
     state,
     country,
     zipCode,
-    password,
-    userName,
   };
 
   //Record as component
@@ -42,6 +45,7 @@ function UserInput() {
     2: (
       <PersonalInformationInput
         user={user}
+        location={location}
         setFirstName={setFirstName}
         setLastName={setLastName}
         setStreetAddress={setAddress}
@@ -50,11 +54,13 @@ function UserInput() {
         setCountry={setCountry}
         setPhone={setPhone}
         setState={setState}
+        setLocationId={setLocationId}
       />
     ),
     3: (
       <AuthenticateInput
         user={user}
+        location={location}
         setPassword={setPassword}
         setUserName={setUserName}
       />
