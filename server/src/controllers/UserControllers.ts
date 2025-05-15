@@ -1,4 +1,3 @@
-// filepath: /Users/nhatle/Documents/vtmp/dine-with-locals/server/src/controllers/UserControllers.ts
 import { Request, Response, RequestHandler } from 'express';
 import User from '../models/User.js';
 import mongoose from 'mongoose';

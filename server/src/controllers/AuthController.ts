@@ -2,16 +2,10 @@ import UserModel from '../models/User.js';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import {
-  UserLogin,
-  User,
-  AuthenticatedUser,
-} from '../../../shared/types/User.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import { SALT } from '../seeds/constants.js';
 
-//Load environment variables from .env file
 dotenv.config();
 
 /**
@@ -54,10 +48,6 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     // Generate a token with userName and _id
     const token = createToken(returnUser._id.toString());
-    const user = returnUser.toObject();
-    //Partial is utilities type that makes all properties of type User optional. Return a type that represents all subsets of a given type.
-    //Delete operator in TypeScript requires the property being deleted to be optional
-    // delete (user as Partial<User>).password;
     res.status(200).json({ token: token, message: 'Login Successful' });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
@@ -76,31 +66,8 @@ export const loginUser = async (req: Request, res: Response) => {
  */
 export const signupUser = async (req: Request, res: Response) => {
   try {
-    const {
-      userName,
-      firstName,
-      lastName,
-      phone,
-      password,
-      avatar,
-      socialLink,
-      role,
-      hobbies,
-    } = req.body;
-
-    if (!userName || !password) {
-      throw new Error('Username and password must be filled');
-    }
-    if (!validator.isMobilePhone(phone, 'any')) {
-      throw new Error('Phone not valid');
-    }
-    if (!validator.isStrongPassword(password)) {
-      throw new Error('Password not strong enough');
-    }
-    if (socialLink && !validator.isURL(socialLink)) {
-      throw new Error('Social link not valid');
-    }
-
+    const { userName, firstName, lastName, phone, password, role, locationId } =
+      req.body;
     // Check if the userName is already in use
     const existing = await UserModel.findOne({ userName });
     if (existing) {
@@ -112,17 +79,14 @@ export const signupUser = async (req: Request, res: Response) => {
     // hashes the password using the salt.
     const hash = await bcrypt.hash(password, salt);
 
-    //
     const user = await UserModel.create({
       userName,
       firstName,
       lastName,
       phone,
-      password: hash,
-      avatar,
-      socialLink,
+      password,
       role,
-      hobbies,
+      locationId,
     });
     // const token = createToken(user._id);
 
