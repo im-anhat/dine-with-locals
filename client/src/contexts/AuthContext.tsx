@@ -1,6 +1,4 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthenticatedUser } from '../../../shared/types/User';
-import { getUserById } from '../services/UserService';
 import { jwtDecode } from 'jwt-decode';
 
 //This context store authentication-related state: logged in status, user data
@@ -16,7 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 interface AuthContextType {
   isAuthenticated: boolean;
   // token: string;
-  login: (user: AuthenticatedUser) => void;
+  login: () => void;
   logout: () => void;
 }
 
@@ -78,7 +76,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * state: The current state of the authentication context. Initially, it is { user: null }.
    * dispatch: A function that is used to send actions to the authReducer to update the state.
    */
-  //useReducer to manage the authentication state
   const [state, dispatch] = useReducer(authReducer, {
     isAuthenticated: false, // initial state
   });

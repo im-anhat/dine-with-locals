@@ -6,12 +6,15 @@ import React, {
   useEffect,
 } from 'react';
 import { User, AuthenticatedUser } from '../../../shared/types/User';
-import { getUserById } from '../services/UserService';
 import { jwtDecode } from 'jwt-decode';
+import { useAuthContext } from '../hooks/auth/useAuthContext';
+import { getUserById } from '../services/UserService';
+// import { getUserById } from '../services/UserService';
+// import { jwtDecode } from 'jwt-decode';
 
 interface UserContextType {
   currentUser: AuthenticatedUser | null;
-  setCurrentUser: (user: User | null) => void;
+  setCurrentUser: (user: AuthenticatedUser | null) => void;
 }
 
 const defaultUserContext: UserContextType = {
@@ -35,10 +38,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     firstName: 'Quy',
     lastName: 'Nguyen',
     phone: '7201234567',
-    streetAddress: '68 Sumner Heights Dr',
-    zipNumber: '12345',
-    city: 'North York',
-    country: 'Canada',
+    locationId: '23342342324453',
     cover:
       'https://a0.anyrgb.com/pngimg/1146/1162/gulpjs-foreach-loop-shuriken-study-skills-computer-programming-github-computer-security-ninja-knowledge-avatar.png',
     avatar:
@@ -49,30 +49,35 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     ethnicity: 'Asian',
     bio: 'I am a software engineer.',
   });
-  // useEffect(() => {
-  //   const token = localStorage.get('token');
-  //   console.log(token);
-  //   const fetchUserData = async () => {
-  //     if (token) {
-  //       try {
-  //         const decodedToken: { _id: string } = jwtDecode(token);
-  //         const fetchUserData = async () => {
-  //           try {
-  //             const userData = await getUserById(decodedToken._id);
-  //             setCurrentUser(userData);
-  //           } catch (error) {
-  //             console.error('Failed to fetch user data:', error);
-  //           }
-  //         };
-  //         fetchUserData();
-  //       } catch (error) {
-  //         console.error('Invalid token:', error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchUserData();
-  // }, []);
+  const { login } = useAuthContext();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log(token);
+    const fetchUserData = async () => {
+      if (token) {
+        try {
+          const decoded: any = jwtDecode(token);
+          const userId = decoded._id;
+          login();
+          const returnUser: AuthenticatedUser = await getUserById(userId);
+          setCurrentUser(returnUser);
+          const decodedToken: { _id: string } = jwtDecode(token);
+          const fetchUserData = async () => {
+            try {
+              const userData = await getUserById(decodedToken._id);
+              setCurrentUser(userData);
+            } catch (error) {
+              console.error('Failed to fetch user data:', error);
+            }
+          };
+          fetchUserData();
+        } catch (error) {
+          console.error('Invalid token:', error);
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>

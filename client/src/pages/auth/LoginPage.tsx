@@ -13,7 +13,7 @@ function LoginPage() {
 
   const submitLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+    console.log('enter this submit function');
     const userLogin: UserLogin = {
       userName: userName,
       password: password,
@@ -48,6 +48,7 @@ function LoginPage() {
           name="password"
           placeholder="Password"
           value={password}
+          type="password"
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-900"
         />

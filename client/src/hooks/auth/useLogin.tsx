@@ -2,13 +2,17 @@ import { useState } from 'react';
 import axios from 'axios';
 import { UserLogin } from '../../../../shared/types/User';
 import { useAuthContext } from './useAuthContext';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
+import { getUserById } from '../../services/UserService';
+import { useUserContext } from '../useUserContext';
+import { AuthenticatedUser } from '../../../../shared/types/User';
 // import BASE_URL from '../../../../shared/constants/constants';
 
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthContext();
+  const { setCurrentUser } = useUserContext();
 
   const handleLogin = async (user: UserLogin) => {
     setIsLoading(true);
@@ -22,10 +26,9 @@ export const useLogin = () => {
         `${import.meta.env.VITE_API_BASE_URL}api/auth/login`,
         user,
       );
-      
+
       const { token } = result.data;
 
-     
       // Save token encrypted with _id and user name.
       localStorage.setItem('token', token);
 
@@ -33,9 +36,12 @@ export const useLogin = () => {
       // Then update the context with the information sent from backend
       //===================MORE CODE HERE=================================//
 
-      const userId = jwtDecode(token, { header: true });
+      const decoded: any = jwtDecode(token);
+      const userId = decoded._id;
+      login();
+      const returnUser: AuthenticatedUser = await getUserById(userId);
+      setCurrentUser(returnUser);
 
-      // login(userData); //login = (user: AuthenticatedUser)
       //=================================================================//
       setIsLoading(false);
     } catch (err: any) {
