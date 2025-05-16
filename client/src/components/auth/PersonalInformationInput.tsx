@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { useStep } from '../../hooks/auth/useStep';
 import { useLocation } from '../../hooks/useLocation';
 import { z } from 'zod';
@@ -57,7 +56,6 @@ function PersonalInformationInput({
     setLocationId(res.locationId);
     goNext();
   };
-  //useEffect(() => {}, [user.locationId]);
 
   return (
     <div className="flex flex-row justify-center">
@@ -69,7 +67,7 @@ function PersonalInformationInput({
             Personal Information
           </h1>
         </div>
-        {/* First name and Last Name */}
+         {/* First name and Last Name */}
         <div className="flex flex-row gap-4">
           {/* Firstname */}
           <div className="w-full">
@@ -121,8 +119,6 @@ function PersonalInformationInput({
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
         </div>
-        {/* address: string; city: string; state: string; country: string; zipCode:
-        string; */}
         <div className="w-full">
           <label htmlFor="address" className="block text-gray-500 text-sm">
             Address
@@ -162,7 +158,6 @@ function PersonalInformationInput({
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
           />
         </div>
-
         <div className="flex flex-row gap-4">
           <div className="w-32 flex-1">
             <label htmlFor="zipcode" className="block text-gray-500 text-sm">
