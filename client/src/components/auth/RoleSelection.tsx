@@ -1,5 +1,3 @@
-import React from 'react';
-import ProcessBar from './ProcessBar';
 import { useStep } from '../../hooks/auth/useStep';
 
 interface RoleSelectionProps {
@@ -7,16 +5,8 @@ interface RoleSelectionProps {
 }
 
 function RoleSelection({ setRole }: RoleSelectionProps) {
-  // type Role = 'Host' | 'Guest';
-
-  // const { user, setUser } = useUserContext();
   const { goNext } = useStep();
 
-  // const setInfo = (choice: Role) => {
-  //   const newUser = { ...user, role: choice };
-  //   console.log('This is new user', newUser);
-  //   setUser(newUser);
-  // };
   return (
     <div className="flex flex-row justify-center">
       <div className="flex flex-col">

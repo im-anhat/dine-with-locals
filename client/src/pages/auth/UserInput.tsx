@@ -3,11 +3,9 @@ import { useStep } from '../../hooks/auth/useStep';
 import RoleSelection from '../../components/auth/RoleSelection';
 import AuthenticateInput from '../../components/auth/AuthenticateInput';
 import PersonalInformationInput from '../../components/auth/PersonalInformationInput';
-import { User } from '../../../../shared/types/User';
 
 function UserInput() {
   const { currentStep: step } = useStep();
-  type Ethnicity = 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   type Role = 'Host' | 'Guest';
   const [role, setRole] = useState<Role>('Guest');
   const [firstName, setFirstName] = useState<string>('');

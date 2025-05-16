@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Define the types for the context
 export interface StepContextType {
@@ -37,14 +38,20 @@ export const StepProvider: React.FC<StepProviderProps> = ({
   totalSteps,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const navigate = useNavigate();
   const goNext = () => {
     if (currentStep <= totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
   const goBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+    console.log(currentStep);
+    const newCurrentStep = currentStep - 1;
+    if (newCurrentStep >= 1) {
+      setCurrentStep(newCurrentStep);
+    }
+    if (newCurrentStep < 1) {
+      navigate('/');
     }
   };
   return (
