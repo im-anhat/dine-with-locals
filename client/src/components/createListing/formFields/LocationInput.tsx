@@ -40,11 +40,29 @@ const LocationInput = ({ field, form }: LocationInputProps) => {
   const handleOnPlacesChanged = () => {
     if (inputRef.current) {
       const places = inputRef.current.getPlaces();
+      console.log('Places:', places);
       if (places && places.length > 0) {
         // only set the name and place_id of the selected place
         form.setValue('location', {
           name: places[0]?.name ?? '',
           place_id: places[0]?.place_id ?? '',
+          address: places[0]?.formatted_address ?? '',
+          city: places[0]?.address_components?.find((component) =>
+            component.types.includes('locality')
+          )?.long_name,
+          state: places[0]?.address_components?.find((component) =>
+            component.types.includes('administrative_area_level_1')
+          )?.long_name,
+          country: places[0]?.address_components?.find((component) =>
+            component.types.includes('country')
+          )?.long_name,
+          zipCode: places[0]?.address_components?.find((component) =>
+            component.types.includes('postal_code')
+          )?.long_name,
+          coordinates: {
+            lat: places[0]?.geometry?.location?.lat(),
+            lng: places[0]?.geometry?.location?.lng(),
+          },
         });
       }
       console.log('Form location value:', form.getValues('location'));
