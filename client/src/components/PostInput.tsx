@@ -26,7 +26,6 @@ const PostInput: React.FC<PostInputProps> = ({
   const [errors, setErrors] = useState({ title: '', content: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Update form when initialValues change (for editing mode)
   useEffect(() => {
     if (initialValues) {
       setTitle(initialValues.title);
@@ -169,10 +168,12 @@ const PostInput: React.FC<PostInputProps> = ({
         >
           Cancel
         </Button>
-        <Button 
-        className="bg-brand-coral-300"
-        type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : initialValues ? 'Update' : 'Post'}
+        <Button
+          className="bg-brand-coral-300"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Creating...' : initialValues ? 'Update' : 'Post'}
         </Button>
       </div>
     </form>

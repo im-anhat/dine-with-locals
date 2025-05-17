@@ -3,7 +3,14 @@ import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { HeartIcon, MessageCircleIcon, SendIcon, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import {
+  HeartIcon,
+  MessageCircleIcon,
+  SendIcon,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import { formatDistanceToNow } from 'date-fns';
 import {
@@ -20,7 +27,12 @@ interface BlogCardProps {
   currentUserId?: string;
 }
 
-const BlogCard: React.FC<BlogCardProps> = ({ blog, onEdit, onDelete, currentUserId }) => {
+const BlogCard: React.FC<BlogCardProps> = ({
+  blog,
+  onEdit,
+  onDelete,
+  currentUserId,
+}) => {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
@@ -51,15 +63,13 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onEdit, onDelete, currentUser
           userName: 'unknown',
           avatar: '',
         };
-  
-  // Check if current user is the author of the post
-  const isAuthor = currentUserId && (user._id === currentUserId);
+
+  const isAuthor = currentUserId && user._id === currentUserId;
 
   // Generate display name from user data
   const displayName = `${user.firstName} ${user.lastName}`;
   const userInitials = user.firstName.charAt(0) + user.lastName.charAt(0);
 
-  // Format date - handle both string dates and Date objects
   const formattedDate = blog.createdAt
     ? typeof blog.createdAt === 'string' && blog.createdAt.includes('ago')
       ? blog.createdAt
@@ -81,7 +91,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onEdit, onDelete, currentUser
             </p>
           </div>
         </div>
-        
+
         {isAuthor && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -171,7 +181,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onEdit, onDelete, currentUser
         </div>
       )}
 
-      {/* Photo view modal */}
+      {/*Photo view modal*/}
       {selectedPhotoIndex !== null && blog.photos && blog.photos.length > 0 && (
         <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"

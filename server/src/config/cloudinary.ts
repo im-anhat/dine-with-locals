@@ -9,14 +9,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Storage Configuration for Multer (Middleware to handle multipart/form-data, used for uploading files.)
+// Storage Configuration for Multer (Middleware to handle multipart/form-data, used for uploading files)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      allowed_formats: ['jpg', 'jpeg', 'png'],
-    };
-  },
 });
 
 const upload = multer({ storage: storage });
