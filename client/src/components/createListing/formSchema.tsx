@@ -4,7 +4,10 @@ const baseSchema = z.object({
   title: z.string().min(2).max(50),
   description: z.string().min(10).max(500),
   images: z.array(z.instanceof(File)).optional(),
-  locationId: z.string().nonempty(),
+  location: z.object({
+    name: z.string(),
+    place_id: z.string(),
+  }),
   interestTopic: z.array(z.string()).optional(),
   time: z.date().optional(),
   duration: z.number().positive().optional(),

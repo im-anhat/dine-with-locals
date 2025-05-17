@@ -1,6 +1,4 @@
-import { RefObject, useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
+import { useState } from 'react';
 import {
   FormControl,
   FormDescription,
@@ -25,14 +23,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
 
-import formSchema from '@/components/createListing/formSchema';
 import CategoryBadge from '../ui/CategoryBadge';
 import ImageUploadField from '../formFields/ImageUploadField';
+import LocationInput from '../formFields/LocationInput';
+import formSchema from '@/components/createListing/formSchema';
 
 interface BasicInfoCardProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
-  fileInputRef: RefObject<HTMLInputElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 const BasicInfoCard = ({ form, fileInputRef }: BasicInfoCardProps) => {
@@ -140,19 +141,8 @@ const BasicInfoCard = ({ form, fileInputRef }: BasicInfoCardProps) => {
         {/* Location */}
         <FormField
           control={form.control}
-          name="locationId"
-          render={({ field }) => (
-            <FormItem className="mb-4">
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <Input placeholder="Location ID" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter the location ID for your listing
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          name="location"
+          render={({field}) => <LocationInput field={field} form={form} />}
         />
 
         {/* Interest Topics */}
@@ -190,14 +180,16 @@ const BasicInfoCard = ({ form, fileInputRef }: BasicInfoCardProps) => {
 
         {(form.watch('interestTopic') ?? []).length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {form.watch('interestTopic')!.map((topic, index) => (
-              <CategoryBadge
-                key={index}
-                onRemove={() => handleTopicRemove(index)}
-              >
-                {topic}
-              </CategoryBadge>
-            ))}
+            {(form.watch('interestTopic') ?? []).map(
+              (topic: string, index: number) => (
+                <CategoryBadge
+                  key={index}
+                  onRemove={() => handleTopicRemove(index)}
+                >
+                  {topic}
+                </CategoryBadge>
+              ),
+            )}
           </div>
         )}
       </CardContent>
