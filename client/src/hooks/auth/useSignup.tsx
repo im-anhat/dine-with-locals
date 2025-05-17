@@ -20,7 +20,6 @@ export const useSignUp = () => {
         `${import.meta.env.VITE_API_BASE_URL}api/auth/signup`,
         user,
       );
-      console.log('Signup successful:', response.data);
       // Save the user to local storage
       localStorage.setItem('token', response.data.token);
     } catch (err: any) {

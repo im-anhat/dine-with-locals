@@ -65,8 +65,16 @@ export const loginUser = async (req: Request, res: Response) => {
  */
 export const signupUser = async (req: Request, res: Response) => {
   try {
-    const { userName, firstName, lastName, phone, password, role, locationId } =
-      req.body;
+    const {
+      userName,
+      firstName,
+      lastName,
+      phone,
+      password,
+      role,
+      locationId,
+      avatar,
+    } = req.body;
     // Check if the userName is already in use
     const existing = await UserModel.findOne({ userName });
     if (existing) {
@@ -86,8 +94,9 @@ export const signupUser = async (req: Request, res: Response) => {
       password: hash,
       role: role,
       locationId: locationId,
+      avatar: avatar,
     });
-    const token = createToken(user._id.toString());
+    // const token = createToken(user._id.toString());
 
     res.status(200).json({ Message: 'Sign up success' });
   } catch (error: any) {

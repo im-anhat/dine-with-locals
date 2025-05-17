@@ -17,7 +17,13 @@ export interface User {
 
 export type UserSignUp = Pick<
   User,
-  'userName' | 'password' | 'firstName' | 'lastName' | 'phone' | 'role'
+  | 'userName'
+  | 'password'
+  | 'firstName'
+  | 'lastName'
+  | 'phone'
+  | 'role'
+  | 'avatar'
 >;
 export type AuthenticatedUser = Omit<User, 'password'>;
 export type UserLogin = Pick<User, 'userName' | 'password'>;

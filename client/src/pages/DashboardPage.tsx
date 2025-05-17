@@ -31,6 +31,10 @@ function DashboardPage() {
           <div>
             <div>First name: {currentUser?.firstName}</div>
             <div>Last name: {currentUser?.lastName}</div>
+            <div>Avatar: {currentUser?.avatar}</div>
+            <div>
+              <img src={currentUser?.avatar} />
+            </div>
           </div>
         ) : (
           <div></div>

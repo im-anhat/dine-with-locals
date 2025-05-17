@@ -19,6 +19,8 @@ function UserInput() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [locationId, setLocationId] = useState('');
+  const avatar =
+    'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg';
 
   const user = {
     role,
@@ -28,6 +30,7 @@ function UserInput() {
     password,
     userName,
     locationId,
+    avatar,
   };
   const location = {
     address,
