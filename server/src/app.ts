@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/mongo.js';
+import userRoutes from './routes/UserRoutes.js';
+import authRoutes from './routes/AuthRoutes.js';
+import locationRoutes from './routes/LocationRoutes.js';
 
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
@@ -21,12 +24,16 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
+//Parse user request -> Json format
 app.use(express.json());
+//Only receive request from some specific routes.
+app.use(cors());
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/location', locationRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Routes
-app.use('/api/reviews', reviewRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

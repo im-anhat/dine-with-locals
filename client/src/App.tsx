@@ -1,23 +1,46 @@
 import React from 'react';
-import Home from './pages/ExampleHome';
-import './styles/main.css';
-import { Routes, Route } from 'react-router-dom';
-import Login from './pages/auth/Login';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthContext } from './hooks/auth/useAuthContext';
+import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
-import ExampleHome from './pages/ExampleHome';
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/auth/LoginPage';
+import './styles/main.css';
 
 //The type React.FC is a type definition for type checking for functional components
 //and ensures that children are implicitly typed
 const App: React.FC = () => {
+  const { isAuthenticated } = useAuthContext();
   return (
-    <div>
-      <Home />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/" element={<ExampleHome />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route
+        path="/signup"
+        element={
+          !isAuthenticated ? (
+            <SignUpPage />
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          !isAuthenticated ? (
+            <LoginPage />
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          isAuthenticated ? <DashboardPage /> : <Navigate to="/" replace />
+        }
+      />
+    </Routes>
   );
 };
 
