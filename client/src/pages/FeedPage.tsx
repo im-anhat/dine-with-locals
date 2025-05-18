@@ -12,6 +12,7 @@ import { PlusIcon } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import {uploadFiles} from '../../../server/src/services/UploadService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -73,30 +74,7 @@ const FeedPage: React.FC = () => {
   }) => {
     try {
       setIsSubmitting(true);
-
-      let imageUrls: string[] = [];
-
-      // Upload images to Cloudinary
-      if (data.photos.length > 0) {
-        const formData = new FormData();
-        data.photos.forEach((photo) => {
-          formData.append('images', photo);
-        });
-
-        console.log('Uploading images to Cloudinary...');
-        const uploadResponse = await axios.post(
-          `${API_URL}/upload/images`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        );
-
-        imageUrls = uploadResponse.data.imageUrls;
-        console.log('Images uploaded successfully:', imageUrls);
-      }
+      const imageUrls = await uploadFiles(data.photos);
 
       if (currentBlog) {
         // EDIT MODE
