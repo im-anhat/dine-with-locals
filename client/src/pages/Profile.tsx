@@ -113,6 +113,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
         const profileReviews = await getReviewsByUserId(profileUser._id);
         if (profileReviews) {
           setReviews(profileReviews);
+          // console.log(reviews);
         } else {
           setReviews([]);
         }
