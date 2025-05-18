@@ -6,7 +6,11 @@ import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
 import './styles/main.css';
+import Login from './pages/auth/Login';
+import ExampleHome from './pages/ExampleHome';
 
+//The type React.FC is a type definition for type checking for functional components
+//and ensures that children are implicitly typed
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
   return (
