@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from './hooks/auth/useAuthContext';
 import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
-import DashoardPage from './pages/DashboardPage';
+import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
 import './styles/main.css';
 
@@ -15,7 +15,11 @@ const App: React.FC = () => {
       <Route
         path="/signup"
         element={
-          !isAuthenticated ? <SignUpPage /> : <Navigate to="/" replace />
+          !isAuthenticated ? (
+            <SignUpPage />
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
         }
       />
       <Route
@@ -28,7 +32,12 @@ const App: React.FC = () => {
           )
         }
       />
-      <Route path="/dashboard" element={<DashoardPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          isAuthenticated ? <DashboardPage /> : <Navigate to="/" replace />
+        }
+      />
     </Routes>
   );
 };
