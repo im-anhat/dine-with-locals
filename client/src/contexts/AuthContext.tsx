@@ -13,7 +13,6 @@ import { jwtDecode } from 'jwt-decode';
  */
 interface AuthContextType {
   isAuthenticated: boolean;
-  // token: string;
   login: () => void;
   logout: () => void;
 }
