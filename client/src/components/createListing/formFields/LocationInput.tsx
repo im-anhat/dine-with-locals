@@ -65,7 +65,7 @@ const LocationInput = ({ field, form }: LocationInputProps) => {
           },
         });
       }
-      console.log('Form location value:', form.getValues('location'));
+      console.log('Form location value:', JSON.stringify(form.getValues('location')));
     }
   };
 
