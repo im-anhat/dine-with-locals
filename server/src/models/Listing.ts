@@ -6,7 +6,7 @@ export interface IListing extends Document {
   description: string;
   images?: string[]; //urls of images
   category: 'dining' | 'travel' | 'event';
-  locationId: mongoose.Types.ObjectId; // now using default _id from Location
+  locationId: string; // now using Google Maps place_id
   additionalInfo?: string;
   status: 'pending' | 'waiting' | 'approved';
   time?: Date;
@@ -44,6 +44,7 @@ const ListingSchema: Schema = new Schema(
       enum: ['dining', 'travel', 'event'],
       required: true,
     },
+    // locationId refers to the _id field in the Location model, not place_id
     locationId: {
       type: Schema.Types.ObjectId,
       required: true,

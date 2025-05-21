@@ -5,6 +5,7 @@ import cors from 'cors';
 import errorHandler from './middlewares/ExampleErrorHandler.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import listingRoutes from './routes/listingRoutes.js';
+import locationRoutes from './routes/locationRoutes.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors())
 // app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/locations', locationRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
