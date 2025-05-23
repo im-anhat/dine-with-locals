@@ -32,7 +32,7 @@ function LoginPage() {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="flex flex-row justify-center p-20 mt-10">
+    <div className="flex flex-row justify-center p-20 mt-10 w-full">
       <div className="flex flex-col gap-2 max-w-1/3">
         <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
           Login
@@ -42,7 +42,7 @@ function LoginPage() {
           placeholder="User Name"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          className="grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-900"
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-900"
         />
         <input
           name="password"

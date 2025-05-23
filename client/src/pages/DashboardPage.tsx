@@ -16,7 +16,7 @@ function DashboardPage() {
     navigate('/');
   };
   return (
-    <>
+    <div>
       <div>DashboardPage</div>
       <button
         onClick={logout}
@@ -40,7 +40,7 @@ function DashboardPage() {
           <div></div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
