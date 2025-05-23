@@ -16,6 +16,11 @@ const AllReviewsModal: React.FC<AllReviewsModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  // Additional safety check to filter out reviews with missing data
+  const validReviews = reviews.filter(
+    (review) => review && review.reviewerId && review.reviewerId.userName,
+  );
+
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop with blur effect - covers the entire screen without any whitespace */}

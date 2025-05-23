@@ -27,6 +27,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState<boolean>(true);
   const [isAllReviewsOpen, setIsAllReviewsOpen] = useState<boolean>(false);
 
   // fetch owner of the page
@@ -111,15 +112,23 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       if (profileUser?._id) {
-        const profileReviews = await getReviewsByUserId(profileUser._id);
-        console.log('Fetched reviews:', profileReviews);
-        if (profileReviews) {
-          setReviews(profileReviews);
-        } else {
+        setReviewsLoading(true);
+        try {
+          const profileReviews = await getReviewsByUserId(profileUser._id);
+          if (profileReviews) {
+            setReviews(profileReviews);
+          } else {
+            setReviews([]);
+          }
+        } catch (error) {
+          console.error('Failed to fetch reviews:', error);
           setReviews([]);
+        } finally {
+          setReviewsLoading(false);
         }
       } else {
         setReviews([]);
+        setReviewsLoading(false);
       }
     };
 
@@ -182,13 +191,21 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
           {/* Right Column - Reviews and Blog Posts */}
           <div className="md:col-span-2 space-y-6">
             {/* Reviews Section Component */}
-            <ProfileReviews
-              reviews={reviews}
-              isOwnProfile={isOwnProfile}
-              profileFirstName={profileUser.firstName}
-              isAllReviewsOpen={isAllReviewsOpen}
-              onToggleAllReviews={toggleAllReviewsModal}
-            />
+            {reviewsLoading ? (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="text-center py-4 text-brand-stone-500">
+                  Loading reviews...
+                </div>
+              </div>
+            ) : (
+              <ProfileReviews
+                reviews={reviews}
+                isOwnProfile={isOwnProfile}
+                profileFirstName={profileUser.firstName}
+                isAllReviewsOpen={isAllReviewsOpen}
+                onToggleAllReviews={toggleAllReviewsModal}
+              />
+            )}
 
             {/* Blog Posts Section Component */}
             <ProfileBlogs

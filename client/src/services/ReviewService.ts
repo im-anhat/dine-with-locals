@@ -1,6 +1,7 @@
-import React from 'react'
+import React from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + 'api' || 'http://localhost:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL + 'api' || 'http://localhost:3000/api';
 
 interface PopulatedUser {
   _id: string;
@@ -23,7 +24,6 @@ export interface Review {
 export const getReviewsByUserId = async (userId: string): Promise<Review[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/reviews/user/${userId}`);
-    console.log(`${API_BASE_URL}/reviews/user/${userId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch reviews');
     }
@@ -32,4 +32,4 @@ export const getReviewsByUserId = async (userId: string): Promise<Review[]> => {
     console.error('Error fetching reviews:', error);
     return [];
   }
-}
+};
