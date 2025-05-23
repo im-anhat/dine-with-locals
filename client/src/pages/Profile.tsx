@@ -112,6 +112,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const fetchReviews = async () => {
       if (profileUser?._id) {
         const profileReviews = await getReviewsByUserId(profileUser._id);
+        console.log('Fetched reviews:', profileReviews);
         if (profileReviews) {
           setReviews(profileReviews);
         } else {

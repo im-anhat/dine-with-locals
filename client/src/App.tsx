@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProvider } from './contexts/UserContext';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/Profile';
 import './styles/index.css';
 
 //The type React.FC is a type definition for type checking for functional components
@@ -35,7 +35,7 @@ const App: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <ProfilePage userId='67f7f8281260844f9625ee33' />
+          <ProfilePage userId="67f7f8281260844f9625ee33" />
         </div>
       </div>
     </UserProvider>
