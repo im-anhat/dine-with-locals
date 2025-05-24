@@ -12,11 +12,30 @@ export const fetchDocuments = async (req: Request, res: Response) => {
     category,
     city,
   } = req.body;
-  console.log(new Date(startDate));
-  console.log(new Date(endDate));
+  //Validation
 
+  // Manually building matching condition for $match state in the aggregation pipeline below
+  const matchConditions: Record<string, any> = {};
+  //Validation
+  if (numGuests) matchConditions.numGuests = numGuests;
+  if (locationType) matchConditions.locationType = locationType;
+  if (category) matchConditions.category = category;
+  if (city) matchConditions['mergedLocation.city'] = city;
+  if (dietaryRestriction && dietaryRestriction.length > 0) {
+    matchConditions.dietaryRestriction = { $in: dietaryRestriction };
+  }
+  if (startDate && endDate) {
+    matchConditions.$expr = {
+      $and: [
+        { $gte: ['$time', new Date(startDate)] },
+        { $lt: ['$time', new Date(endDate)] },
+      ],
+    };
+  }
+  //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
     {
+      //Merge locations schema with requestmodels
       $lookup: {
         from: 'locations',
         localField: 'locationId',
@@ -28,19 +47,8 @@ export const fetchDocuments = async (req: Request, res: Response) => {
       $unwind: '$mergedLocation',
     },
     {
-      $match: {
-        numGuests: numGuests,
-        dietaryRestriction: { $in: [dietaryRestriction] },
-        locationType: locationType,
-        category: category,
-        'mergedLocation.city': city,
-        $expr: {
-          $and: [
-            { $gte: ['$time', new Date(startDate)] },
-            { $lt: ['$time', new Date(endDate)] },
-          ],
-        },
-      },
+      //Match conditions specified above
+      $match: matchConditions,
     },
   ];
   /**
