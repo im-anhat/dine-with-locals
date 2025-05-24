@@ -4,6 +4,7 @@ import connectDB from './config/mongo.js';
 import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
+import filterRoutes from './routes/FilterRoutes.js';
 
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
@@ -32,8 +33,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
-
-// Routes
+app.use('/api/filter', filterRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

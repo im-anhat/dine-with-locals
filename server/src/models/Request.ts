@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IRequest extends Document {
+export interface IRequest {
   userId: mongoose.Types.ObjectId; // References User._id
   createdAt: Date;
   title: string;
   locationType: 'home' | 'res' | 'either';
+  category: 'dining' | 'travel' | 'event';
   locationId: mongoose.Types.ObjectId; // References Location._id
   interestTopic: string[];
   time: Date;
@@ -25,6 +26,11 @@ const RequestSchema: Schema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+    },
+    category: {
+      type: String,
+      enum: ['dining', 'travel', 'event'],
+      required: true,
     },
     title: {
       type: String,
@@ -77,4 +83,4 @@ const RequestSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-export default mongoose.model<IRequest>('Request', RequestSchema);
+export default mongoose.model<IRequest>('RequestModel', RequestSchema);
