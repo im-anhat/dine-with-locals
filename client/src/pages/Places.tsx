@@ -22,7 +22,7 @@ const Places: React.FC = () => {
     <div className="min-h-screen bg-brand-shell-100">
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-brand-stone-800 mb-6">
-          Find Dining Experiences Near You
+          Find Interesting Destinations Near You
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-10rem)]">
