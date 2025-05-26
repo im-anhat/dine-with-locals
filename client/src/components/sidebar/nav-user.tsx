@@ -12,7 +12,7 @@ export default function NavUser() {
   const { currentUser } = useUser();
 
   if (!currentUser) {
-    return null; 
+    return null;
   }
 
   return (
@@ -30,7 +30,9 @@ export default function NavUser() {
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{currentUser.firstName}</span>
+            <span className="truncate font-semibold">
+              {currentUser.firstName}
+            </span>
             <span className="truncate text-xs">{currentUser.userName}</span>
           </div>
         </SidebarMenuButton>
