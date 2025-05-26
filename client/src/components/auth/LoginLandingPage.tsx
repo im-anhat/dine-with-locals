@@ -1,15 +1,24 @@
 import { WiStars } from 'react-icons/wi';
+import { useNavigate } from 'react-router';
 
 function LoginLandingPage() {
+  const navigate = useNavigate();
   return (
     <div>
       {' '}
       <div className="h-full bg-brand-coral-400 rounded-r-xl bg-gradient-to-l from-rose-500 to-[#fc6767] text-white p-6">
-        <div className="flex flex-col justify-center h-full space-y-6">
-          <img
-            src="../../../logo.svg"
-            className="h-14 absolute top-10 left-10"
-          />
+        <div className="flex flex-col justify-center h-full space-y-2 hover-white">
+          <div className="h-14 absolute top-10 left-10 hover:bg-brand-coral-400">
+            <img
+              src="../../../logo.svg"
+              className=""
+              onClick={() => {
+                console.log('clicked');
+                navigate('/');
+              }}
+            />
+          </div>
+
           <div className="text-6xl font-bold instrument-serif flex items-center gap-2">
             Beyond tours{' '}
             <span className="text-sm font-thin instrument-serif">
