@@ -50,7 +50,7 @@ const App: React.FC = () => {
         <Route
           path="/dashboard"
           element={
-            isAuthenticated ? <DashboardPage /> : <Navigate to="/" replace />
+            isAuthenticated ? <DashboardPage /> : <div></div>
           }
         />
       </Routes>
