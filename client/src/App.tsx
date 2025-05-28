@@ -7,6 +7,8 @@ import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
+import FeedPage from './pages/FeedPage';
+import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -15,6 +17,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 //and ensures that children are implicitly typed
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
+  console.log(isAuthenticated);
+
   return (
     // moved BrowserRouter from main.tsx to here
     <SidebarProvider>
@@ -24,9 +28,9 @@ const App: React.FC = () => {
           <SidebarTrigger />
         </>
       )}
+
       <Routes>
         {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
-        <Route path="/" element={<Home />} />
         <Route
           path="/signup"
           element={
@@ -51,7 +55,14 @@ const App: React.FC = () => {
           path="/dashboard"
           element={isAuthenticated ? <DashboardPage /> : <Home />}
         />
+        <Route
+          path="/feed"
+          element={isAuthenticated ? <FeedPage /> : <Home />}
+        />
+        <Route path="/" element={<Home />} />
       </Routes>
+
+      <Toaster />
     </SidebarProvider>
   );
 };

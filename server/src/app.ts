@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/mongo.js';
+import blogRoutes from './routes/BlogRoutes.js';
+import './models/User.js';
 import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
@@ -32,6 +34,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Routes
 
