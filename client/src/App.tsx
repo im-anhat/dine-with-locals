@@ -17,6 +17,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 //and ensures that children are implicitly typed
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
+  console.log(isAuthenticated);
+
   return (
     // moved BrowserRouter from main.tsx to here
     <SidebarProvider>
@@ -26,9 +28,9 @@ const App: React.FC = () => {
           <SidebarTrigger />
         </>
       )}
+
       <Routes>
         {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
-        <Route path="/" element={<Home />} />
         <Route
           path="/signup"
           element={
@@ -51,14 +53,13 @@ const App: React.FC = () => {
         />
         <Route
           path="/dashboard"
-          element={
-            isAuthenticated ? <DashboardPage /> : <Navigate to="/" replace />
-          }
+          element={isAuthenticated ? <DashboardPage /> : <Home />}
         />
         <Route
           path="/feed"
-          element={isAuthenticated ? <FeedPage /> : <Navigate to="/" replace />}
+          element={isAuthenticated ? <FeedPage /> : <Home />}
         />
+        <Route path="/" element={<Home />} />
       </Routes>
 
       <Toaster />
