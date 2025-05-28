@@ -12,8 +12,8 @@ import { PlusIcon } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import { useUserContext } from '../hooks/useUserContext';
 
-// Updated to use Vite environment variables
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const FeedPage: React.FC = () => {
@@ -22,6 +22,7 @@ const FeedPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { currentUser } = useUserContext();
 
   // Fetch all blogs when component mounts
   useEffect(() => {
@@ -56,22 +57,33 @@ const FeedPage: React.FC = () => {
     setIsDialogOpen(false);
   };
 
-  const handleCreatePost = async (data: { title: string; content: string }) => {
+  const handleCreatePost = async (data: {
+    title: string;
+    content: string;
+    photos: File[];
+  }) => {
     try {
       setIsSubmitting(true);
 
-      // Use a valid MongoDB ObjectId from our test data
-      const currentUserId = '67f7f8281260844f9625ee33'; // Test user ID
+      if (!currentUser || !currentUser._id) {
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in to create a post.',
+          variant: 'destructive',
+        });
+        setIsDialogOpen(false);
+        return;
+      }
 
       console.log('Creating blog with:', {
-        userId: currentUserId,
+        userId: currentUser._id,
         blogTitle: data.title,
         blogContent: data.content,
       });
 
-      // Make API call to create blog
+      // Make API call to create blog using the current userId
       const response = await axios.post(`${API_URL}/blogs`, {
-        userId: currentUserId,
+        userId: currentUser._id,
         blogTitle: data.title,
         blogContent: data.content,
       });
