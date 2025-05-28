@@ -49,9 +49,7 @@ const App: React.FC = () => {
         />
         <Route
           path="/dashboard"
-          element={
-            isAuthenticated ? <DashboardPage /> : <div></div>
-          }
+          element={isAuthenticated ? <DashboardPage /> : <Home />}
         />
       </Routes>
     </SidebarProvider>
