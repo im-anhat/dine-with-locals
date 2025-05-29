@@ -16,6 +16,8 @@ import './models/Listing.js';
 import './models/Location.js';
 import './models/Match.js';
 import './models/Request.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+
 import './models/Review.js';
 
 // Import routes
@@ -35,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Routes
 

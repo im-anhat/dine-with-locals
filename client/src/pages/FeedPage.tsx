@@ -65,6 +65,37 @@ const FeedPage: React.FC = () => {
     try {
       setIsSubmitting(true);
 
+      let imageUrls: string[] = [];
+
+      // Upload images to Cloudinary
+      if (data.photos.length > 0) {
+        const formData = new FormData();
+        data.photos.forEach((photo) => {
+          formData.append('images', photo);
+        });
+
+        console.log('Uploading images to Cloudinary...');
+        const uploadResponse = await axios.post(
+          `${API_URL}/upload/images`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+
+        imageUrls = uploadResponse.data.imageUrls;
+        console.log('Images uploaded successfully:', imageUrls);
+      }
+
+      // Use a valid MongoDB ObjectId from our test data
+      const currentUserId = '67f7f8281260844f9625ee33'; // Test user ID
+
+      console.log('Creating blog with:', {
+        userId: currentUserId,
+      });
+
       if (!currentUser || !currentUser._id) {
         toast({
           title: 'Authentication Required',
@@ -79,6 +110,7 @@ const FeedPage: React.FC = () => {
         userId: currentUser._id,
         blogTitle: data.title,
         blogContent: data.content,
+        photos: imageUrls,
       });
 
       // Make API call to create blog using the current userId
@@ -86,6 +118,7 @@ const FeedPage: React.FC = () => {
         userId: currentUser._id,
         blogTitle: data.title,
         blogContent: data.content,
+        photos: imageUrls,
       });
 
       console.log('New blog created:', response.data);
