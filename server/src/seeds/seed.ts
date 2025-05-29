@@ -9,6 +9,7 @@ import Match from '../models/Match.js';
 import Blog from '../models/Blog.js';
 import Comment from '../models/Comment.js';
 import Like from '../models/Like.js';
+import Review from '../models/Review.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ async function seed() {
     await Blog.deleteMany({});
     await Comment.deleteMany({});
     await Like.deleteMany({});
+    await Review.deleteMany({});
     console.log('Database cleared');
 
     // Create sample users
@@ -181,6 +183,26 @@ async function seed() {
     });
     await like2.save();
     console.log('Likes seeded');
+
+    // Seed reviews
+    const review1 = new Review({
+      userId: new mongoose.Types.ObjectId('67f7f8281260844f9625ee32'), // Review for Nhat (Host)
+      reviewerId: new mongoose.Types.ObjectId('67f7f8281260844f9625ee33'), // Written by Quy (Guest)
+      rating: 5,
+      content:
+        'Nhat was an exceptional host! The Thai food was amazing and the conversation was engaging. Would definitely recommend dining with him!',
+    });
+    await review1.save();
+
+    const review2 = new Review({
+      userId: new mongoose.Types.ObjectId('67f7f8281260844f9625ee33'), // Review for Quy (Guest)
+      reviewerId: new mongoose.Types.ObjectId('67f7f8281260844f9625ee32'), // Written by Nhat (Host)
+      rating: 4,
+      content:
+        'Quy was a great guest, arrived on time and brought interesting conversation topics. Looking forward to hosting him again.',
+    });
+    await review2.save();
+    console.log('Reviews seeded');
 
     // DONE
     console.log('Database seeded successfully');

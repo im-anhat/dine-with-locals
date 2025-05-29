@@ -12,6 +12,7 @@ import { PlusIcon } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import { useUserContext } from '../hooks/useUserContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -22,9 +23,7 @@ const FeedPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
   const { toast } = useToast();
-
-  // Hardcoded current user ID for demo purposes
-  const currentUserId = '67f7f8281260844f9625ee33';
+  const { currentUser } = useUserContext();
 
   // Fetch all blogs when component mounts
   useEffect(() => {
@@ -73,6 +72,16 @@ const FeedPage: React.FC = () => {
   }) => {
     try {
       setIsSubmitting(true);
+
+      if (!currentUser || !currentUser._id) {
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in to create a post.',
+          variant: 'destructive',
+        });
+        setIsDialogOpen(false);
+        return;
+      }
 
       let imageUrls: string[] = [];
 
@@ -131,7 +140,7 @@ const FeedPage: React.FC = () => {
       } else {
         // CREATE MODE
         console.log('Creating blog with:', {
-          userId: currentUserId,
+          userId: currentUser._id,
           blogTitle: data.title,
           blogContent: data.content,
           photos: imageUrls,
@@ -139,7 +148,7 @@ const FeedPage: React.FC = () => {
 
         // Make API call to create blog post
         const response = await axios.post(`${API_URL}/blogs`, {
-          userId: currentUserId,
+          userId: currentUser._id,
           blogTitle: data.title,
           blogContent: data.content,
           photos: imageUrls,
@@ -159,10 +168,10 @@ const FeedPage: React.FC = () => {
       setIsDialogOpen(false);
       setCurrentBlog(null);
     } catch (error) {
-      console.error('Error saving blog:', error);
+      console.error('Error creating blog:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save blog post. Please try again.',
+        description: 'Failed to create blog post. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -245,7 +254,7 @@ const FeedPage: React.FC = () => {
               blog={blog}
               onEdit={handleOpenEditDialog}
               onDelete={handleDeletePost}
-              currentUserId={currentUserId}
+              currentUserId={currentUser?._id}
             />
           ))}
         </div>
