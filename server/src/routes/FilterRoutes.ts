@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import { fetchDocuments } from '../controllers/FilterController.js';
+import {
+  fetchRequestDocuments,
+  fetchListingDocuments,
+} from '../controllers/FilterController.js';
 
 const router = Router();
 
-router.post('/', fetchDocuments);
+router.post('/request', fetchRequestDocuments);
+router.post('/listing', fetchListingDocuments);
 
 export default router;
