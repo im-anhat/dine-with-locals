@@ -12,6 +12,7 @@ import { PlusIcon } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import { useUserContext } from '../hooks/useUserContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -21,6 +22,7 @@ const FeedPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { currentUser } = useUserContext();
 
   // Fetch all blogs when component mounts
   useEffect(() => {
@@ -55,65 +57,87 @@ const FeedPage: React.FC = () => {
     setIsDialogOpen(false);
   };
 
-  const handleCreatePost = async (data: { title: string; content: string; photos: File[] }) => {
+  const handleCreatePost = async (data: {
+    title: string;
+    content: string;
+    photos: File[];
+  }) => {
     try {
       setIsSubmitting(true);
-      
+
       let imageUrls: string[] = [];
-      
-      // Upload images to Cloudinary 
+
+      // Upload images to Cloudinary
       if (data.photos.length > 0) {
         const formData = new FormData();
         data.photos.forEach((photo) => {
           formData.append('images', photo);
         });
 
-        console.log("Uploading images to Cloudinary...");
-        const uploadResponse = await axios.post(`${API_URL}/upload/images`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+        console.log('Uploading images to Cloudinary...');
+        const uploadResponse = await axios.post(
+          `${API_URL}/upload/images`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        });
+        );
 
         imageUrls = uploadResponse.data.imageUrls;
-        console.log("Images uploaded successfully:", imageUrls);
+        console.log('Images uploaded successfully:', imageUrls);
       }
-      
+
       // Use a valid MongoDB ObjectId from our test data
-      const currentUserId = "67f7f8281260844f9625ee33"; // Test user ID
-      
-      console.log("Creating blog with:", {
+      const currentUserId = '67f7f8281260844f9625ee33'; // Test user ID
+
+      console.log('Creating blog with:', {
         userId: currentUserId,
-        blogTitle: data.title,
-        blogContent: data.content,
-        photos: imageUrls
-      });
-      
-      // Make API call to create blog post
-      const response = await axios.post(`${API_URL}/blogs`, {
-        userId: currentUserId,
-        blogTitle: data.title,
-        blogContent: data.content,
-        photos: imageUrls
       });
 
-      console.log("New blog created:", response.data);
-      
+      if (!currentUser || !currentUser._id) {
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in to create a post.',
+          variant: 'destructive',
+        });
+        setIsDialogOpen(false);
+        return;
+      }
+
+      console.log('Creating blog with:', {
+        userId: currentUser._id,
+        blogTitle: data.title,
+        blogContent: data.content,
+        photos: imageUrls,
+      });
+
+      // Make API call to create blog using the current userId
+      const response = await axios.post(`${API_URL}/blogs`, {
+        userId: currentUser._id,
+        blogTitle: data.title,
+        blogContent: data.content,
+        photos: imageUrls,
+      });
+
+      console.log('New blog created:', response.data);
+
       // Add new blog to the list
       setBlogs([response.data, ...blogs]);
-      
+
       toast({
-        title: "Success",
-        description: "Your blog post has been created!",
+        title: 'Success',
+        description: 'Your blog post has been created!',
       });
-      
+
       setIsDialogOpen(false);
     } catch (error) {
-      console.error("Error creating blog:", error);
+      console.error('Error creating blog:', error);
       toast({
-        title: "Error",
-        description: "Failed to create blog post. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create blog post. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
