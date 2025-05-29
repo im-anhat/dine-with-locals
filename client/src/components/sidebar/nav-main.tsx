@@ -5,20 +5,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroupLabel,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar';
 
-import { type LucideIcon } from "lucide-react"
+import { type LucideIcon } from 'lucide-react';
 
 export default function NavGroup({
   groupLabel,
   items,
 }: {
-  groupLabel: string,
+  groupLabel: string;
   items: {
-    title: string
-    url: string
-    icon: LucideIcon
-  }[]
+    title: string;
+    url: string;
+    icon: LucideIcon;
+  }[];
 }) {
   return (
     <SidebarGroup>
@@ -38,5 +38,5 @@ export default function NavGroup({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

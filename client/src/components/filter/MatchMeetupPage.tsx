@@ -33,7 +33,7 @@ const MatchCard = ({ name, date, time, description, tags = [] }: any) => (
   </Card>
 );
 
-const DashboardPage = () => {
+const MatchMeetupPage = () => {
   return (
     <div className="p-8 space-y-8">
       {/* Header Section */}
@@ -127,4 +127,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default MatchMeetupPage;

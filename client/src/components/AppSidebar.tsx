@@ -4,6 +4,7 @@ import {
   Map,
   LayoutList,
   MessageSquare,
+  Funnel,
 } from 'lucide-react';
 
 import {
@@ -25,6 +26,11 @@ const items = {
       title: 'Dashboard',
       url: '/dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      title: 'Filter',
+      url: '/filter',
+      icon: Funnel,
     },
     {
       title: 'Feed',
