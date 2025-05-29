@@ -110,9 +110,9 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   if (numGuests) {
     matchConditions.numGuests = numGuests;
   }
-  // if (city) {
-  //   matchConditions['mergedLocation.city'] = city;
-  // }
+  if (city) {
+    matchConditions['mergedLocation.city'] = city;
+  }
   if (dietaryRestriction && dietaryRestriction.length > 0) {
     matchConditions.dietaryRestriction = { $in: dietaryRestriction };
   }
@@ -125,18 +125,18 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
     };
   }
   const pipeline: mongoose.PipelineStage[] = [
-    // {
-    //   //Merge locations schema with requestmodels
-    //   $lookup: {
-    //     from: 'locations',
-    //     localField: 'locationId',
-    //     foreignField: '_id',
-    //     as: 'mergedLocation',
-    //   },
-    // },
-    // {
-    //   $unwind: '$mergedLocation',
-    // },
+    {
+      //Merge locations schema with requestmodels
+      $lookup: {
+        from: 'locations',
+        localField: 'locationId',
+        foreignField: '_id',
+        as: 'mergedLocation',
+      },
+    },
+    {
+      $unwind: '$mergedLocation',
+    },
     {
       $match: matchConditions,
     },
