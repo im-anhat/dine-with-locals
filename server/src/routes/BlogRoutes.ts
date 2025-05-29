@@ -3,6 +3,8 @@ import {
   getAllBlogs,
   getBlogsByUserId,
   createBlog,
+  updateBlog,
+  deleteBlog,
 } from '../controllers/BlogController.js';
 
 const router = express.Router();
@@ -15,5 +17,11 @@ router.get('/user/:userId', getBlogsByUserId);
 
 // POST /api/blogs - Create a new blog
 router.post('/', createBlog);
+
+// PUT /api/blogs/:id - Update a blog
+router.put('/:id', updateBlog);
+
+// DELETE /api/blogs/:id - Delete a blog
+router.delete('/:id', deleteBlog);
 
 export default router;

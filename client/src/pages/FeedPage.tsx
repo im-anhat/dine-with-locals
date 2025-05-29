@@ -21,6 +21,7 @@ const FeedPage: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
   const { toast } = useToast();
   const { currentUser } = useUserContext();
 
@@ -49,21 +50,38 @@ const FeedPage: React.FC = () => {
     }
   };
 
-  const handleOpenDialog = () => {
+  const handleOpenCreateDialog = () => {
+    setCurrentBlog(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleOpenEditDialog = (blog: Blog) => {
+    setCurrentBlog(blog);
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
+    setCurrentBlog(null);
   };
 
-  const handleCreatePost = async (data: {
+  const handleCreateOrUpdatePost = async (data: {
     title: string;
     content: string;
     photos: File[];
   }) => {
     try {
       setIsSubmitting(true);
+
+      if (!currentUser || !currentUser._id) {
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in to create a post.',
+          variant: 'destructive',
+        });
+        setIsDialogOpen(false);
+        return;
+      }
 
       let imageUrls: string[] = [];
 
@@ -89,49 +107,66 @@ const FeedPage: React.FC = () => {
         console.log('Images uploaded successfully:', imageUrls);
       }
 
-      // Use a valid MongoDB ObjectId from our test data
-      const currentUserId = '67f7f8281260844f9625ee33'; // Test user ID
-
-      console.log('Creating blog with:', {
-        userId: currentUserId,
-      });
-
-      if (!currentUser || !currentUser._id) {
-        toast({
-          title: 'Authentication Required',
-          description: 'Please log in to create a post.',
-          variant: 'destructive',
+      if (currentBlog) {
+        // EDIT MODE
+        console.log('Updating blog with:', {
+          blogTitle: data.title,
+          blogContent: data.content,
+          photos: imageUrls.length > 0 ? imageUrls : currentBlog.photos,
         });
-        setIsDialogOpen(false);
-        return;
+
+        const response = await axios.put(
+          `${API_URL}/blogs/${currentBlog._id}`,
+          {
+            blogTitle: data.title,
+            blogContent: data.content,
+            photos: imageUrls.length > 0 ? imageUrls : currentBlog.photos,
+          },
+        );
+
+        console.log('Blog updated:', response.data);
+
+        // Update the blogs array with the edited blog
+        setBlogs(
+          blogs.map((blog) =>
+            blog._id === currentBlog._id ? response.data : blog,
+          ),
+        );
+
+        toast({
+          title: 'Success',
+          description: 'Your blog post has been updated!',
+        });
+      } else {
+        // CREATE MODE
+        console.log('Creating blog with:', {
+          userId: currentUser._id,
+          blogTitle: data.title,
+          blogContent: data.content,
+          photos: imageUrls,
+        });
+
+        // Make API call to create blog post
+        const response = await axios.post(`${API_URL}/blogs`, {
+          userId: currentUser._id,
+          blogTitle: data.title,
+          blogContent: data.content,
+          photos: imageUrls,
+        });
+
+        console.log('New blog created:', response.data);
+
+        // Add new blog to the list
+        setBlogs([response.data, ...blogs]);
+
+        toast({
+          title: 'Success',
+          description: 'Your blog post has been created!',
+        });
       }
 
-      console.log('Creating blog with:', {
-        userId: currentUser._id,
-        blogTitle: data.title,
-        blogContent: data.content,
-        photos: imageUrls,
-      });
-
-      // Make API call to create blog using the current userId
-      const response = await axios.post(`${API_URL}/blogs`, {
-        userId: currentUser._id,
-        blogTitle: data.title,
-        blogContent: data.content,
-        photos: imageUrls,
-      });
-
-      console.log('New blog created:', response.data);
-
-      // Add new blog to the list
-      setBlogs([response.data, ...blogs]);
-
-      toast({
-        title: 'Success',
-        description: 'Your blog post has been created!',
-      });
-
       setIsDialogOpen(false);
+      setCurrentBlog(null);
     } catch (error) {
       console.error('Error creating blog:', error);
       toast({
@@ -144,13 +179,40 @@ const FeedPage: React.FC = () => {
     }
   };
 
+  const handleDeletePost = async (blogId: string) => {
+    try {
+      // Show confirmation dialog using toast
+      if (!window.confirm('Are you sure you want to delete this post?')) {
+        return;
+      }
+
+      console.log('Deleting blog with ID:', blogId);
+      await axios.delete(`${API_URL}/blogs/${blogId}`);
+
+      // Remove the deleted blog from the state
+      setBlogs(blogs.filter((blog) => blog._id !== blogId));
+
+      toast({
+        title: 'Success',
+        description: 'Blog post has been deleted.',
+      });
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete blog post. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Feeds</h1>
         <Button
           className="bg-brand-coral-300 rounded-full"
-          onClick={handleOpenDialog}
+          onClick={handleOpenCreateDialog}
         >
           <PlusIcon className="mr-1 h-4 w-4" />
           New Post
@@ -160,12 +222,22 @@ const FeedPage: React.FC = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Create A New Post</DialogTitle>
+            <DialogTitle>
+              {currentBlog ? 'Edit Post' : 'Create A New Post'}
+            </DialogTitle>
           </DialogHeader>
           <PostInput
-            onSubmit={handleCreatePost}
+            onSubmit={handleCreateOrUpdatePost}
             onCancel={handleCloseDialog}
             isSubmitting={isSubmitting}
+            initialValues={
+              currentBlog
+                ? {
+                    title: currentBlog.blogTitle,
+                    content: currentBlog.blogContent,
+                  }
+                : undefined
+            }
           />
         </DialogContent>
       </Dialog>
@@ -177,7 +249,13 @@ const FeedPage: React.FC = () => {
       ) : blogs.length > 0 ? (
         <div>
           {blogs.map((blog) => (
-            <BlogCard key={blog._id} blog={blog} />
+            <BlogCard
+              key={blog._id}
+              blog={blog}
+              onEdit={handleOpenEditDialog}
+              onDelete={handleDeletePost}
+              currentUserId={currentUser?._id}
+            />
           ))}
         </div>
       ) : (
