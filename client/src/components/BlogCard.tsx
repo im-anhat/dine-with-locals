@@ -10,6 +10,9 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import { formatDistanceToNow } from 'date-fns';
@@ -52,6 +55,22 @@ const BlogCard: React.FC<BlogCardProps> = ({
     setSelectedPhotoIndex(null);
   };
 
+  const navigatePhoto = (e: React.MouseEvent, direction: 'prev' | 'next') => {
+    e.stopPropagation(); // Prevent the modal from closing when clicking navigation buttons
+
+    if (selectedPhotoIndex === null || !blog.photos) return;
+
+    if (direction === 'prev') {
+      setSelectedPhotoIndex((prevIndex) =>
+        prevIndex! === 0 ? blog.photos!.length - 1 : prevIndex! - 1,
+      );
+    } else {
+      setSelectedPhotoIndex((prevIndex) =>
+        prevIndex! === blog.photos!.length - 1 ? 0 : prevIndex! + 1,
+      );
+    }
+  };
+
   // Handle case where userId might be a string (ID) or an object (populated user data)
   const user =
     typeof blog.userId === 'object' && blog.userId !== null
@@ -64,12 +83,14 @@ const BlogCard: React.FC<BlogCardProps> = ({
           avatar: '',
         };
 
+  // Check if current user is the author of the post
   const isAuthor = currentUserId && user._id === currentUserId;
 
   // Generate display name from user data
   const displayName = `${user.firstName} ${user.lastName}`;
   const userInitials = user.firstName.charAt(0) + user.lastName.charAt(0);
 
+  // Format date - handle both string dates and Date objects
   const formattedDate = blog.createdAt
     ? typeof blog.createdAt === 'string' && blog.createdAt.includes('ago')
       ? blog.createdAt
@@ -181,23 +202,53 @@ const BlogCard: React.FC<BlogCardProps> = ({
         </div>
       )}
 
-      {/*Photo view modal*/}
+      {/* Photo view modal */}
       {selectedPhotoIndex !== null && blog.photos && blog.photos.length > 0 && (
         <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
           onClick={closePhotoView}
         >
-          <img
-            src={blog.photos[selectedPhotoIndex]}
-            alt="Enlarged view"
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-          />
-          <button
-            className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2"
-            onClick={closePhotoView}
+          <div
+            className="relative flex items-center justify-center w-full h-full"
+            onClick={(e) => e.stopPropagation()}
           >
-            X
-          </button>
+            <img
+              src={blog.photos[selectedPhotoIndex]}
+              alt={`Photo ${selectedPhotoIndex + 1} of ${blog.photos.length}`}
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+            />
+
+            {/* Navigation buttons */}
+            {blog.photos.length > 1 && (
+              <>
+                <button
+                  className="absolute left-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                  onClick={(e) => navigatePhoto(e, 'prev')}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button
+                  className="absolute right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                  onClick={(e) => navigatePhoto(e, 'next')}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+
+            {/* Photo counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {selectedPhotoIndex + 1} / {blog.photos.length}
+            </div>
+
+            {/* Close button */}
+            <button
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+              onClick={closePhotoView}
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
         </div>
       )}
     </Card>
