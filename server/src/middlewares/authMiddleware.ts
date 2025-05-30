@@ -9,7 +9,7 @@ interface AuthRequest extends Request {
   user?: string | jwt.JwtPayload;
 }
 
-export const authMiddleware = (
+export const authMiddleware = async (
   req: Request | AuthRequest | any,
   res: Response,
   next: NextFunction,
@@ -20,10 +20,18 @@ export const authMiddleware = (
       res.status(401).json({ message: 'Token missing' });
       return;
     }
-    const decodedToken = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    req.userId = decodedToken._id; // Attach the user object to the request
-    console.log('Decoded Token:', decodedToken);
 
+    // verify token and attach currently logged in user data to request
+    const decodedToken = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const userId = decodedToken._id;
+    req.user = await User.findById(userId).select('-password'); // Exclude password field
+    req.userToken = token;
+
+    // for debug
+    // console.log('Decoded Token:', decodedToken);
+    // console.log(req.user);
+
+    // pass to next router
     next();
   } catch (error) {
     console.error('Authentication error:', error);
