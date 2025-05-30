@@ -9,6 +9,7 @@ interface PlacesMapProps {
   selectedListing?: Listing | null;
 }
 
+// center + zoom size
 const defaultCenter = {
   lat: 40.7128,
   lng: -74.006, // New York City
@@ -16,7 +17,7 @@ const defaultCenter = {
 
 const mapContainerStyle = {
   width: '100%',
-  height: '100%',
+  height: '600px', // Fixed height for the map
 };
 
 const PlacesMap: React.FC<PlacesMapProps> = ({
@@ -53,7 +54,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
 
         setMapCenter(newCenter);
         map.setCenter(newCenter);
-        map.setZoom(14);
+        map.setZoom(12);
       }
     }
   }, [map]);
@@ -93,7 +94,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
 
     for (const listing of listings) {
       try {
-        const isSelected = listing.id === selectedListing?.id;
+        const isSelected = listing._id === selectedListing?._id;
         const icon = createMarkerIcon(isSelected);
 
         // Create the marker
@@ -139,7 +140,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
   // Add a slight delay to ensure Google Maps API initializes properly
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (map && window.google && listings.length > 0) {
+      if (map && window.google) {
         // Force a re-render of markers
         setMarkers([]);
       }
@@ -225,7 +226,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
             {
               featureType: 'poi.business',
               elementType: 'labels',
-              stylers: [{ visibility: 'off' }],
+              stylers: [{ visibility: 'on' }],
             },
             {
               featureType: 'water',

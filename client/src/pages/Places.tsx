@@ -25,8 +25,8 @@ const Places: React.FC = () => {
           Find Interesting Destinations Near You
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-10rem)]">
-          <div className="lg:col-span-2 h-full rounded-lg overflow-hidden shadow-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-lg">
             <MapLoader>
               <PlacesMap
                 listings={dummyListings}
@@ -36,7 +36,7 @@ const Places: React.FC = () => {
             </MapLoader>
           </div>
 
-          <div className="h-full">
+          <div className="max-h-[calc(100vh-10rem)] overflow-auto">
             <PlaceRecommendations
               listings={dummyListings}
               onListingClick={handleListingClick}

@@ -15,9 +15,7 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({
   return (
     <div className="h-full overflow-y-auto bg-white shadow-lg rounded-lg">
       <div className="p-4 bg-brand-teal-700 text-white sticky top-0 z-10 rounded-t-lg">
-        <h2 className="text-xl font-semibold">
-          Recommended Dining Experiences
-        </h2>
+        <h2 className="text-xl font-semibold">Recommended Experiences</h2>
         <p className="text-sm text-brand-teal-100 mt-1">
           {listings.length} experiences found in this area
         </p>
@@ -26,9 +24,9 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({
       <div className="divide-y divide-brand-stone-200">
         {listings.map((listing) => (
           <div
-            key={listing.id}
+            key={listing._id}
             className={`p-4 cursor-pointer transition-colors duration-200 hover:bg-brand-shell-100 ${
-              selectedListing?.id === listing.id
+              selectedListing?._id === listing._id
                 ? 'bg-brand-shell-200 border-l-4 border-brand-orange-500'
                 : ''
             }`}

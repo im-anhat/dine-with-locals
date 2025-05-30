@@ -1,6 +1,6 @@
 // Dummy listing data for NYC
 export interface Listing {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   price: number;
@@ -16,7 +16,7 @@ export interface Listing {
 
 export const dummyListings: Listing[] = [
   {
-    id: '1',
+    _id: '1',
     title: 'Authentic Italian Dinner',
     description:
       'Experience homemade Italian cuisine prepared by Chef Maria. Enjoy pasta, antipasti, and tiramisu in a cozy setting.',
@@ -32,7 +32,7 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1551183053-bf91a1d81141?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '2',
+    _id: '2',
     title: 'Traditional Japanese Feast',
     description:
       'Join Kenji for a traditional multi-course Japanese dinner featuring seasonal ingredients and authentic recipes.',
@@ -48,14 +48,14 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '3',
+    _id: '3',
     title: 'Spanish Tapas Evening',
     description:
       'Indulge in a variety of tapas dishes paired with Spanish wines. Learn about Spanish cuisine while enjoying a social dining experience.',
     price: 55,
     location: {
       lat: 40.758896,
-      lng: -73.98513, // Midtown Manhattan, New York
+      lng: -73.98513, // M_idtown Manhattan, New York
     },
     hostName: 'Carlos R.',
     cuisine: 'Spanish',
@@ -64,7 +64,7 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1515443961218-a51367888e4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '4',
+    _id: '4',
     title: 'Vietnamese Home Cooking',
     description:
       'Savor the flavors of Vietnam with a family-style dinner featuring pho, spring rolls, and other traditional dishes.',
@@ -80,7 +80,7 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1576080968434-58ba25e97185?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '5',
+    _id: '5',
     title: 'Farm-to-Table American',
     description:
       'Enjoy a seasonal meal prepared with locally sourced ingredients from New York farmers markets. Focus on sustainable cooking.',
@@ -96,14 +96,14 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1536746953245-801a7ec4037a?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '6',
+    _id: '6',
     title: 'Indian Vegetarian Feast',
     description:
       'Experience the rich flavors of Indian vegetarian cuisine with a multi-course dinner featuring regional specialties.',
     price: 60,
     location: {
       lat: 40.764665,
-      lng: -73.977652, // Upper East Side, New York
+      lng: -73.977652, // Upper East S_ide, New York
     },
     hostName: 'Priya K.',
     cuisine: 'Indian',
@@ -112,7 +112,7 @@ export const dummyListings: Listing[] = [
       'https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '7',
+    _id: '7',
     title: 'Greek Island Experience',
     description:
       'Transport yourself to the Greek islands with traditional mezze, grilled seafood, and homemade baklava.',
