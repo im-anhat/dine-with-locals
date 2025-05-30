@@ -3,7 +3,6 @@ import cors from 'cors';
 import connectDB from './config/mongo.js';
 import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
-import chatRoutes from './routes/ChatRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 
 // Import all models first to ensure they're registered with mongoose
@@ -21,6 +20,8 @@ import './models/Message.js';
 
 // Import routes
 import reviewRoutes from './routes/ReviewRoutes.js';
+import chatRoutes from './routes/ChatRoutes.js';
+import messageRoutes from './routes/MessageRoutes.js';
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/message', messageRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
