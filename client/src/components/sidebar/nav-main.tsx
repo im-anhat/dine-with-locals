@@ -5,21 +5,27 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroupLabel,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar';
 
-import { type LucideIcon } from "lucide-react"
+import { type LucideIcon } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function NavGroup({
   groupLabel,
   items,
 }: {
-  groupLabel: string,
+  groupLabel: string;
   items: {
-    title: string
-    url: string
-    icon: LucideIcon
-  }[]
+    title: string;
+    url: string;
+    icon: LucideIcon;
+  }[];
 }) {
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>
@@ -27,16 +33,14 @@ export default function NavGroup({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+              <SidebarMenuButton onClick={() => navigate(item.url)} isActive={currentPath === item.url}>
+                <item.icon />
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }
