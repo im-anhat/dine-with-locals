@@ -10,7 +10,7 @@ import LoginPage from './pages/auth/LoginPage';
 import FeedPage from './pages/FeedPage';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Separator } from '@/components/ui/separator';
 import { TopNavbar } from '@/components/TopNavbar';
@@ -33,46 +33,53 @@ const App: React.FC = () => {
       {isAuthenticated && (
         <>
           <AppSidebar />
-          <SidebarTrigger />
-          <TopNavbar currentPath={currentPath} />
-          <Separator />
         </>
       )}
 
-      <Routes>
-        {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
-        <Route
-          path="/signup"
-          element={
-            !isAuthenticated ? (
-              <SignUpPage />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            !isAuthenticated ? (
-              <LoginPage />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <DashboardPage /> : <Home />}
-        />
-        <Route
-          path="/feed"
-          element={isAuthenticated ? <FeedPage /> : <Home />}
-        />
-        <Route path="/" element={<Home />} />
-      </Routes>
+      {/* show the top navbar + wrap the other half of page (beside sidebar) into a div */}
+      <div className="flex flex-1 flex-col">
+        {isAuthenticated && (
+          <>
+            <TopNavbar currentPath={currentPath} />
+            <Separator />
+          </>
+        )}
 
-      <Toaster />
+        <Routes>
+          {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
+          <Route
+            path="/signup"
+            element={
+              !isAuthenticated ? (
+                <SignUpPage />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              !isAuthenticated ? (
+                <LoginPage />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <DashboardPage /> : <Home />}
+          />
+          <Route
+            path="/feed"
+            element={isAuthenticated ? <FeedPage /> : <Home />}
+          />
+          <Route path="/" element={<Home />} />
+        </Routes>
+
+        <Toaster />
+      </div>
     </SidebarProvider>
   );
 };
