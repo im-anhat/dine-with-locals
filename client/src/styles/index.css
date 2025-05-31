@@ -51,7 +51,7 @@
     --popover: 20 14.3% 4.1%;
     --popover-foreground: 60 9.1% 97.8%;
     /* orange-400, orange-950 */
-    --primary:  27 96% 61%;
+    --primary: 27 96% 61%;
     --primary-foreground: 13 81.1% 14.5%;
     --secondary: 12 6.5% 15.1%;
     --secondary-foreground: 60 9.1% 97.8%;
@@ -79,7 +79,6 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
 
 @layer base {
   * {

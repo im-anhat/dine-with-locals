@@ -1,7 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Model, Schema, model, Document } from 'mongoose';
 
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   userName: string;
   firstName: string;
   lastName: string;
@@ -14,9 +14,10 @@ export interface IUser extends Document {
   hobbies: string[];
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
+  locationId: mongoose.Types.ObjectId;
 }
 
-const UserSchema: Schema = new Schema(
+const UserSchema: Schema<IUser> = new Schema<IUser>(
   {
     userName: {
       type: String,
@@ -60,7 +61,7 @@ const UserSchema: Schema = new Schema(
     },
     role: {
       type: String,
-      enum: ['Host', 'Guest', 'Both'],
+      enum: ['Host', 'Guest'],
       required: true,
       default: 'Guest',
     },
@@ -78,20 +79,14 @@ const UserSchema: Schema = new Schema(
       default: '',
       trim: true,
     },
+    locationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Location',
+      required: true,
+    },
   },
   { timestamps: true },
 );
 
-UserSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error as any);
-  }
-});
-
-export default mongoose.model<IUser>('User', UserSchema);
+const UserModel = model<IUser>('User', UserSchema);
+export default UserModel;
