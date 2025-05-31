@@ -72,18 +72,21 @@ export const fetchChats = asyncHandler(
         users: { $elemMatch: { $eq: currentUser._id } },
       })
         .populate([
-          { path: 'users', select: '-password' },
+          {
+            path: 'users',
+            select: '_id userName firstName lastName phone avatar role',
+          },
           {
             path: 'latestMessage',
-            populate: { path: 'senderId', model: 'User', select: '-password' },
+            populate: {
+              path: 'senderId',
+              model: 'User',
+              select: '_id userName firstName lastName phone avatar role',
+            },
           },
         ])
         .sort({ updatedAt: -1 });
 
-      // chats = await UserModel.populate( chats, {
-      //   path: 'latestMessage.senderId',
-      //   select: '-password',
-      // })
       console.log('Fetched chats:', chats);
       res.status(200).json(chats);
     } catch (error) {
