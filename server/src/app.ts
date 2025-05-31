@@ -5,6 +5,9 @@ import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 
+// socket.io
+import { Server } from 'socket.io';
+
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
 import './models/Blog.js';
@@ -42,6 +45,32 @@ app.use('/api/message', messageRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`),
+);
+
+// Socket.io setup
+const io = new Server(server, {
+  pingTimeout: 60000, // Increase ping timeout to 60 seconds
+  cors: {
+    origin: '*', // Allow all origins for simplicity; adjust as needed
+    methods: ['GET', 'POST'],
+  },
+});
+
+// io.on('connection', (socket) => {
+//   console.log('Connected to socket.io:');
+
+//   socket.on('setup', (userData) => {
+//     socket.join(userData._id);
+//     console.log(`User ${userData._id} joined socket room`);
+//     socket.emit('connected');
+//   });
+
+//   socket.on('join chat', (chatId) => {
+//     socket.join(chatId);
+//     console.log(`User joined chat room: ${chatId}`);
+//   });
+// });
 
 export default app;

@@ -8,6 +8,6 @@ const router = express.Router();
 router.get('/', getAllUsers);
 
 // GET user by ID
-router.get('/:userId', authMiddleware, getUserById);
+router.get('/:userId', getUserById);
 
 export default router;
