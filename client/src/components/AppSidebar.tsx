@@ -39,8 +39,8 @@ const items = {
   ],
   navManageBookings: [
     {
-      title: 'Chats',
-      url: '/chats',
+      title: 'Chat',
+      url: '/chat',
       icon: MessageSquare,
     },
     {
