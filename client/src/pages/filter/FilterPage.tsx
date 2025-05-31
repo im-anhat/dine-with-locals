@@ -1,39 +1,14 @@
 // Final version with polished UI layout for Travel Schema filter form
 import { useState } from 'react';
-import { format } from 'date-fns';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import FilterResults from '@/components/filter/FilterResult';
+import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
-import { date } from 'zod';
+import { useUser } from '../../contexts/UserContext';
+import axios from 'axios';
+
 const FilterPage = () => {
-  const dietaryOptions = [
-    'Vegetarian',
-    'Vegan',
-    'Halal',
-    'Kosher',
-    'Gluten-Free',
-  ];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [category, setCategory] = useState<string | undefined>();
   const [dietaryRestrictrions, setDietaryRestrictrions] = useState<
@@ -42,9 +17,13 @@ const FilterPage = () => {
   const [city, setCity] = useState<string | undefined>();
   const [dineAt, setDineAt] = useState<string | undefined>();
   const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
+  const [results, setResults] = useState<any[]>();
+  const { currentUser } = useUser();
 
   const submitValue = async (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault;
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
     const obj = {
       dateRange,
       category,
@@ -53,99 +32,46 @@ const FilterPage = () => {
       dineAt,
       numberOfGuests,
     };
-    console.log(obj);
+    let url = currentUser?.role === 'Guest' ? 'request' : 'listing';
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
+        obj,
+      );
+      setResults(res.data);
+      console.log(res);
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex flex-row  gap-4">
-        {/* Category */}
-        <Select onValueChange={setCategory}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="dining">Dining</SelectItem>
-            <SelectItem value="travel">Travel</SelectItem>
-            <SelectItem value="event">Event</SelectItem>
-          </SelectContent>
-        </Select>
-        {/* City */}
-        <Select onValueChange={setCity}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="City" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="dining">Chicago</SelectItem>
-            <SelectItem value="travel">New York</SelectItem>
-          </SelectContent>
-        </Select>
-        {/* Date ranges */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {dateRange?.from && dateRange?.to ? (
-                `${format(dateRange.from, 'P')} - ${format(dateRange.to, 'P')}`
-              ) : (
-                <span>Select Date Range</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="range"
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={1}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>{' '}
-        {/* Dietary Restrictions */}
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="outline">Dietary Restrictions</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>Vegetarian</DropdownMenuItem>
-            <DropdownMenuItem>Vegan</DropdownMenuItem>
-            <DropdownMenuItem>Gluten-free</DropdownMenuItem>
-            <DropdownMenuItem>Lactose intolerant</DropdownMenuItem>
-            <DropdownMenuItem>Allergies</DropdownMenuItem>
-            <DropdownMenuItem>Kosher</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* Dine At */}
-        <Select onValueChange={setDineAt}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Dine At" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="home">Home</SelectItem>
-            <SelectItem value="restaurant">Restaurant</SelectItem>
-            <SelectItem value="either">Either</SelectItem>
-          </SelectContent>
-        </Select>
-        {/* Number of Guests */}
-        <Select onValueChange={(val) => setNumberOfGuests(Number(val))}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Number of Guests" />
-          </SelectTrigger>
-          <SelectContent>
-            {[...Array(10)].map((_, i) => (
-              <SelectItem key={i} value={`${i + 1}`}>
-                {i + 1}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button onClick={submitValue}>Enter</Button>
+    <>
+      <FilterBar
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        category={category}
+        setCategory={setCategory}
+        dietaryRestrictions={dietaryRestrictrions}
+        setDietaryRestrictions={setDietaryRestrictrions}
+        city={city}
+        setCity={setCity}
+        dineAt={dineAt}
+        setDineAt={setDineAt}
+        numberOfGuests={numberOfGuests}
+        setNumberOfGuests={setNumberOfGuests}
+        onSubmit={submitValue}
+      />
+
+      <div className="mt-6">
+        {loading && <p className="text-muted-foreground">Loading...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        <FilterResults results={results ?? []} />
       </div>
-    </div>
+    </>
   );
 };
 

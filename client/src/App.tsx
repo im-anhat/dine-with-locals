@@ -11,7 +11,7 @@ import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import MatchMeetupPage from './components/filter/MatchMeetupPage';
+import MatchMeetupPage from './components/filter/FilterResult';
 
 //The type React.FC is a type definition for type checking for functional components
 //and ensures that children are implicitly typed
