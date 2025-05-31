@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CalendarIcon, MessageCircle } from 'lucide-react';
-
+import { useUser } from '@/contexts/UserContext';
 const MatchCard = ({ name, date, time, description, tags = [] }: any) => (
   <Card className="w-64">
     <CardContent className="flex flex-col gap-2 p-4">
@@ -34,14 +34,14 @@ const MatchCard = ({ name, date, time, description, tags = [] }: any) => (
 );
 
 const DashboardPage = () => {
+  const { currentUser } = useUser();
   return (
     <div className="p-8 space-y-8">
       {/* Header Section */}
       <div>
         <h1 className="text-2xl font-bold">Today's match</h1>
         <div className="flex justify-end gap-4 text-lg font-medium">
-          <span>Guest</span>
-          <span>Host</span>
+          <span>{currentUser?.role}</span>
         </div>
       </div>
 

@@ -13,8 +13,8 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
     category,
     city,
   } = req.body;
-  //Validation
 
+  console.log(req.body);
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
   //Validation
@@ -22,8 +22,10 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   if (locationType) matchConditions.locationType = locationType;
   if (category) matchConditions.category = category;
   if (city) matchConditions['mergedLocation.city'] = city;
-  if (dietaryRestriction && dietaryRestriction.length > 0) {
+  if (dietaryRestriction) {
     matchConditions.dietaryRestriction = { $in: dietaryRestriction };
+  } else if (dietaryRestriction) {
+    console.error('Error: dietaryRestriction must be an array');
   }
   if (startDate && endDate) {
     matchConditions.$expr = {
@@ -33,10 +35,11 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
+  console.log(matchConditions);
   //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
+    //Match conditions specified above
     {
-      //Merge locations schema with requestmodels
       $lookup: {
         from: 'locations',
         localField: 'locationId',
@@ -48,41 +51,13 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
       $unwind: '$mergedLocation',
     },
     {
-      //Match conditions specified above
       $match: matchConditions,
     },
   ];
-  /**
-   * ========================================================================
-    USER DATA FOR INPUT TO MONGODB
-    - 67f7f8281260844f9625ee32-Nhat - locationId: 682fee085960f358681a8a6d
-    - 67f7f8281260844f9625ee33-Quy - locationId: 682fed965960f358681a8a66
-    - 682ff1e72e285c458d216213-Dan - locationId: 682ff1de2e285c458d216210
-    - 682ff10f2e285c458d21620c-Tam - locationId: 682ff0ff2e285c458d216209
-   * ========================================================================
-   */
 
   try {
-    /**
-     *================== CODE TO ADD NEW REQUEST TO MONGODB ======================
-     * const object: IRequest = {
-        userId: new mongoose.Types.ObjectId('682ff10f2e285c458d21620c'),
-        createdAt: new Date(),
-        title: 'Good local Thai restaurant',
-        locationType: 'either',
-        locationId: new mongoose.Types.ObjectId('682ff0ff2e285c458d216209'),
-        interestTopic: ['Programming', 'Biology', 'Computer Science', 'Career'],
-        time: new Date('<2025-06å-31>'),
-        cuisine: ['Thai'],
-        dietaryRestriction: ['lactose intolerant'],
-        numGuests: 1,
-        additionalInfo: 'Finding another padthai enthusiast!',
-        status: 'waiting',
-      };
-     * const insert = await RequestModel.insertOne(object);
-     */
-
     const array = await RequestModel.aggregate(pipeline);
+    console.log(array);
     res.status(200).json({ dataArray: array });
   } catch (err) {
     console.log(err);
@@ -113,8 +88,10 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   if (city) {
     matchConditions['mergedLocation.city'] = city;
   }
-  if (dietaryRestriction && dietaryRestriction.length > 0) {
+  if (Array.isArray(dietaryRestriction) && dietaryRestriction.length > 0) {
     matchConditions.dietaryRestriction = { $in: dietaryRestriction };
+  } else if (dietaryRestriction) {
+    console.error('Error: dietaryRestriction must be an array');
   }
   if (startDate && endDate) {
     matchConditions.$expr = {
@@ -124,6 +101,7 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
+  console.log(matchConditions);
   const pipeline: mongoose.PipelineStage[] = [
     {
       $lookup: {
@@ -148,3 +126,30 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
     console.log(err);
   }
 };
+/**
+     *================== CODE TO ADD NEW REQUEST TO MONGODB ======================
+     * const object: IRequest = {
+        userId: new mongoose.Types.ObjectId('682ff10f2e285c458d21620c'),
+        createdAt: new Date(),
+        title: 'Good local Thai restaurant',
+        locationType: 'either',
+        locationId: new mongoose.Types.ObjectId('682ff0ff2e285c458d216209'),
+        interestTopic: ['Programming', 'Biology', 'Computer Science', 'Career'],
+        time: new Date('<2025-06å-31>'),
+        cuisine: ['Thai'],
+        dietaryRestriction: ['lactose intolerant'],
+        numGuests: 1,
+        additionalInfo: 'Finding another padthai enthusiast!',
+        status: 'waiting',
+      };
+     * const insert = await RequestModel.insertOne(object);
+     */
+/**
+   * ========================================================================
+    USER DATA FOR INPUT TO MONGODB
+    - 67f7f8281260844f9625ee32-Nhat - locationId: 682fee085960f358681a8a6d
+    - 67f7f8281260844f9625ee33-Quy - locationId: 682fed965960f358681a8a66
+    - 682ff1e72e285c458d216213-Dan - locationId: 682ff1de2e285c458d216210
+    - 682ff10f2e285c458d21620c-Tam - locationId: 682ff0ff2e285c458d216209
+   * ========================================================================
+   */

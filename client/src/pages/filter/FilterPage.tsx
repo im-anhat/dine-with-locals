@@ -5,15 +5,17 @@ import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
+import { set } from 'date-fns';
 
 const FilterPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [category, setCategory] = useState<string | undefined>();
-  const [dietaryRestrictrions, setDietaryRestrictrions] = useState<
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<
     string[] | undefined
   >();
+
   const [city, setCity] = useState<string | undefined>();
   const [dineAt, setDineAt] = useState<string | undefined>();
   const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
@@ -25,21 +27,33 @@ const FilterPage = () => {
     setLoading(true);
     setError(null);
     const obj = {
-      dateRange,
-      category,
-      dietaryRestrictrions,
-      city,
-      dineAt,
-      numberOfGuests,
+      startDate: dateRange?.from,
+      endDate: dateRange?.to,
+      category: category,
+      dietaryRestriction: dietaryRestrictions,
+      city: city,
+      locationType: dineAt,
+      numGuests: numberOfGuests,
     };
     let url = currentUser?.role === 'Guest' ? 'request' : 'listing';
+    console.log(`${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
       );
-      setResults(res.data);
-      console.log(res);
+      console.log(res.data.dataArray);
+      setResults(res.data.dataArray);
+      if (res.data && Array.isArray(res.data.dataArray)) {
+        setResults(res.data.dataArray);
+      } else if (Array.isArray(res.data)) {
+        // Fallback: direct array response
+        setResults(res.data);
+      } else {
+        // If the response doesn't contain an array, set empty array
+        console.warn('API response structure unexpected:', res.data);
+        setResults([]);
+      }
     } catch (err) {
       setError('Something went wrong. Please try again.');
       console.error(err);
@@ -50,26 +64,28 @@ const FilterPage = () => {
 
   return (
     <>
-      <FilterBar
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        category={category}
-        setCategory={setCategory}
-        dietaryRestrictions={dietaryRestrictrions}
-        setDietaryRestrictions={setDietaryRestrictrions}
-        city={city}
-        setCity={setCity}
-        dineAt={dineAt}
-        setDineAt={setDineAt}
-        numberOfGuests={numberOfGuests}
-        setNumberOfGuests={setNumberOfGuests}
-        onSubmit={submitValue}
-      />
+      <div className="flex flex-col gap-4">
+        <FilterBar
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          category={category}
+          setCategory={setCategory}
+          dietaryRestrictions={dietaryRestrictions}
+          setDietaryRestrictions={setDietaryRestrictions}
+          city={city}
+          setCity={setCity}
+          dineAt={dineAt}
+          setDineAt={setDineAt}
+          numberOfGuests={numberOfGuests}
+          setNumberOfGuests={setNumberOfGuests}
+          onSubmit={submitValue}
+        />
 
-      <div className="mt-6">
-        {loading && <p className="text-muted-foreground">Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        <FilterResults results={results ?? []} />
+        <div className="mt-6">
+          {loading && <p className="text-muted-foreground">Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          <FilterResults results={results ?? []} />
+        </div>
       </div>
     </>
   );

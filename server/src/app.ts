@@ -6,6 +6,7 @@ import './models/User.js';
 import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
+import filterRoutes from './routes/FilterRoutes.js';
 
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
@@ -38,7 +39,7 @@ app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
-
+app.use('/api/filter', filterRoutes);
 // Routes
 
 // Start server

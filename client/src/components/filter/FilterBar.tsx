@@ -1,5 +1,4 @@
 // Final version with polished UI layout for Travel Schema filter form
-import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -17,14 +16,12 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
-import axios from 'axios';
-import { useUser } from '../../contexts/UserContext';
 
 type FilterBarProps = {
   dateRange: DateRange | undefined;
@@ -59,11 +56,34 @@ const FilterBar = ({
   setNumberOfGuests,
   onSubmit,
 }: FilterBarProps) => {
+  const dietaryOptions = [
+    'Vegetarian',
+    'Vegan',
+    'Gluten-free',
+    'Lactose intolerant',
+    'Allergies',
+    'Kosher',
+  ];
+  const dietaryCount = dietaryRestrictions?.length || 0;
+
+  const handleDietaryRestrictionToggle = (restriction: string) => {
+    const currentRestrictions = dietaryRestrictions || [];
+    const isSelected = currentRestrictions.includes(restriction);
+
+    if (isSelected) {
+      setDietaryRestrictions(
+        currentRestrictions.filter((r) => r !== restriction),
+      );
+    } else {
+      setDietaryRestrictions([...currentRestrictions, restriction]);
+    }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex flex-row  gap-4">
         {/* Category */}
-        <Select onValueChange={setCategory}>
+        <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
@@ -74,7 +94,7 @@ const FilterBar = ({
           </SelectContent>
         </Select>
         {/* City */}
-        <Select onValueChange={setCity}>
+        <Select value={city} onValueChange={setCity}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="City" />
           </SelectTrigger>
@@ -110,20 +130,27 @@ const FilterBar = ({
         </Popover>{' '}
         {/* Dietary Restrictions */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="outline">Dietary Restrictions</Button>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              {dietaryCount > 0
+                ? `${dietaryCount} Dietary Restriction${dietaryCount !== 1 ? 's' : ''}`
+                : 'Dietary Restrictions'}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Vegetarian</DropdownMenuItem>
-            <DropdownMenuItem>Vegan</DropdownMenuItem>
-            <DropdownMenuItem>Gluten-free</DropdownMenuItem>
-            <DropdownMenuItem>Lactose intolerant</DropdownMenuItem>
-            <DropdownMenuItem>Allergies</DropdownMenuItem>
-            <DropdownMenuItem>Kosher</DropdownMenuItem>
+            {dietaryOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option}
+                checked={dietaryRestrictions?.includes(option) || false}
+                onCheckedChange={() => handleDietaryRestrictionToggle(option)}
+              >
+                {option}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
         {/* Dine At */}
-        <Select onValueChange={setDineAt}>
+        <Select value={dineAt} onValueChange={setDineAt}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Dine At" />
           </SelectTrigger>
@@ -134,7 +161,10 @@ const FilterBar = ({
           </SelectContent>
         </Select>
         {/* Number of Guests */}
-        <Select onValueChange={(val) => setNumberOfGuests(Number(val))}>
+        <Select
+          value={numberOfGuests?.toString()}
+          onValueChange={(val) => setNumberOfGuests(Number(val))}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Number of Guests" />
           </SelectTrigger>
