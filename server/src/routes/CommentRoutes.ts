@@ -1,7 +1,7 @@
 import express from 'express';
 import {
   createComment,
-  getCommentsByBlogId,
+  getBlogComments,
 } from '../controllers/CommentController.js';
 const router = express.Router();
 
@@ -9,6 +9,6 @@ const router = express.Router();
 router.post('/', createComment);
 
 // Get comments by blog ID
-router.get('/blog/:blogId', getCommentsByBlogId);
+router.get('/blog/:blogId', getBlogComments);
 
 export default router;

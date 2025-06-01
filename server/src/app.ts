@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import { createServer } from 'http';
+import { initializeSocket } from './config/socket.js';
 import connectDB from './config/mongo.js';
 import blogRoutes from './routes/BlogRoutes.js';
 import './models/User.js';
@@ -27,11 +29,21 @@ import commentRoutes from './routes/CommentRoutes.js';
 
 const app = express();
 
+// Create HTTP server
+const server = createServer(app);
+
+// Initialize Socket.IO
+const io = initializeSocket(server);
+
+// Make io available throughout the app
+app.set('io', io);
+
 // Connect to MongoDB
 connectDB();
 
 //Parse user request -> Json format
 app.use(express.json());
+app.use(express.static('public'));
 //Only receive request from some specific routes.
 app.use(cors());
 app.use('/api/users', userRoutes);
