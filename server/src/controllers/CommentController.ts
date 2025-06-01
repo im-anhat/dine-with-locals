@@ -8,11 +8,11 @@ import mongoose from 'mongoose';
 export const createComment: RequestHandler = async (
   req: Request,
   res: Response,
-) => {
+): Promise<void> => {
   try {
     const { blogId, userId, content } = req.body;
 
-    console.log('💬 Creating new comment:', {
+    console.log('Creating new comment:', {
       blogId,
       userId,
       content: content?.substring(0, 50) + '...',
@@ -23,7 +23,6 @@ export const createComment: RequestHandler = async (
       res
         .status(400)
         .json({ error: 'BlogId, userId, and content are required' });
-      return;
     }
 
     // Validate MongoDB ObjectId
@@ -107,7 +106,7 @@ export const createComment: RequestHandler = async (
         timestamp: new Date(),
       };
 
-      console.log(`🔔 Sending comment notification to user ${blog.userId._id}`);
+      console.log(`Sending comment notification to user ${blog.userId._id}`);
 
       // Send notification to blog author
       io.to(`user_${blog.userId._id}`).emit('new_notification', notification);
@@ -121,7 +120,7 @@ export const createComment: RequestHandler = async (
 
     res.status(201).json(populatedComment);
   } catch (error) {
-    console.error('❌ Error creating comment:', error);
+    console.error('Error creating comment:', error);
     res.status(500).json({ error: 'Failed to create comment' });
   }
 };
@@ -130,7 +129,7 @@ export const createComment: RequestHandler = async (
 export const getBlogComments: RequestHandler = async (
   req: Request,
   res: Response,
-) => {
+): Promise<void> => {
   try {
     const { blogId } = req.params;
 
@@ -149,7 +148,7 @@ export const getBlogComments: RequestHandler = async (
 
     res.status(200).json({ comments, commentCount });
   } catch (error) {
-    console.error('❌ Error fetching blog comments:', error);
+    console.error('Error fetching blog comments:', error);
     res.status(500).json({ error: 'Failed to fetch blog comments' });
   }
 };
