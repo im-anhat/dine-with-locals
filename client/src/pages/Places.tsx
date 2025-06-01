@@ -1,13 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MapLoader from '../components/places/MapLoader';
 import PlacesMap from '../components/places/PlacesMap';
 import PlaceRecommendations from '../components/places/PlaceRecommendations';
 import PlaceDetails from '../components/places/PlaceDetails';
 import { dummyListings, Listing } from '../data/dummyListings';
+import { useUserContext } from '../hooks/useUserContext';
+import { getLngLatFromLocationId } from '../services/LocationService';
+import { set } from 'date-fns';
+import { get } from 'http';
 
 const Places: React.FC = () => {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const { currentUser } = useUserContext();
+  const userLocationId = currentUser?.locationId;
+  const [userCoordinates, setUserCoordinates] =
+    useState<google.maps.LatLngLiteral | null>(null);
+  console.log('Current User:', currentUser);
+  useEffect(() => {
+    const fetchUserCoordinates = async () => {
+      if (userLocationId) {
+        try {
+          const coordinates = await getLngLatFromLocationId(userLocationId);
+          setUserCoordinates(coordinates);
+        } catch (error) {
+          console.error('Error fetching user coordinates:', error);
+        }
+      }
+    };
+
+    fetchUserCoordinates();
+  }, []);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
@@ -32,6 +55,7 @@ const Places: React.FC = () => {
                 listings={dummyListings}
                 onListingClick={handleListingClick}
                 selectedListing={selectedListing}
+                userCoordinates={userCoordinates}
               />
             </MapLoader>
           </div>

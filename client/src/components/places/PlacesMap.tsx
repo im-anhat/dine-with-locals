@@ -5,15 +5,9 @@ import { Listing } from '../../data/dummyListings';
 interface PlacesMapProps {
   listings: Listing[];
   onListingClick?: (listing: Listing) => void;
-  center?: google.maps.LatLngLiteral;
   selectedListing?: Listing | null;
+  userCoordinates?: google.maps.LatLngLiteral | null;
 }
-
-// center + zoom size
-const defaultCenter = {
-  lat: 40.7128,
-  lng: -74.006, // New York City
-};
 
 const mapContainerStyle = {
   width: '100%',
@@ -23,10 +17,15 @@ const mapContainerStyle = {
 const PlacesMap: React.FC<PlacesMapProps> = ({
   listings,
   onListingClick,
-  center = defaultCenter,
   selectedListing,
+  userCoordinates,
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const center: google.maps.LatLngLiteral = userCoordinates ?? {
+    lat: 41.881563,
+    lng: -87.649869,
+  }; // Default to Chicago if not provided
+
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>(center);
   const [markers, setMarkers] = useState<Array<google.maps.Marker>>([]);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
