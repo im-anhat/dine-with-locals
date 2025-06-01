@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 export const createComment: RequestHandler = async (
   req: Request,
   res: Response,
-) => {
+): Promise<void> => {
   try {
     const { blogId, userId, content } = req.body;
 
@@ -16,6 +16,7 @@ export const createComment: RequestHandler = async (
       res
         .status(400)
         .json({ error: 'blogId, userId and content are required' });
+      return;
     }
 
     // Validate MongoDB ObjectIds
@@ -55,7 +56,7 @@ export const createComment: RequestHandler = async (
 export const getCommentsByBlogId: RequestHandler = async (
   req: Request,
   res: Response,
-) => {
+): Promise<void> => {
   try {
     const { blogId } = req.params;
 

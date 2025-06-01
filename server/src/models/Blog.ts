@@ -32,11 +32,11 @@ const BlogSchema: Schema = new Schema(
     },
     likes: {
       type: Number,
-      default: 0, // Default to zero likes
+      default: 0,
     },
     comments: {
       type: Number,
-      default: 0, // Default to zero comments
+      default: 0,
     },
   },
   { timestamps: true },
