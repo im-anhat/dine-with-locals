@@ -4,30 +4,54 @@ import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { ChevronLeft } from 'lucide-react';
-import { sendMessage } from '@/services/chat/ChatServices';
-
+import { Socket } from 'socket.io-client';
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../../../shared/types/typings';
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
+// interface of message that's returned from backend
 interface Message {
   _id: string;
-  senderId: string;
+  senderId: {
+    _id: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+    role: string;
+  };
   content: string;
-  chat: string;
+  chat: {
+    _id: string;
+    users: Array<{
+      _id: string;
+      userName: string;
+      firstName: string;
+      lastName: string;
+      avatar: string;
+      role: string;
+    }>;
+  };
   readBy: string[];
   createdAt: Date;
+  updatedAt: Date;
 }
 
 interface ChatProps {
   chatId?: string;
   onBack?: () => void;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
-export function Chat({ chatId, onBack }: ChatProps) {
+export function Chat({ chatId, onBack, socket }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { currentUser } = useUser();
 
+  // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -36,6 +60,7 @@ export function Chat({ chatId, onBack }: ChatProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Fetch messages from database when a chat is selected
   useEffect(() => {
     const getAllMessages = async () => {
       const response = await axios.get(`${API_URL}api/message/${chatId}`, {
@@ -54,16 +79,34 @@ export function Chat({ chatId, onBack }: ChatProps) {
     }
   }, [chatId]);
 
+  // Listen for new messages from socket.io
+  useEffect(() => {
+    if (socket) {
+      const handleNewMessage = (message: Message) => {
+        console.log('Message received:', message);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      };
+
+      socket.on('message:new', handleNewMessage);
+
+      // Cleanup socket listeners
+      return () => {
+        socket.off('message:new', handleNewMessage);
+      };
+    }
+  }, [socket]);
+
+  // Send message + emit to Socket.io
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatId) return;
-    
-    console.log('Sending message:', newMessage, chatId);
-    const response = await sendMessage(chatId, newMessage);
-    console.log('Response:', response);
-    setNewMessage(''); // Clear input after sending
+
+    // Send message to server through socket.io
+    socket.emit('message:send', { chatId, content: newMessage });
+    setNewMessage('');
   };
 
+  // If no chat is selected, show a message
   if (!chatId) {
     return (
       <div className="w-full h-full p-4 flex flex-col">
@@ -91,14 +134,14 @@ export function Chat({ chatId, onBack }: ChatProps) {
           <div
             key={message._id}
             className={`flex ${
-              message.senderId === currentUser?._id
+              message.senderId._id === currentUser?._id
                 ? 'justify-end'
                 : 'justify-start'
             }`}
           >
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
-                message.senderId === currentUser?._id
+                message.senderId._id === currentUser?._id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted'
               }`}

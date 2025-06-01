@@ -4,9 +4,9 @@ import connectDB from './config/mongo.js';
 import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
-
-// socket.io
-// import { Server } from 'socket.io';
+// Socket.io
+import { initializeSocket } from './socket/socket.js';
+import { createServer } from 'http';
 
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
@@ -27,6 +27,7 @@ import chatRoutes from './routes/ChatRoutes.js';
 import messageRoutes from './routes/MessageRoutes.js';
 
 const app = express();
+const httpServer = createServer(app);
 
 // Connect to MongoDB
 connectDB();
@@ -45,9 +46,12 @@ app.use('/api/message', messageRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`),
-);
 
+// Initialize socket.io
+const io = initializeSocket(httpServer);
 
+// Start listening
+httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Export app and io
 export default app;

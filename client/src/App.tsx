@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from './hooks/auth/useAuthContext';
-// import { AuthProvider } from './contexts/AuthContext';
-// import { UserProvider } from './contexts/UserContext';
 import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
@@ -14,21 +12,53 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 
-//The type React.FC is a type definition for type checking for functional components
-//and ensures that children are implicitly typed
+// Socket.io
+import { io, Socket } from 'socket.io-client';
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../../shared/types/typings';
+
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
-
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
   const currentPath = location.pathname.split('/').filter(Boolean);
   if (currentPath.length === 0) {
     currentPath.push('dashboard'); // Default to "dashboard" if no path is present
   }
-  console.log('Current path:', currentPath);
+
+  // initialize socket state
+  const [socket, setSocket] = useState<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
+
+  // Initialize socket connection only when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const newSocket = io('http://localhost:3000', {
+        auth: {
+          token: localStorage.getItem('token'),
+        },
+      });
+
+      setSocket(newSocket);
+
+      // Cleanup function to disconnect socket when component unmounts or user logs out
+      return () => {
+        newSocket.disconnect();
+      };
+    } else {
+      // Disconnect socket if user is not authenticated
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    }
+  }, [isAuthenticated]); // Only re-run effect when authentication status changes
 
   return (
-    // moved BrowserRouter from main.tsx to here
     <SidebarProvider>
       {isAuthenticated && (
         <>
@@ -46,7 +76,6 @@ const App: React.FC = () => {
         )}
 
         <Routes>
-          {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
           <Route path="/" element={<Home />} />
           <Route
             path="/signup"
@@ -74,7 +103,13 @@ const App: React.FC = () => {
           />
           <Route
             path="/chat"
-            element={isAuthenticated ? <ChatPage /> : <Home />}
+            element={
+              isAuthenticated && socket ? (
+                <ChatPage socket={socket} />
+              ) : (
+                <Home />
+              )
+            }
           />
         </Routes>
       </div>

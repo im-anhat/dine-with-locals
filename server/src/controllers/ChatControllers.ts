@@ -87,7 +87,7 @@ export const fetchChats = asyncHandler(
         ])
         .sort({ updatedAt: -1 });
 
-      console.log('Fetched chats:', chats);
+      // console.log('Fetched chats:', chats);
       res.status(200).json(chats);
     } catch (error) {
       console.error('Error fetching chats:', error);
