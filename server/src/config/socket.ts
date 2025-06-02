@@ -10,7 +10,7 @@ interface AuthenticatedSocket extends SocketIOServer {
 export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: '*', // Allow all origins for testing
+      origin: '*',
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -87,7 +87,7 @@ export const initializeSocket = (server: HTTPServer) => {
     // Handle notification test
     socket.on('send_notification', (data: any) => {
       const { targetUserId, message, type } = data;
-      console.log(`🔔 Sending notification to user ${targetUserId}:`, message);
+      console.log(`Sending notification to user ${targetUserId}:`, message);
 
       const notification = {
         type: type || 'test',
