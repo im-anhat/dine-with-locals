@@ -190,7 +190,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
     }
   };
 
-  // Handle case where userId might be a string (ID) or an object (populated user data)
   const user =
     typeof blog.userId === 'object' && blog.userId !== null
       ? blog.userId
