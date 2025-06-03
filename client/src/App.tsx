@@ -13,6 +13,7 @@ import './styles/main.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import SocketTest from './pages/test/SocketTest';
+import NotificationTest from './pages/test/NotificationTest';
 
 //The type React.FC is a type definition for type checking for functional components
 //and ensures that children are implicitly typed
@@ -62,6 +63,7 @@ const App: React.FC = () => {
         />
         <Route path="/" element={<Home />} />
         <Route path="/test/socket" element={<SocketTest />} />
+        <Route path="/test/notifications" element={<NotificationTest />} />
       </Routes>
 
       <Toaster />

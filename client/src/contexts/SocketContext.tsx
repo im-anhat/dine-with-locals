@@ -5,11 +5,15 @@ import { useUser } from './UserContext';
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
+  notifications: any[];
+  unreadCount: number;
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
+  notifications: [],
+  unreadCount: 0,
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -19,6 +23,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { currentUser } = useUser();
 
   useEffect(() => {
@@ -51,20 +57,29 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsConnected(false);
     });
 
-    socketInstance.on('connection_confirmed', (data) => {
-      console.log('Socket connection confirmed:', data);
+    socketInstance.on('new_notification', (notification: any) => {
+      console.log('New notification received:', notification);
+      setNotifications(prev => [notification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+    });
+
+    socketInstance.on('connection_confirmed', (data: any) => {
+      console.log('Connection confirmed:', data);
     });
 
     // Cleanup on unmount
     return () => {
-      if (socketInstance) {
-        socketInstance.disconnect();
-      }
+      socketInstance.disconnect();
     };
-  }, [currentUser?._id]);
+  }, [currentUser]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider value={{
+      socket,
+      isConnected,
+      notifications,
+      unreadCount
+    }}>
       {children}
     </SocketContext.Provider>
   );

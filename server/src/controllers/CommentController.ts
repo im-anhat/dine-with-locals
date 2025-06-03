@@ -1,6 +1,8 @@
 import { Request, Response, RequestHandler } from 'express';
 import Comment from '../models/Comment.js';
 import Blog from '../models/Blog.js';
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
 import mongoose from 'mongoose';
 
 // Create a new comment
@@ -25,6 +27,21 @@ export const createComment: RequestHandler = async (
       !mongoose.Types.ObjectId.isValid(userId)
     ) {
       res.status(400).json({ error: 'Invalid blogId or userId format' });
+      return;
+    }
+
+    // Get the blog and its author
+    const blog = await Blog.findById(blogId).populate('userId', 'userName firstName lastName');
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found' });
+      return;
+    }
+
+    // Get the commenter information
+    const commenter = await User.findById(userId).select('userName firstName lastName');
+    if (!commenter) {
+      res.status(404).json({ error: 'User not found' });
+      return;
     }
 
     // Create new comment
@@ -38,6 +55,41 @@ export const createComment: RequestHandler = async (
 
     // Update comment count in blog
     await Blog.findByIdAndUpdate(blogId, { $inc: { comments: 1 } });
+
+    // Create notification for blog author (only if commenter is not the author)
+    if (blog.userId._id.toString() !== userId.toString()) {
+      const notification = new Notification({
+        recipientId: blog.userId._id,
+        senderId: userId,
+        type: 'comment',
+        message: `${commenter.userName || commenter.firstName} commented on your blog: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+        blogId: blogId,
+        blogTitle: blog.blogTitle,
+      });
+
+      await notification.save();
+
+      // Emit real-time notification via Socket.IO
+      const io = req.app.get('io');
+      if (io) {
+        const populatedNotification = await Notification.findById(notification._id)
+          .populate('senderId', 'userName firstName lastName avatar')
+          .populate('blogId', 'blogTitle');
+
+        if (populatedNotification) {
+          io.to(`user_${blog.userId._id}`).emit('new_notification', {
+            _id: populatedNotification._id,
+            type: 'comment',
+            message: populatedNotification.message,
+            senderId: populatedNotification.senderId,
+            blogId: populatedNotification.blogId,
+            blogTitle: populatedNotification.blogTitle,
+            isRead: false,
+            createdAt: populatedNotification.createdAt,
+          });
+        }
+      }
+    }
 
     // Populate user data before returning
     const populatedComment = await Comment.findById(newComment._id).populate(

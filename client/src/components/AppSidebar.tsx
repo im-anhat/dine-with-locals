@@ -15,6 +15,7 @@ import {
 
 import NavGroup from '@/components/sidebar/nav-main';
 import NavUser from '@/components/sidebar/nav-user';
+import { NotificationCenter } from '@/components/NotificationCenter';
 
 import { useUser } from '@/contexts/UserContext';
 
@@ -57,7 +58,10 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <img className="w-16 h-16" src="/logo.svg" alt="" />
+        <div className="flex items-center justify-between">
+          <img className="w-16 h-16" src="/logo.svg" alt="" />
+          {currentUser && <NotificationCenter />}
+        </div>
       </SidebarHeader>
 
       {/* Main navigation */}

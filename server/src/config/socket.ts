@@ -16,6 +16,17 @@ export const initializeSocket = (server: HTTPServer) => {
     },
   });
 
+  // Authentication middleware
+  io.use((socket: any, next) => {
+    const userId = socket.handshake.query.userId;
+    if (userId) {
+      socket.userId = userId;
+      next();
+    } else {
+      next(new Error('Authentication error: userId is required'));
+    }
+  });
+
   io.on('connection', (socket: any) => {
     console.log(`User ${socket.userId} connected (Socket ID: ${socket.id})`);
 
