@@ -38,7 +38,7 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   console.log(matchConditions);
   //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
-    //Match conditions specified above
+    //Join location schema with request schema
     {
       $lookup: {
         from: 'locations',
@@ -47,8 +47,20 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
         as: 'mergedLocation',
       },
     },
+    //Join user schema to request schema
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'hostDetails',
+      },
+    },
     {
       $unwind: '$mergedLocation',
+    },
+    {
+      $unwind: '$hostDetails',
     },
     {
       $match: matchConditions,
@@ -112,44 +124,36 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       },
     },
     {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'guestDetail',
+      },
+    },
+    {
       $unwind: '$mergedLocation',
+    },
+    {
+      $unwind: '$guestDetail',
     },
     {
       $match: matchConditions,
     },
   ];
 
+  // Updated error handling and response structure
   try {
     const array = await Listing.aggregate(pipeline);
-    res.status(200).json({ dataArray: array });
+    console.log(array);
+    res.status(200).json({ success: true, data: array });
   } catch (err) {
-    console.log(err);
+    console.error('Error during aggregation:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: errorMessage,
+    });
   }
 };
-/**
-     *================== CODE TO ADD NEW REQUEST TO MONGODB ======================
-     * const object: IRequest = {
-        userId: new mongoose.Types.ObjectId('682ff10f2e285c458d21620c'),
-        createdAt: new Date(),
-        title: 'Good local Thai restaurant',
-        locationType: 'either',
-        locationId: new mongoose.Types.ObjectId('682ff0ff2e285c458d216209'),
-        interestTopic: ['Programming', 'Biology', 'Computer Science', 'Career'],
-        time: new Date('<2025-06å-31>'),
-        cuisine: ['Thai'],
-        dietaryRestriction: ['lactose intolerant'],
-        numGuests: 1,
-        additionalInfo: 'Finding another padthai enthusiast!',
-        status: 'waiting',
-      };
-     * const insert = await RequestModel.insertOne(object);
-     */
-/**
-   * ========================================================================
-    USER DATA FOR INPUT TO MONGODB
-    - 67f7f8281260844f9625ee32-Nhat - locationId: 682fee085960f358681a8a6d
-    - 67f7f8281260844f9625ee33-Quy - locationId: 682fed965960f358681a8a66
-    - 682ff1e72e285c458d216213-Dan - locationId: 682ff1de2e285c458d216210
-    - 682ff10f2e285c458d21620c-Tam - locationId: 682ff0ff2e285c458d216209
-   * ========================================================================
-   */

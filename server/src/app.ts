@@ -7,7 +7,8 @@ import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 import filterRoutes from './routes/FilterRoutes.js';
-
+import requestRoutes from './routes/RequestRoutes.js';
+import listingRoutes from './routes/ListingRoutes.js';
 // Import all models first to ensure they're registered with mongoose
 import './models/User.js';
 import './models/Blog.js';
@@ -40,6 +41,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/filter', filterRoutes);
+app.use('/api/request', requestRoutes);
+app.use('/api/listing', listingRoutes);
+
 // Routes
 
 // Start server

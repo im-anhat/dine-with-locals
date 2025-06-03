@@ -99,8 +99,8 @@ const FilterBar = ({
             <SelectValue placeholder="City" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="dining">Chicago</SelectItem>
-            <SelectItem value="travel">New York</SelectItem>
+            <SelectItem value="Chicago">Chicago</SelectItem>
+            <SelectItem value="New York">New York</SelectItem>
           </SelectContent>
         </Select>
         {/* Date ranges */}

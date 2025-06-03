@@ -7,11 +7,11 @@ import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
 import FeedPage from './pages/FeedPage';
 import FilterPage from './pages/filter/FilterPage';
+import CardDetails from './components/dashboard/CardDetails';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import MatchMeetupPage from './components/filter/FilterResult';
 
 //The type React.FC is a type definition for type checking for functional components
 //and ensures that children are implicitly typed
@@ -64,6 +64,7 @@ const App: React.FC = () => {
           element={isAuthenticated ? <FilterPage /> : <Home />}
         />
         <Route path="/" element={<Home />} />
+        <Route path="/filter/:id" element={<CardDetails />} />
       </Routes>
 
       <Toaster />

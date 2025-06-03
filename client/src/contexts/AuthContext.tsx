@@ -49,7 +49,6 @@ export const authReducer = (
 ): AuthState => {
   switch (action.type) {
     case 'LOGIN':
-      console.log('Reducer updating state with user:', action.payload); // Log the payload
       return { isAuthenticated: true };
     case 'LOGOUT':
       return { isAuthenticated: false };

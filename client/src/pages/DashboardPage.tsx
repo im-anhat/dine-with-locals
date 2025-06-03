@@ -1,128 +1,140 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { CalendarIcon, MessageCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Calendar } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
-const MatchCard = ({ name, date, time, description, tags = [] }: any) => (
-  <Card className="w-64">
-    <CardContent className="flex flex-col gap-2 p-4">
-      <div className="text-center">
-        <div className="text-xl font-semibold">{name}</div>
-        <div className="text-sm text-muted-foreground">
-          {date}, {time}
-        </div>
-        <div className="mt-2">{description}</div>
-      </div>
-      <div className="flex gap-2 justify-center flex-wrap">
-        {tags.map((tag: string, idx: number) => (
-          <span
-            key={idx}
-            className="text-xs bg-gray-200 rounded-full px-2 py-1 text-muted-foreground"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div className="flex justify-between items-center mt-2">
-        <Button variant="outline" className="text-sm px-3 py-1">
-          View more
-        </Button>
-        <MessageCircle className="w-4 h-4 text-muted-foreground cursor-pointer" />
-      </div>
-    </CardContent>
-  </Card>
-);
+import FilterResults from '../components/filter/FilterResult';
+import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
+
+  // console.log('currentUser', currentUser);
+  useEffect(() => {
+    try {
+      const fetchAllData = async () => {
+        setLoading(true);
+        setError(null);
+        console.log('ROLE', currentUser?.role);
+        let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+        try {
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+          );
+          console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
+          setResults(res.data.data);
+          console.log(results);
+
+          if (res.data && Array.isArray(res.data.data)) {
+            setResults(res.data.data);
+            console.log(results);
+          } else if (Array.isArray(res.data)) {
+            // Fallback: direct array response
+            setResults(res.data);
+          } else {
+            // If the response doesn't contain an array, set empty array
+            console.warn('API response structure unexpected:', res.data);
+            setResults([]);
+          }
+        } catch (err) {
+          setError('Something went wrong. Please try again.');
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchAllData();
+    } catch (err) {}
+  }, []);
+  if (!currentUser) {
+    return <p>Loading...</p>;
+  }
+
+  //Load all card when reload page
+
   return (
-    <div className="p-8 space-y-8">
+    <div className="container mx-auto p-6 max-w-7xl space-y-8">
       {/* Header Section */}
-      <div>
-        <h1 className="text-2xl font-bold">Today's match</h1>
-        <div className="flex justify-end gap-4 text-lg font-medium">
-          <span>{currentUser?.role}</span>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Today's Matches</h1>
+          <p className="text-muted-foreground mt-1">
+            Find new connections and upcoming meetups
+          </p>
+        </div>
+        <div className="text-right">
+          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {currentUser?.role}
+          </div>
         </div>
       </div>
 
-      {/* Match Cards */}
-      <div className="flex gap-6 flex-wrap">
-        <MatchCard
-          name="Nhat Le"
-          date="Mar 23"
-          time="8:00 pm"
-          description="Looking for a friend to have Pho together in Denver!"
-          tags={['tags', 'vegan']}
-        />
-        <MatchCard
-          name="Nhat Le"
-          date="Mar 23"
-          time="8:00 pm"
-          description="Looking for a friend to have a Thai hotpot somewhere!"
-          tags={['vegan']}
-        />
-        <MatchCard
-          name="Nhat Le"
-          date="Mar 23"
-          time="8:00 pm"
-          description="Looking for a friend to have Pho together at my house!"
-          tags={['vegan']}
-        />
-      </div>
+      <Separator />
 
-      <div className="text-sm text-blue-600 underline cursor-pointer">
-        More Requests...
-      </div>
+      {/* Match Cards Section */}
+      <section className="space-y-4">
+        <div className="flex flex-row gap-6">
+          <div>
+            {loading && <p className="text-muted-foreground">Loading...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            <FilterResults results={(results ?? []).slice(0, 3)} />
+          </div>
+        </div>
+
+        <Button
+          variant="link"
+          className="text-blue-600 p-0 h-auto font-normal"
+          onClick={() => navigate('/filter', { state: { results } })}
+        >
+          View All Requests →
+        </Button>
+      </section>
+
+      <Separator />
 
       {/* Upcoming Meetup Section */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Upcoming meet up</h2>
-
-        <Tabs defaultValue="listing">
-          <TabsList className="w-fit">
-            <TabsTrigger value="listing">Listing</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="listing">
-            <div className="grid grid-cols-7 gap-4 mt-4">
-              {/* Example Day Cards */}
-              <Card className="p-3 space-y-1">
-                <div className="text-sm font-medium">mon 03/01</div>
-                <div className="text-xs">Guest: Unknown</div>
-                <div className="text-xs">Location: ABC</div>
-                <div className="text-xs">Time: DEF</div>
-                <div className="text-xs">Description: XY</div>
-                <div className="text-xs text-yellow-600">Status: Waiting</div>
-              </Card>
-              <Card className="p-3">tue 03/02</Card>
-              <Card className="p-3 space-y-1">
-                <div className="text-sm font-medium">wed 03/03</div>
-                <div className="text-xs">Guest: ABC</div>
-                <div className="text-xs">Location: ABC</div>
-                <div className="text-xs">Time: DEF</div>
-                <div className="text-xs">Description: XY</div>
-                <div className="text-xs text-green-600">Status: Done</div>
-              </Card>
-              <Card className="p-3">thu 03/04</Card>
-              <Card className="p-3">fri</Card>
-              <Card className="p-3">sat</Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="calendar">
-            <div className="text-center text-muted-foreground mt-4">
-              (Calendar view goes here)
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <div className="flex justify-end mt-4">
+      <section className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
           <Button variant="outline">
-            <CalendarIcon className="mr-2 w-4 h-4" /> Create A New Listing
+            <Calendar className="mr-2 w-4 h-4" />
+            Create New Listing
           </Button>
         </div>
-      </div>
+
+        <Tabs defaultValue="listing" className="w-full">
+          <TabsList className="grid w-fit grid-cols-2">
+            <TabsTrigger value="listing">List View</TabsTrigger>
+            <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="listing" className="mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+              {/* {upcomingMeetups.map((meetup, index) => (
+                <MeetupCard key={index} {...meetup} />
+              ))} */}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="mt-6">
+            <Card>
+              <CardContent className="flex items-center justify-center h-64">
+                <div className="text-center space-y-2">
+                  <Calendar className="w-12 h-12 mx-auto text-muted-foreground" />
+                  <p className="text-muted-foreground">Not finalized</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </section>
     </div>
   );
 };
