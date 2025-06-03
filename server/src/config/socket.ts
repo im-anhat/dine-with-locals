@@ -10,7 +10,7 @@ interface AuthenticatedSocket extends SocketIOServer {
 export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: '*',
+      origin: 'http://localhost:5173',
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -127,11 +127,6 @@ export const initializeSocket = (server: HTTPServer) => {
       console.error('Socket error:', error);
     });
   });
-
-  // Log server statistics every 30 seconds
-  setInterval(() => {
-    console.log(`Active connections: ${io.engine.clientsCount}`);
-  }, 30000);
 
   return io;
 };

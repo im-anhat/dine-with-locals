@@ -47,10 +47,12 @@ connectDB();
 app.use(express.json());
 app.use(express.static('public'));
 //Only receive request from some specific routes.
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }),
+);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
@@ -65,6 +67,9 @@ app.use('/api/notifications', notificationRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Socket.IO initialized and listening for connections');
+});
 
 export default app;
