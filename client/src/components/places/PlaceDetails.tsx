@@ -1,5 +1,6 @@
 import React from 'react';
-import { Listing } from '../../data/dummyListings';
+import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
+import { getLocationById, Location } from '@/services/LocationService';
 
 interface PlaceDetailsProps {
   listing: Listing;
@@ -7,6 +8,34 @@ interface PlaceDetailsProps {
 }
 
 const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
+  const [location, setLocation] = React.useState<Location | null>(null);
+
+  React.useEffect(() => {
+    // Check if locationId is already a populated object or just an ID string
+    if (typeof listing.locationId === 'object' && listing.locationId !== null) {
+      // locationId is already populated, convert it to the Location format
+      const populatedLocation = listing.locationId as PopulatedLocation;
+      setLocation({
+        _id: populatedLocation._id,
+        address: populatedLocation.address,
+        city: populatedLocation.city,
+        state: populatedLocation.state,
+        country: populatedLocation.country,
+        zipCode: populatedLocation.zipCode,
+        coordinates: populatedLocation.coordinates,
+      });
+    } else if (typeof listing.locationId === 'string') {
+      // locationId is just an ID, fetch the full location data
+      getLocationById(listing.locationId)
+        .then(setLocation)
+        .catch((error) => {
+          console.error('Error fetching location by ID:', error);
+          // Set a default location in case of error
+          setLocation(null);
+        });
+    }
+  }, [listing]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -38,13 +67,17 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
 
         {/* Content */}
         <div className="p-6">
-          {/* Image */}
-          <div className="mb-6 rounded-lg overflow-hidden h-64">
-            <img
-              src={listing.imageUrl}
-              alt={listing.title}
-              className="w-full h-full object-cover"
-            />
+          {/* Image or placeholder */}
+          <div className="mb-6 rounded-lg overflow-hidden h-64 bg-brand-shell-100 flex items-center justify-center">
+            {listing.images && listing.images.length > 0 ? (
+              <img
+                src={listing.images[0]}
+                alt={listing.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-8xl">🍽️</span>
+            )}
           </div>
 
           {/* Listing details */}
@@ -59,42 +92,72 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
                 Location
               </h3>
               <p className="text-brand-stone-600 mb-4">
-                This dining experience is located in New York City. The exact
-                address will be shared after booking.
+                {location
+                  ? `${location.address}, ${location.city}, ${location.state || ''}, ${location.country}, ${location.zipCode || ''}`
+                  : 'Loading location...'}
               </p>
 
               <h3 className="text-lg font-medium text-brand-stone-800 mb-2">
                 What to Expect
               </h3>
               <ul className="list-disc pl-5 text-brand-stone-600 mb-4">
-                <li>A warm welcome from your host, {listing.hostName}</li>
-                <li>Authentic {listing.cuisine} cuisine in a local setting</li>
+                <li>
+                  A warm welcome from your host, {listing.userId.firstName}{' '}
+                  {listing.userId.lastName}
+                </li>
+                <li>
+                  Authentic {listing.category} experience in a local setting
+                </li>
                 <li>Cultural exchange and conversation</li>
-                <li>Recipes to take home</li>
+                {listing.duration && (
+                  <li>Duration: {listing.duration} hours</li>
+                )}
+                {listing.additionalInfo && <li>{listing.additionalInfo}</li>}
               </ul>
             </div>
 
-            {/* Sidebar with pricing and booking */}
+            {/* Sidebar with experience details and booking */}
             <div className="bg-brand-shell-100 p-4 rounded-lg">
               <div className="flex items-center mb-4">
-                <span className="text-yellow-500 mr-1">★</span>
-                <span className="font-medium">{listing.rating}</span>
-                <span className="mx-1 text-brand-stone-400">•</span>
-                <span className="text-brand-stone-500">{listing.cuisine}</span>
+                <span className="text-brand-stone-500">
+                  {listing.category.charAt(0).toUpperCase() +
+                    listing.category.slice(1)}
+                </span>
               </div>
 
-              <div className="mb-4">
-                <h4 className="text-sm text-brand-stone-500 mb-1">
-                  Price per person
-                </h4>
-                <p className="text-2xl font-semibold text-brand-orange-600">
-                  ${listing.price}
-                </p>
-              </div>
+              {listing.time && (
+                <div className="mb-4">
+                  <h4 className="text-sm text-brand-stone-500 mb-1">
+                    Scheduled Time
+                  </h4>
+                  <p className="text-lg font-semibold text-brand-orange-600">
+                    {new Date(listing.time).toLocaleDateString()}
+                    {listing.duration && ` (${listing.duration}h)`}
+                  </p>
+                </div>
+              )}
+
+              {listing.numGuests && (
+                <div className="mb-4">
+                  <h4 className="text-sm text-brand-stone-500 mb-1">
+                    Max Guests
+                  </h4>
+                  <p className="text-brand-stone-800">
+                    {listing.numGuests} people
+                  </p>
+                </div>
+              )}
 
               <div className="mb-4">
                 <h4 className="text-sm text-brand-stone-500 mb-1">Hosted by</h4>
-                <p className="text-brand-stone-800">{listing.hostName}</p>
+                <p className="text-brand-stone-800">
+                  {listing.userId.firstName} {listing.userId.lastName}
+                </p>
+                {listing.userId.userName && (
+                  <p className="text-sm text-brand-stone-600">
+                    @{listing.userId.userName}
+                  </p>
+                )}
               </div>
 
               <button className="w-full bg-brand-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-700 transition-colors">

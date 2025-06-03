@@ -12,6 +12,7 @@
     "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "mongoose": "^8.13.1",
-    "mongoose-autopopulate": "^1.1.0"
+    "mongoose-autopopulate": "^1.1.0",
+    "node-fetch": "^2.7.0"
   }
 }

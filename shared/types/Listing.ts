@@ -1,13 +1,34 @@
+// Location interface for populated locationId
+export interface PopulatedLocation {
+  _id: string;
+  address: string;
+  city: string;
+  state?: string;
+  country: string;
+  zipCode?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 export interface Listing {
-  userId: string; // now using ObjectId
+  _id: string;
+  userId: {
+    userName: string;
+    firstName: string;
+    lastName: string;
+    avatar?: string;
+  };
   title: string;
-  locationType: 'home' | 'res' | 'either';
-  locationId: string; // now using default _id from Location
-  interestTopic?: string[];
-  time?: Date;
-  cuisine: string[];
-  dietary: string[];
-  numGuests?: number;
-  additionalInfo: string;
+  description: string;
+  images?: string[];
+  category: 'dining' | 'travel' | 'event';
+  locationId: string | PopulatedLocation; // Can be either string ID or populated object
+  additionalInfo?: string;
   status: 'pending' | 'waiting' | 'approved';
+  time?: Date;
+  duration?: number;
+  interestTopic?: string[];
+  numGuests?: number;
 }

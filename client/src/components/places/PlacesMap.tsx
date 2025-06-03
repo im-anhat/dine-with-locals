@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { GoogleMap, Autocomplete } from '@react-google-maps/api';
-import { Listing } from '../../data/dummyListings';
+import { Listing } from '../../../../shared/types/Listing';
 
 interface PlacesMapProps {
   listings: Listing[];
@@ -96,10 +96,52 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         const isSelected = listing._id === selectedListing?._id;
         const icon = createMarkerIcon(isSelected);
 
+        // Assume API returns populated location data with coordinates
+        // If locationId is populated, it should have coordinates property
+        const locationData =
+          typeof listing.locationId === 'object' ? listing.locationId : null;
+        let position = null;
+
+        // Handle different possible coordinate structures
+        if (locationData?.coordinates) {
+          const coords = locationData.coordinates;
+
+          // Check if coordinates is an object with lat/lng properties
+          if (
+            typeof coords.lat === 'number' &&
+            typeof coords.lng === 'number'
+          ) {
+            position = {
+              lat: coords.lat,
+              lng: coords.lng,
+            };
+          }
+          // Check if coordinates is an array [lng, lat] (GeoJSON format)
+          else if (
+            Array.isArray(coords) &&
+            coords.length >= 2 &&
+            typeof coords[0] === 'number' &&
+            typeof coords[1] === 'number'
+          ) {
+            position = {
+              lat: coords[1], // latitude
+              lng: coords[0], // longitude
+            };
+          }
+        }
+
+        if (!position) {
+          console.warn(
+            `Listing ${listing.title} doesn't have valid coordinates:`,
+            locationData,
+          );
+          continue;
+        }
+
         // Create the marker
         const marker = new google.maps.Marker({
           map,
-          position: listing.location,
+          position: position,
           title: listing.title,
           icon: icon,
           animation: isSelected ? google.maps.Animation.BOUNCE : undefined,
@@ -131,8 +173,42 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
   // Center map on selected listing
   useEffect(() => {
     if (map && selectedListing) {
-      map.panTo(selectedListing.location);
-      map.setZoom(15);
+      // Use same coordinate extraction logic as markers
+      const locationData =
+        typeof selectedListing.locationId === 'object'
+          ? selectedListing.locationId
+          : null;
+      let position = null;
+
+      // Handle different possible coordinate structures
+      if (locationData?.coordinates) {
+        const coords = locationData.coordinates;
+
+        // Check if coordinates is an object with lat/lng properties
+        if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+          position = {
+            lat: coords.lat,
+            lng: coords.lng,
+          };
+        }
+        // Check if coordinates is an array [lng, lat] (GeoJSON format)
+        else if (
+          Array.isArray(coords) &&
+          coords.length >= 2 &&
+          typeof coords[0] === 'number' &&
+          typeof coords[1] === 'number'
+        ) {
+          position = {
+            lat: coords[1], // latitude
+            lng: coords[0], // longitude
+          };
+        }
+      }
+
+      if (position) {
+        map.panTo(position);
+        map.setZoom(15);
+      }
     }
   }, [map, selectedListing]);
 
@@ -185,27 +261,34 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
             {selectedListing.title}
           </h3>
           <p className="text-sm text-brand-stone-600 mb-2">
-            {selectedListing.hostName} • {selectedListing.cuisine}
+            {selectedListing.userId.firstName} {selectedListing.userId.lastName}{' '}
+            • {selectedListing.category}
           </p>
-          <div className="flex items-center">
-            <span className="text-brand-coral-500 font-bold">
-              ${selectedListing.price}
-            </span>
-            <span className="mx-2 text-brand-stone-400">•</span>
-            <div className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-yellow-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span
+                className={`px-2 py-1 text-xs rounded-full ${
+                  selectedListing.status === 'approved'
+                    ? 'bg-green-100 text-green-800'
+                    : selectedListing.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-gray-100 text-gray-800'
+                }`}
               >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span className="ml-1 text-sm text-brand-stone-600">
-                {selectedListing.rating}
+                {selectedListing.status}
               </span>
+              {selectedListing.numGuests && (
+                <span className="text-sm text-brand-stone-600">
+                  Up to {selectedListing.numGuests} guests
+                </span>
+              )}
             </div>
           </div>
+          {selectedListing.description && (
+            <p className="text-sm text-brand-stone-600 mt-2 line-clamp-2">
+              {selectedListing.description}
+            </p>
+          )}
         </div>
       )}
 

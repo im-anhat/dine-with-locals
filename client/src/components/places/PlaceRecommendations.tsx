@@ -1,5 +1,5 @@
 import React from 'react';
-import { Listing } from '../../data/dummyListings';
+import { Listing } from '../../../../shared/types/Listing';
 
 interface PlaceRecommendationsProps {
   listings: Listing[];
@@ -33,31 +33,43 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({
             onClick={() => onListingClick && onListingClick(listing)}
           >
             <div className="flex">
-              <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden mr-4">
-                <img
-                  src={listing.imageUrl}
-                  alt={listing.title}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden mr-4 bg-brand-shell-100 flex items-center justify-center">
+                {listing.images && listing.images.length > 0 ? (
+                  <img
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl">🍽️</span>
+                )}
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-lg text-brand-stone-800">
                   {listing.title}
                 </h3>
                 <p className="text-sm text-brand-stone-500 mb-1">
-                  Hosted by {listing.hostName}
+                  Hosted by {listing.userId.firstName} {listing.userId.lastName}
                 </p>
-                <div className="flex items-center mb-1">
-                  <span className="text-yellow-500 mr-1">★</span>
-                  <span className="text-sm font-medium">{listing.rating}</span>
-                  <span className="mx-1 text-brand-stone-400">•</span>
+                <div className="flex items-center mb-1 flex-wrap gap-1">
                   <span className="text-sm text-brand-stone-500">
-                    {listing.cuisine}
+                    {listing.category.charAt(0).toUpperCase() +
+                      listing.category.slice(1)}
                   </span>
+                  {listing.numGuests && (
+                    <>
+                      <span className="mx-1 text-brand-stone-400">•</span>
+                      <span className="text-sm text-brand-stone-500">
+                        Up to {listing.numGuests} guests
+                      </span>
+                    </>
+                  )}
                 </div>
-                <p className="text-base font-semibold text-brand-orange-600">
-                  ${listing.price} per person
-                </p>
+                {listing.time && (
+                  <p className="text-sm font-medium text-brand-orange-600">
+                    {new Date(listing.time).toLocaleDateString()}
+                  </p>
+                )}
               </div>
             </div>
             <p className="text-sm text-brand-stone-600 mt-2 line-clamp-2 overflow-hidden">

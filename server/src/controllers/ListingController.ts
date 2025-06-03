@@ -157,7 +157,7 @@ export const getNearbyListings: RequestHandler = async (
       return;
     }
 
-    // Get all listings with populated location data
+    // Get all listings with populated location data (exclude approved/matched listings)
     const listings = await Listing.find({ status: { $ne: 'approved' } })
       .populate('userId', 'userName firstName lastName avatar')
       .populate('locationId')

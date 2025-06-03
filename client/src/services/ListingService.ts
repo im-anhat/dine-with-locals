@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Listing } from '../data/dummyListings.js';
+import { Listing } from '../../../shared/types/Listing';
 
 export interface Coordinates {
   lat: number;
@@ -15,7 +15,10 @@ const API_BASE_URL =
  * @param coord2 Second coordinate (lat, lng)
  * @returns Distance in kilometers
  */
-export const calculateDistance = (coord1: Coordinates, coord2: Coordinates): number => {
+export const calculateDistance = (
+  coord1: Coordinates,
+  coord2: Coordinates,
+): number => {
   const R = 6371; // Earth's radius in kilometers
   const dLat = toRadians(coord2.lat - coord1.lat);
   const dLng = toRadians(coord2.lng - coord1.lng);
@@ -42,11 +45,10 @@ const toRadians = (degrees: number): number => {
 
 /**
  * Get listings within a specified distance from given coordinates
- * @param userCoordinates User's current coordinates
- * @param maxDistance Maximum distance in kilometers (default: 80)
- * @param listings Array of listings to filter
- * @returns Array of listings within the specified distance, sorted by distance
+ * Note: This function is commented out because the new Listing interface
+ * uses locationId instead of direct coordinates. Use getListingsWithinDistanceFromAPI instead.
  */
+/*
 export const getListingsWithinDistance = (
   userCoordinates: Coordinates,
   maxDistance: number = 80,
@@ -66,6 +68,7 @@ export const getListingsWithinDistance = (
   // Remove the distance property before returning
   return listingsWithDistance.map(({ distance, ...listing }) => listing);
 };
+*/
 
 /**
  * Get listings within 80 km from given coordinates using API
@@ -75,7 +78,7 @@ export const getListingsWithinDistance = (
  */
 export const getListingsWithinDistanceFromAPI = async (
   userCoordinates: Coordinates,
-  maxDistance: number = 80
+  maxDistance: number = 80,
 ): Promise<Listing[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/listings/nearby`, {
@@ -111,7 +114,9 @@ export const getAllListings = async (): Promise<Listing[]> => {
  * @param listingData Data for the new listing
  * @returns Promise<Listing> Created listing
  */
-export const createListing = async (listingData: Partial<Listing>): Promise<Listing> => {
+export const createListing = async (
+  listingData: Partial<Listing>,
+): Promise<Listing> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/listings`, listingData);
     return response.data.listing;
@@ -141,7 +146,9 @@ export const getListingById = async (listingId: string): Promise<Listing> => {
  * @param userId ID of the user
  * @returns Promise<Listing[]> Array of user's listings
  */
-export const getListingsByUserId = async (userId: string): Promise<Listing[]> => {
+export const getListingsByUserId = async (
+  userId: string,
+): Promise<Listing[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/listings/user/${userId}`);
     return response.data;
@@ -159,10 +166,13 @@ export const getListingsByUserId = async (userId: string): Promise<Listing[]> =>
  */
 export const updateListing = async (
   listingId: string,
-  listingData: Partial<Listing>
+  listingData: Partial<Listing>,
 ): Promise<Listing> => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/listings/${listingId}`, listingData);
+    const response = await axios.put(
+      `${API_BASE_URL}/listings/${listingId}`,
+      listingData,
+    );
     return response.data.listing;
   } catch (error) {
     console.error('Error updating listing:', error);

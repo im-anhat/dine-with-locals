@@ -3,26 +3,28 @@ import MapLoader from '../components/places/MapLoader';
 import PlacesMap from '../components/places/PlacesMap';
 import PlaceRecommendations from '../components/places/PlaceRecommendations';
 import PlaceDetails from '../components/places/PlaceDetails';
-import { dummyListings, Listing } from '../data/dummyListings';
+// import { dummyListings, Listing } from '../data/dummyListings';
+import { Listing } from '../../../shared/types/Listing';
 import { useUserContext } from '../hooks/useUserContext';
 import { getLngLatFromLocationId } from '../services/LocationService';
-import { set } from 'date-fns';
-import { get } from 'http';
+import { getListingsWithinDistanceFromAPI } from '../services/ListingService';
 
 const Places: React.FC = () => {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [listings, setListings] = useState<Listing[]>([]);
   const { currentUser } = useUserContext();
   const userLocationId = currentUser?.locationId;
   const [userCoordinates, setUserCoordinates] =
     useState<google.maps.LatLngLiteral | null>(null);
-  console.log('Current User:', currentUser);
+  console.log('User Location ID:', userLocationId);
   useEffect(() => {
     const fetchUserCoordinates = async () => {
       if (userLocationId) {
         try {
           const coordinates = await getLngLatFromLocationId(userLocationId);
           setUserCoordinates(coordinates);
+          console.log('User Coordinates:', coordinates);
         } catch (error) {
           console.error('Error fetching user coordinates:', error);
         }
@@ -30,7 +32,27 @@ const Places: React.FC = () => {
     };
 
     fetchUserCoordinates();
-  }, []);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!userCoordinates) {
+      console.warn('User coordinates not available yet.');
+      return;
+    }
+    const fetchListings = async () => {
+      try {
+        const listings = await getListingsWithinDistanceFromAPI(
+          userCoordinates,
+          80,
+        );
+        setListings(listings);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+      }
+    };
+
+    fetchListings();
+  }, [userCoordinates]);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
@@ -52,7 +74,7 @@ const Places: React.FC = () => {
           <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-lg">
             <MapLoader>
               <PlacesMap
-                listings={dummyListings}
+                listings={listings}
                 onListingClick={handleListingClick}
                 selectedListing={selectedListing}
                 userCoordinates={userCoordinates}
@@ -62,7 +84,7 @@ const Places: React.FC = () => {
 
           <div className="max-h-[calc(100vh-10rem)] overflow-auto">
             <PlaceRecommendations
-              listings={dummyListings}
+              listings={listings}
               onListingClick={handleListingClick}
               selectedListing={selectedListing}
             />

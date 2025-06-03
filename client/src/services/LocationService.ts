@@ -25,8 +25,11 @@ export const getLngLatFromLocationId = async (
   locationId: string,
 ): Promise<LonLat> => {
   try {
+    console.log(
+      'request like this: ',
+      `${API_BASE_URL}/location/${locationId}`,
+    );
     const response = await axios.get(`${API_BASE_URL}/location/${locationId}`);
-
     if (
       response.data &&
       response.data.coordinates &&
@@ -88,6 +91,18 @@ export const updateLocationCoordinates = async (
     });
   } catch (error) {
     console.error('Error updating location coordinates:', error);
+    throw error;
+  }
+};
+
+export const getLocationById = async (
+  locationId: string,
+): Promise<Location> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/location/${locationId}`);
+    return response.data as Location;
+  } catch (error) {
+    console.error('Error fetching location by ID:', error);
     throw error;
   }
 };

@@ -45,6 +45,7 @@ export const getLocationById: RequestHandler = async (
 ) => {
   try {
     const { locationId } = req.params;
+    console.log('Fetching location with ID:', locationId);
 
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(locationId)) {
