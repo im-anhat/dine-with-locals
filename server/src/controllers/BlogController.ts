@@ -112,8 +112,9 @@ export const updateBlog: RequestHandler = async (
 
     // Validate required fields
     if (!blogTitle && !blogContent && !photos) {
-      res.status(400).json({ 
-        error: 'At least one of blogTitle, blogContent, or photos must be provided' 
+      res.status(400).json({
+        error:
+          'At least one of blogTitle, blogContent, or photos must be provided',
       });
       return;
     }
@@ -132,11 +133,9 @@ export const updateBlog: RequestHandler = async (
     if (photos) updateData.photos = photos;
 
     // Update the blog
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      id, 
-      updateData,
-      { new: true }
-    ).populate('userId', 'userName firstName lastName avatar');
+    const updatedBlog = await Blog.findByIdAndUpdate(id, updateData, {
+      new: true,
+    }).populate('userId', 'userName firstName lastName avatar');
 
     if (!updatedBlog) {
       res.status(404).json({ error: 'Blog not found after update' });
@@ -178,5 +177,34 @@ export const deleteBlog: RequestHandler = async (
   } catch (error) {
     console.error('Error deleting blog:', error);
     res.status(500).json({ error: 'Failed to delete blog' });
+  }
+};
+
+// Get a blog by ID
+export const getBlogById: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ error: 'Invalid blog ID format' });
+    }
+
+    const blog = await Blog.findById(id).populate(
+      'userId',
+      'userName firstName lastName avatar',
+    );
+
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found' });
+    }
+
+    res.status(200).json(blog);
+  } catch (error) {
+    console.error('Error fetching blog:', error);
+    res.status(500).json({ error: 'Failed to fetch blog' });
   }
 };

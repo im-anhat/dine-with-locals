@@ -22,6 +22,8 @@ import './models/Review.js';
 
 // Import routes
 import reviewRoutes from './routes/ReviewRoutes.js';
+import likeRoutes from './routes/LikeRoutes.js';
+import commentRoutes from './routes/CommentRoutes.js';
 
 const app = express();
 
@@ -38,6 +40,8 @@ app.use('/api/location', locationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/likes', likeRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Routes
 

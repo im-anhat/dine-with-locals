@@ -5,6 +5,8 @@ export interface IBlog extends Document {
   blogTitle: string;
   blogContent: string;
   photos: string[];
+  likes: number; // Track number of likes
+  comments: number; // Track number of comments
 }
 
 const BlogSchema: Schema = new Schema(
@@ -27,6 +29,14 @@ const BlogSchema: Schema = new Schema(
     photos: {
       type: [String],
       default: [],
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    comments: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },
