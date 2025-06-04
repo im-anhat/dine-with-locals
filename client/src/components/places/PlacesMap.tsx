@@ -262,21 +262,12 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
           </h3>
           <p className="text-sm text-brand-stone-600 mb-2">
             {selectedListing.userId.firstName} {selectedListing.userId.lastName}{' '}
-            • {selectedListing.category}
+            •{' '}
+            {selectedListing.category.charAt(0).toUpperCase() +
+              selectedListing.category.slice(1)}
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span
-                className={`px-2 py-1 text-xs rounded-full ${
-                  selectedListing.status === 'approved'
-                    ? 'bg-green-100 text-green-800'
-                    : selectedListing.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
-                }`}
-              >
-                {selectedListing.status}
-              </span>
               {selectedListing.numGuests && (
                 <span className="text-sm text-brand-stone-600">
                   Up to {selectedListing.numGuests} guests
@@ -310,11 +301,11 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
               elementType: 'labels',
               stylers: [{ visibility: 'on' }],
             },
-            {
-              featureType: 'water',
-              elementType: 'geometry',
-              stylers: [{ color: '#e9e9e9' }],
-            },
+            // {
+            //   featureType: 'water',
+            //   elementType: 'geometry',
+            //   stylers: [{ color: '#e9e9e9' }],
+            // },
             {
               featureType: 'water',
               elementType: 'labels.text.fill',
