@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, CheckCheck, Trash2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import {
   Drawer,
   DrawerClose,
@@ -211,17 +212,11 @@ export const NotificationCenter: React.FC = () => {
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${days}d ago`;
+    // For timestamps that are very recent (less than a minute ago)
+    if (new Date().getTime() - date.getTime() < 60000) {
+      return 'Just now';
+    }
+    return formatDistanceToNow(date, { addSuffix: true });
   };
 
   const getNotificationIcon = (type: string) => {

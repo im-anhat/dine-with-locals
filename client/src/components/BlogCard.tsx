@@ -217,8 +217,8 @@ const BlogCard: React.FC<BlogCardProps> = ({
     : 'Recently';
 
   return (
-    <Card className="mb-6 overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between p-4">
+    <Card className="mb-6 overflow-hidden max-h-[650px] flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between p-4 flex-shrink-0">
         <div className="flex items-center gap-4">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatar} alt={displayName} />
@@ -253,7 +253,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         )}
       </CardHeader>
 
-      <CardContent className="p-4 pt-0">
+      <CardContent className="p-4 pt-0 overflow-y-auto flex-1">
         <h3 className="text-xl font-semibold mb-2">{blog.blogTitle}</h3>
         <p className="mb-4">{blog.blogContent}</p>
 
@@ -299,7 +299,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         </div>
       </CardContent>
 
-      <CardFooter className="flex border-t p-4">
+      <CardFooter className="flex border-t p-4 flex-shrink-0">
         <Button
           variant={isLiked ? 'default' : 'ghost'}
           className={`mr-2 flex-1 ${isLiked ? 'bg-brand-coral-300 hover:bg-brand-coral-400' : ''}`}
@@ -318,7 +318,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
       {showCommentForm && (
         <>
-          <div className="p-4 pt-0 flex">
+          <div className="p-4 pt-0 flex flex-shrink-0">
             <Textarea
               placeholder="Add a comment..."
               className="min-h-[60px] mr-2"
@@ -346,10 +346,10 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-brand-coral-300"></div>
               </div>
             ) : comments.length > 0 ? (
-              <div className="space-y-4 mt-2">
+              <div className="space-y-4 mt-2 max-h-[200px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {comments.map((comment) => (
                   <div key={comment._id} className="flex gap-2">
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
                       <AvatarImage
                         src={comment.userId.avatar}
                         alt={`${comment.userId.firstName} ${comment.userId.lastName}`}
