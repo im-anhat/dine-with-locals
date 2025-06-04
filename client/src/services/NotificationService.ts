@@ -35,15 +35,23 @@ export interface NotificationResponse {
 class NotificationService {
   private baseUrl = `${API_BASE_URL}/notifications`;
 
-  async getUserNotifications(userId: string, page = 1, limit = 20, unreadOnly = false): Promise<NotificationResponse> {
+  async getUserNotifications(
+    userId: string,
+    page = 1,
+    limit = 20,
+    unreadOnly = false,
+  ): Promise<NotificationResponse> {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       unreadOnly: unreadOnly.toString(),
     });
 
-    console.log('Making request to:', `${this.baseUrl}/user/${userId}?${params}`);
-    
+    console.log(
+      'Making request to:',
+      `${this.baseUrl}/user/${userId}?${params}`,
+    );
+
     const response = await fetch(`${this.baseUrl}/user/${userId}?${params}`, {
       credentials: 'include',
     });
@@ -54,7 +62,9 @@ class NotificationService {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Error response:', errorText);
-      throw new Error(`Failed to fetch notifications: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to fetch notifications: ${response.status} - ${errorText}`,
+      );
     }
 
     const data = await response.json();
@@ -88,26 +98,31 @@ class NotificationService {
     return response.json();
   }
 
-  async deleteNotification(notificationId: string): Promise<{ message: string }> {
-    const response = await fetch(`${this.baseUrl}/${notificationId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+  async getUnreadCount(userId: string): Promise<{ unreadCount: number }> {
+    const response = await fetch(
+      `${this.baseUrl}/user/${userId}/unread-count`,
+      {
+        credentials: 'include',
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to delete notification');
+      throw new Error('Failed to fetch unread count');
     }
 
     return response.json();
   }
 
-  async getUnreadCount(userId: string): Promise<{ unreadCount: number }> {
-    const response = await fetch(`${this.baseUrl}/user/${userId}/unread-count`, {
+  async clearAllReadNotifications(
+    userId: string,
+  ): Promise<{ message: string; deletedCount: number }> {
+    const response = await fetch(`${this.baseUrl}/user/${userId}/read`, {
+      method: 'DELETE',
       credentials: 'include',
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch unread count');
+      throw new Error('Failed to clear read notifications');
     }
 
     return response.json();

@@ -31,55 +31,67 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     // Only connect if user is authenticated
     if (!currentUser?._id) {
       if (socket) {
+        console.log('User logged out, disconnecting socket');
         socket.disconnect();
         setSocket(null);
         setIsConnected(false);
+        setNotifications([]);
+        setUnreadCount(0);
       }
       return;
     }
+
+    console.log('Initializing socket connection for user:', currentUser._id);
 
     // Initialize socket connection
     const socketInstance = io('http://localhost:3000', {
       query: { userId: currentUser._id },
       withCredentials: true,
+      forceNew: true, // Force a new connection
     });
 
     setSocket(socketInstance);
 
     // Socket event listeners
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected with ID:', socketInstance.id);
       setIsConnected(true);
     });
 
-    socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
+    socketInstance.on('disconnect', (reason) => {
+      console.log('Socket disconnected. Reason:', reason);
       setIsConnected(false);
     });
 
-    socketInstance.on('new_notification', (notification: any) => {
-      console.log('New notification received:', notification);
-      setNotifications(prev => [notification, ...prev]);
-      setUnreadCount(prev => prev + 1);
-    });
-
     socketInstance.on('connection_confirmed', (data: any) => {
-      console.log('Connection confirmed:', data);
+      console.log('Connection confirmed by server:', data);
     });
 
-    // Cleanup on unmount
+    socketInstance.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
+    socketInstance.on('reconnect', (attemptNumber) => {
+      console.log('Socket reconnected after', attemptNumber, 'attempts');
+      setIsConnected(true);
+    });
+
+    // Cleanup on unmount or user change
     return () => {
+      console.log('Cleaning up socket connection');
       socketInstance.disconnect();
     };
-  }, [currentUser]);
+  }, [currentUser?._id]); // Only re-run when currentUser._id changes
 
   return (
-    <SocketContext.Provider value={{
-      socket,
-      isConnected,
-      notifications,
-      unreadCount
-    }}>
+    <SocketContext.Provider
+      value={{
+        socket,
+        isConnected,
+        notifications,
+        unreadCount,
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );
