@@ -53,6 +53,7 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);

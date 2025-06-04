@@ -68,7 +68,7 @@ export const markNotificationAsRead: RequestHandler = async (
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
       { isRead: true },
-      { new: true }
+      { new: true },
     ).populate('senderId', 'userName firstName lastName avatar');
 
     if (!notification) {
@@ -99,41 +99,13 @@ export const markAllNotificationsAsRead: RequestHandler = async (
 
     await Notification.updateMany(
       { recipientId: userId, isRead: false },
-      { isRead: true }
+      { isRead: true },
     );
 
     res.status(200).json({ message: 'All notifications marked as read' });
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
     res.status(500).json({ error: 'Failed to mark all notifications as read' });
-  }
-};
-
-// Delete a notification
-export const deleteNotification: RequestHandler = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const { notificationId } = req.params;
-
-    // Validate MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      res.status(400).json({ error: 'Invalid notification ID format' });
-      return;
-    }
-
-    const notification = await Notification.findByIdAndDelete(notificationId);
-
-    if (!notification) {
-      res.status(404).json({ error: 'Notification not found' });
-      return;
-    }
-
-    res.status(200).json({ message: 'Notification deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting notification:', error);
-    res.status(500).json({ error: 'Failed to delete notification' });
   }
 };
 
@@ -160,5 +132,34 @@ export const getUnreadNotificationCount: RequestHandler = async (
   } catch (error) {
     console.error('Error fetching unread count:', error);
     res.status(500).json({ error: 'Failed to fetch unread count' });
+  }
+};
+
+// Clear all read notifications for a user
+export const clearAllReadNotifications: RequestHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { userId } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ error: 'Invalid user ID format' });
+      return;
+    }
+
+    const result = await Notification.deleteMany({
+      recipientId: userId,
+      isRead: true,
+    });
+
+    res.status(200).json({
+      message: 'All read notifications cleared successfully',
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error('Error clearing read notifications:', error);
+    res.status(500).json({ error: 'Failed to clear read notifications' });
   }
 };

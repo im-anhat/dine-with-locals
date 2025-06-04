@@ -3,8 +3,8 @@ import {
   getUserNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-  deleteNotification,
   getUnreadNotificationCount,
+  clearAllReadNotifications,
 } from '../controllers/NotificationController.js';
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.patch('/:notificationId/read', markNotificationAsRead);
 // Mark all notifications as read for a user
 router.patch('/user/:userId/read-all', markAllNotificationsAsRead);
 
-// Delete a notification
-router.delete('/:notificationId', deleteNotification);
+// Clear all read notifications for a user
+router.delete('/user/:userId/read', clearAllReadNotifications);
 
 export default router;
