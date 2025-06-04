@@ -1,6 +1,8 @@
 import { Request, Response, RequestHandler } from 'express';
 import Like from '../models/Like.js';
 import Blog from '../models/Blog.js';
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
 import mongoose from 'mongoose';
 
 // Create a new like
@@ -14,6 +16,7 @@ export const createLike: RequestHandler = async (
     // Validate required fields
     if (!userId || !blogId) {
       res.status(400).json({ error: 'userId and blogId are required' });
+      return;
     }
 
     // Validate MongoDB ObjectIds
@@ -22,12 +25,28 @@ export const createLike: RequestHandler = async (
       !mongoose.Types.ObjectId.isValid(blogId)
     ) {
       res.status(400).json({ error: 'Invalid userId or blogId format' });
+      return;
     }
 
     // Check if like already exists
     const existingLike = await Like.findOne({ userId, blogId });
     if (existingLike) {
       res.status(400).json({ error: 'User has already liked this blog' });
+      return;
+    }
+
+    // Get the blog and its author
+    const blog = await Blog.findById(blogId).populate('userId', 'userName firstName lastName');
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found' });
+      return;
+    }
+
+    // Get the liker information
+    const liker = await User.findById(userId).select('userName firstName lastName');
+    if (!liker) {
+      res.status(404).json({ error: 'User not found' });
+      return;
     }
 
     // Create new like
@@ -36,6 +55,41 @@ export const createLike: RequestHandler = async (
 
     // Update like count in blog
     await Blog.findByIdAndUpdate(blogId, { $inc: { likes: 1 } });
+
+    // Create notification for blog author (only if liker is not the author)
+    if (blog.userId._id.toString() !== userId.toString()) {
+      const notification = new Notification({
+        recipientId: blog.userId._id,
+        senderId: userId,
+        type: 'like',
+        message: `${liker.userName || liker.firstName} liked your blog: "${blog.blogTitle}"`,
+        blogId: blogId,
+        blogTitle: blog.blogTitle,
+      });
+
+      await notification.save();
+
+      // Emit real-time notification via Socket.IO
+      const io = req.app.get('io');
+      if (io) {
+        const populatedNotification = await Notification.findById(notification._id)
+          .populate('senderId', 'userName firstName lastName avatar')
+          .populate('blogId', 'blogTitle');
+
+        if (populatedNotification) {
+          io.to(`user_${blog.userId._id}`).emit('new_notification', {
+            _id: populatedNotification._id,
+            type: 'like',
+            message: populatedNotification.message,
+            senderId: populatedNotification.senderId,
+            blogId: populatedNotification.blogId,
+            blogTitle: populatedNotification.blogTitle,
+            isRead: false,
+            createdAt: populatedNotification.createdAt,
+          });
+        }
+      }
+    }
 
     res.status(201).json(newLike);
   } catch (error) {
