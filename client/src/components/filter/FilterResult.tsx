@@ -111,11 +111,10 @@ const FilterResults = ({ results }: { results: any[] }) => {
               ) : (
                 <></>
               )}
-              <Accordion type="single" collapsible>
+              {/* <Accordion type="single" collapsible>
                 <AccordionItem value="item-1">
                   <AccordionTrigger>More information</AccordionTrigger>
                   <AccordionContent className="bg-brand-shell-200 p-4 rounded-lg">
-                    {/* Cuisine tag */}
                     {item.cuisine.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         <span className="font-medium mr-2">Cuisine:</span>
@@ -129,7 +128,6 @@ const FilterResults = ({ results }: { results: any[] }) => {
                         ))}
                       </div>
                     )}
-                    {/* Dietary restrictions */}
                     {item.dietary && item.dietary.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         <span className="font-medium mr-2">
@@ -145,8 +143,6 @@ const FilterResults = ({ results }: { results: any[] }) => {
                         ))}
                       </div>
                     )}
-
-                    {/* Number of Guests */}
                     <div className="flex flex-wrap gap-2">
                       <span className="font-medium mr-2">
                         Number of Guests:
@@ -155,7 +151,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-              </Accordion>
+              </Accordion> */}
               {/* IMAGES */}
               {item.images && item.images.length > 0 && (
                 <div className="relative mb-4">
