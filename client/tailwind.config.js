@@ -127,9 +127,6 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        primary: '#f97316', // Primary brand color - Orange
-        secondary: '#e53935', // Secondary brand color - Coral red
-        accent: '#14b8a6', // Accent color - Teal
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'], // Inter is a popular font for web applications
