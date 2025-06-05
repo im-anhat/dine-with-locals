@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import ProcessBar from '../../components/auth/ProcessBar';
 import { StepProvider } from '../../contexts/StepContext';
 import UserInput from './UserInput';
-
+import { Card, CardContent } from '@/components/ui/card';
 export const SignUpPage = () => {
   /**
    * Goes to the following step (out of 5) of the signup process.
@@ -13,11 +12,16 @@ export const SignUpPage = () => {
 
   return (
     <StepProvider totalSteps={3}>
-      <div className="p-20 mt-10">
-        <div>
-          <UserInput />
-          <ProcessBar />
+      <div className="w-full h-full bg-brand-coral-400 bg-gradient-to-l from-rose-500 to-[#fc6767]">
+        <div className="flex justify-center m-20">
+          <Card>
+            <CardContent className="rounded-xl p-20">
+              <UserInput />
+            </CardContent>
+          </Card>
         </div>
+
+        <ProcessBar />
       </div>
     </StepProvider>
   );
