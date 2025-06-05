@@ -57,7 +57,8 @@ const FilterResults = ({ results }: { results: any[] }) => {
         return 'bg-gray-100 text-gray-800';
     }
   };
-  // console.log('in filter result', results);
+  console.log('in filter result', results);
+  console.log(Array.isArray(results));
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">

@@ -27,7 +27,7 @@ export const getAllRequest = async (req: Request, res: Response) => {
         $unwind: '$locationInfo',
       },
     ]);
-    res.status(200).json({ data: requests });
+    res.status(200).json(requests);
   } catch (err) {
     console.error('Error fetching requests:', err);
     res.status(400).json(err);

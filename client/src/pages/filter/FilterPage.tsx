@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import FilterResults from '@/components/filter/FilterResult';
 import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
-import { useLocation } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
+import { useLocation } from 'react-router';
 import axios from 'axios';
 
 const FilterPage = () => {
@@ -20,9 +20,11 @@ const FilterPage = () => {
   const [dineAt, setDineAt] = useState<string | undefined>();
   const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
   const [results, setResults] = useState<any[]>();
+  const { state } = useLocation();
 
   const { currentUser } = useUser();
 
+  //Filter document that match filter value
   const submitValue = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -36,25 +38,16 @@ const FilterPage = () => {
       locationType: dineAt,
       numGuests: numberOfGuests,
     };
+    console.log('CURRENT USER RESULTS', currentUser);
     let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
-    console.log(`${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`);
+    console.log('URL', url);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
       );
-      setResults(res.data.dataArray);
-      if (res.data && Array.isArray(res.data.dataArray)) {
-        setResults(res.data.dataArray);
-      } else if (Array.isArray(res.data)) {
-        // Fallback: direct array response
-        setResults(res.data);
-      } else {
-        // If the response doesn't contain an array, set empty array
-        console.warn('API response structure unexpected:', res.data);
-        setResults([]);
-      }
-      console.log(results);
+      setResults(res.data);
+      console.log('FILTER PAGE RESULTS', results);
     } catch (err) {
       setError('Something went wrong. Please try again.');
       console.error(err);
@@ -65,38 +58,31 @@ const FilterPage = () => {
 
   //Load all card when reload page
   useEffect(() => {
-    try {
-      const fetchAllData = async () => {
-        setLoading(true);
-        setError(null);
-        let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
-        try {
-          const res = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
-          );
-          setResults(res.data.data);
+    if (!currentUser) return;
+    const fetchAllData = async () => {
+      setLoading(true);
+      setError(null);
+      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+        );
+        console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
+        console.log(res.data);
+        setResults(res.data);
+      } catch (err) {
+        setError('Something went wrong. Please try again.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllData();
+  }, [currentUser]);
 
-          if (res.data && Array.isArray(res.data.data)) {
-            setResults(res.data.data);
-            console.log(results);
-          } else if (Array.isArray(res.data)) {
-            // Fallback: direct array response
-            setResults(res.data);
-          } else {
-            // If the response doesn't contain an array, set empty array
-            console.warn('API response structure unexpected:', res.data);
-            setResults([]);
-          }
-        } catch (err) {
-          setError('Something went wrong. Please try again.');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchAllData();
-    } catch (err) {}
-  }, []);
+  if (!currentUser) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
@@ -120,7 +106,6 @@ const FilterPage = () => {
         <div className="mt-6">
           {loading && <p className="text-muted-foreground">Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
-          {/* {!results && <FilterResults results={results ?? []} />} */}
           <FilterResults results={results ?? []} />
         </div>
       </div>

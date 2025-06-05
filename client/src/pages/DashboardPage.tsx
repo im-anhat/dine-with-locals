@@ -16,43 +16,29 @@ const DashboardPage = () => {
   const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
 
-  // console.log('currentUser', currentUser);
   useEffect(() => {
-    try {
-      const fetchAllData = async () => {
-        setLoading(true);
-        setError(null);
-        console.log('ROLE', currentUser?.role);
-        let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
-        try {
-          const res = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
-          );
-          console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
-          setResults(res.data.data);
-          console.log(results);
+    if (!currentUser) return;
+    const fetchAllData = async () => {
+      setLoading(true);
+      setError(null);
+      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+        );
+        console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
+        console.log(res.data);
+        setResults(res.data);
+      } catch (err) {
+        setError('Something went wrong. Please try again.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllData();
+  }, [currentUser]);
 
-          if (res.data && Array.isArray(res.data.data)) {
-            setResults(res.data.data);
-            console.log(results);
-          } else if (Array.isArray(res.data)) {
-            // Fallback: direct array response
-            setResults(res.data);
-          } else {
-            // If the response doesn't contain an array, set empty array
-            console.warn('API response structure unexpected:', res.data);
-            setResults([]);
-          }
-        } catch (err) {
-          setError('Something went wrong. Please try again.');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchAllData();
-    } catch (err) {}
-  }, []);
   if (!currentUser) {
     return <p>Loading...</p>;
   }
@@ -84,13 +70,13 @@ const DashboardPage = () => {
           <div>
             {loading && <p className="text-muted-foreground">Loading...</p>}
             {error && <p className="text-red-500">{error}</p>}
-            <FilterResults results={(results ?? []).slice(0, 3)} />
+            <FilterResults results={results?.slice(0, 3) ?? []} />
           </div>
         </div>
 
         <Button
           variant="link"
-          className="text-blue-600 p-0 h-auto font-normal"
+          className="text-brand-teal-600 p-0 h-auto font-normal"
           onClick={() => navigate('/filter', { state: { results } })}
         >
           View All Requests →

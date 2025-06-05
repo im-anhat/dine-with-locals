@@ -6,18 +6,18 @@ export const getAllListing = async (req: Request, res: Response) => {
     const listings = await Listing.aggregate([
       {
         $lookup: {
-          from: 'users', // The collection to join (User collection)
-          localField: 'userId', // The field in the current collection (Request)
-          foreignField: '_id', // The field in the joined collection (User)
-          as: 'userInfo', // The name of the output array field
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userInfo',
         },
       },
       {
         $lookup: {
-          from: 'locations', // The collection to join (Location collection)
-          localField: 'locationId', // The field in the current collection (Request)
-          foreignField: '_id', // The field in the joined collection (Location)
-          as: 'locationInfo', // The name of the output array field
+          from: 'locations',
+          localField: 'locationId',
+          foreignField: '_id',
+          as: 'locationInfo',
         },
       },
       {

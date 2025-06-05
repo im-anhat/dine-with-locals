@@ -38,6 +38,14 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   console.log(matchConditions);
   //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userInfo',
+      },
+    },
     //Join location schema with request schema
     {
       $lookup: {
@@ -57,6 +65,9 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
       },
     },
     {
+      $unwind: '$userInfo',
+    },
+    {
       $unwind: '$mergedLocation',
     },
     {
@@ -70,7 +81,7 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   try {
     const array = await RequestModel.aggregate(pipeline);
     console.log(array);
-    res.status(200).json({ dataArray: array });
+    res.status(200).json(array);
   } catch (err) {
     console.log(err);
   }
@@ -117,6 +128,14 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   const pipeline: mongoose.PipelineStage[] = [
     {
       $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userInfo',
+      },
+    },
+    {
+      $lookup: {
         from: 'locations',
         localField: 'locationId',
         foreignField: '_id',
@@ -128,14 +147,17 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
         from: 'users',
         localField: 'userId',
         foreignField: '_id',
-        as: 'guestDetail',
+        as: 'guestDetails',
       },
     },
     {
       $unwind: '$mergedLocation',
     },
     {
-      $unwind: '$guestDetail',
+      $unwind: '$guestDetails',
+    },
+    {
+      $unwind: '$userInfo',
     },
     {
       $match: matchConditions,
@@ -146,7 +168,7 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   try {
     const array = await Listing.aggregate(pipeline);
     console.log(array);
-    res.status(200).json({ success: true, data: array });
+    res.status(200).json(array);
   } catch (err) {
     console.error('Error during aggregation:', err);
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
