@@ -1,8 +1,8 @@
 import React from 'react';
-import { User } from '../../../../shared/types/User';
+import { AuthenticatedUser } from '../../../../shared/types/User';
 
 interface ProfileAboutProps {
-  profileUser: User;
+  profileUser: AuthenticatedUser;
 }
 
 const ProfileAbout: React.FC<ProfileAboutProps> = ({ profileUser }) => {

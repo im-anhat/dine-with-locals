@@ -3,7 +3,6 @@ import { Request, Response, RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { record } from 'zod';
 import User from '../models/User.js';
-import mongoose from 'mongoose';
 
 // Get all users
 export const getAllUsers: RequestHandler = async (

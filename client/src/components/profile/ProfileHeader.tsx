@@ -1,8 +1,8 @@
 import React from 'react';
-import { User } from '../../../../shared/types/User';
+import { AuthenticatedUser } from '../../../../shared/types/User';
 
 interface ProfileHeaderProps {
-  profileUser: User;
+  profileUser: AuthenticatedUser;
   isOwnProfile: boolean;
 }
 

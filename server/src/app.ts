@@ -3,9 +3,6 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { initializeSocket } from './config/socket.js';
 import connectDB from './config/mongo.js';
-import blogRoutes from './routes/BlogRoutes.js';
-import './models/User.js';
-import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 
@@ -66,13 +63,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
-
-// Routes
-
-app.use('/api/blogs', blogRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/matches', MatchRoutes);
-app.use('/api/reviews', reviewRoutes);
+app.use('/api/matches', MatchRoutes); // Added MatchRoutes here as it was only in the duplicate section
 
 // Start server
 const PORT = process.env.PORT || 3000;
