@@ -1,22 +1,24 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from './hooks/auth/useAuthContext';
-// import { AuthProvider } from './contexts/AuthContext';
-// import { UserProvider } from './contexts/UserContext';
 import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
 import FeedPage from './pages/FeedPage';
+import ProfilePage from './pages/Profile';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Separator } from '@/components/ui/separator';
 import { TopNavbar } from '@/components/TopNavbar';
+import { useUserContext } from './hooks/useUserContext';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
+  const { currentUser } = useUserContext();
+
   console.log(isAuthenticated);
 
   // useLocation for dynamic path in the TopNavbar
@@ -74,6 +76,16 @@ const App: React.FC = () => {
           <Route
             path="/feed"
             element={isAuthenticated ? <FeedPage /> : <Home />}
+          />
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated ? (
+                <ProfilePage userId={currentUser?._id} />
+              ) : (
+                <Home />
+              )
+            }
           />
           <Route path="/" element={<Home />} />
         </Routes>

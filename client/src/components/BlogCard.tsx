@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
+import { BlogWithUser } from '../services/BlogService';
 import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
@@ -40,8 +41,8 @@ interface Comment {
 }
 
 interface BlogCardProps {
-  blog: Blog;
-  onEdit: (blog: Blog) => void;
+  blog: Blog | BlogWithUser;
+  onEdit: (blog: Blog | BlogWithUser) => void;
   onDelete: (blogId: string) => void;
   currentUserId?: string;
 }

@@ -4,6 +4,7 @@ import {
   Map,
   LayoutList,
   MessageSquare,
+  User,
 } from 'lucide-react';
 
 import {
@@ -32,14 +33,19 @@ const items = {
       icon: LayoutDashboard,
     },
     {
+      title: 'Places',
+      url: '/places',
+      icon: Map,
+    },
+    {
       title: 'Feed',
       url: '/feed',
       icon: Newspaper,
     },
     {
-      title: 'Places',
-      url: '/places',
-      icon: Map,
+      title: 'Profile',
+      url: '/profile',
+      icon: User, // Change icon here
     },
   ],
   navManageBookings: [
