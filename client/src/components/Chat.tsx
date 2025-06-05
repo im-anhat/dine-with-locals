@@ -10,7 +10,10 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 // interface of message that's returned from backend
 interface Message {
   _id: string;
-  senderId: string;
+  senderId: {
+    _id: string;
+    firstName: string;
+  };
   content: string;
   chat: string;
   readBy: string[];
@@ -115,21 +118,29 @@ export function Chat({ chatId, onBack }: ChatProps) {
           <div
             key={message._id}
             className={`flex ${
-              message.senderId === currentUser?._id
+              message.senderId._id === currentUser?._id
                 ? 'justify-end'
                 : 'justify-start'
             }`}
           >
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
-                message.senderId === currentUser?._id
+                message.senderId._id === currentUser?._id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted'
               }`}
             >
               <p>{message.content}</p>
               <span className="text-xs opacity-70">
-                {message.createdAt.toLocaleString()}
+                {new Date(message.createdAt).toLocaleString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
               </span>
             </div>
           </div>
