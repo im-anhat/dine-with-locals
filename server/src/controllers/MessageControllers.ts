@@ -29,12 +29,8 @@ export const sendMessage = asyncHandler(
     };
 
     try {
-      const message = await Message.create(newMessage);
-      // message = await message.populate(
-      //   'senderId',
-      //   'userName firstName lastName avatar',
-      // );
-      // message = await message.populate('chat');
+      let message = await Message.create(newMessage);
+      message = await message.populate('senderId', '_id firstName');
       // message = await message.populate({
       //   path: 'chat.users',
       //   select: '-password', // Exclude password from user details

@@ -192,6 +192,9 @@ export const initializeSocket = (server: HTTPServer) => {
             latestMessage: message,
           });
 
+          // populate the message with the senderId and chat
+          message = await message.populate('senderId', '_id firstName');
+
           // broadcast to all users in the chat
           io.to(data.chatId).emit('message_created', message);
           console.log('message_created', message);
