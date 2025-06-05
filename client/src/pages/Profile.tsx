@@ -3,7 +3,7 @@ import { useUser } from '../contexts/UserContext';
 import { getBlogsByUserId, BlogWithUser } from '../services/BlogService';
 import { getUserById } from '../services/UserService';
 import { getReviewsByUserId, Review } from '../services/ReviewService';
-import { User } from '../../../shared/types/User';
+import { AuthenticatedUser } from '../../../shared/types/User';
 import axios from 'axios';
 
 // Import modular components
@@ -20,7 +20,9 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const { currentUser } = useUser();
-  const [profileUser, setProfileUser] = useState<User | null>(null);
+  const [profileUser, setProfileUser] = useState<AuthenticatedUser | null>(
+    null,
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState<boolean>(false);
@@ -151,6 +153,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     }
   };
 
+  const handleUpdateBlogs = (updatedBlogs: BlogWithUser[]) => {
+    setBlogs(updatedBlogs);
+  };
+
+  // Handle profile updates
+  const handleProfileUpdate = (updatedUser: AuthenticatedUser) => {
+    setProfileUser(updatedUser);
+  };
+
   // Toggle all reviews modal
   const toggleAllReviewsModal = () => {
     setIsAllReviewsOpen((prev) => !prev);
@@ -168,7 +179,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     <div className="flex-1 px-6 py-8 overflow-y-auto bg-brand-shell">
       <div className="max-w-5xl mx-auto">
         {/* Profile Header Component */}
-        <ProfileHeader profileUser={profileUser} isOwnProfile={isOwnProfile} />
+        <ProfileHeader
+          profileUser={profileUser}
+          isOwnProfile={isOwnProfile}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
         {/* Two-Column Layout for Profile Content */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -215,6 +230,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
               isOwnProfile={isOwnProfile}
               profileFirstName={profileUser.firstName}
               onRetry={handleRetryFetchBlogs}
+              onUpdateBlogs={handleUpdateBlogs}
             />
           </div>
         </div>

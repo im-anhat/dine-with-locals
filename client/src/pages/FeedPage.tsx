@@ -56,8 +56,17 @@ const FeedPage: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOpenEditDialog = (blog: Blog) => {
-    setCurrentBlog(blog);
+  const handleOpenEditDialog = (blog: Blog | any) => {
+    // Convert BlogWithUser to Blog format if needed
+    const blogData =
+      'userId' in blog && typeof blog.userId === 'object'
+        ? {
+            ...blog,
+            userId: blog.userId._id, // Extract user ID from populated user object
+          }
+        : blog;
+
+    setCurrentBlog(blogData);
     setIsDialogOpen(true);
   };
 
