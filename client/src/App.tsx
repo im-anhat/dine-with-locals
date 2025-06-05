@@ -11,52 +11,27 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
+import { useUserContext } from './hooks/useUserContext';
+import { useSocket } from './contexts/SocketContext';
 
 // Socket.io
-import { io, Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../../shared/types/typings';
+// import { io, Socket } from 'socket.io-client';
+// import {
+//   ServerToClientEvents,
+//   ClientToServerEvents,
+// } from '../../shared/types/typings';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
+  const { currentUser } = useUserContext();
+  const { socket } = useSocket();
+
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
   const currentPath = location.pathname.split('/').filter(Boolean);
   if (currentPath.length === 0) {
     currentPath.push('dashboard'); // Default to "dashboard" if no path is present
   }
-
-  // initialize socket state
-  const [socket, setSocket] = useState<Socket<
-    ServerToClientEvents,
-    ClientToServerEvents
-  > | null>(null);
-
-  // Initialize socket connection only when authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      const newSocket = io('http://localhost:3000', {
-        auth: {
-          token: localStorage.getItem('token'),
-        },
-      });
-
-      setSocket(newSocket);
-
-      // Cleanup function to disconnect socket when component unmounts or user logs out
-      return () => {
-        newSocket.disconnect();
-      };
-    } else {
-      // Disconnect socket if user is not authenticated
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-      }
-    }
-  }, [isAuthenticated]); // Only re-run effect when authentication status changes
 
   return (
     <SidebarProvider>
@@ -103,13 +78,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/chat"
-            element={
-              isAuthenticated && socket ? (
-                <ChatPage socket={socket} />
-              ) : (
-                <Home />
-              )
-            }
+            element={isAuthenticated ? <ChatPage /> : <Home />}
           />
         </Routes>
       </div>

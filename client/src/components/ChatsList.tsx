@@ -9,34 +9,29 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Chat {
   _id: string;
-  chatName: string;
+  chatName: string; // for group chats, later feature if needed
   isGroupChat: boolean;
   users: {
     _id: string;
     userName: string;
     firstName: string;
     lastName: string;
-    phone: string;
+    phone: string; // maybe for call feature
     avatar: string;
-    role: string;
+    role: string; // maybe to display associated listing later
   }[];
   latestMessage: {
     _id: string;
     content: string;
     senderId: {
       _id: string;
-      userName: string;
       firstName: string;
-      lastName: string;
-      phone: string;
-      avatar: string;
-      role: string;
     };
     chat: string;
     readBy: string[];
     createdAt: Date;
   };
-  groupAdmin: string;
+  groupAdmin: string; // for group chats, later feature if needed
 }
 
 interface ChatsProps {
@@ -48,6 +43,7 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
   const [chats, setChats] = useState<Chat[]>([]);
   const { currentUser } = useUser();
 
+  // fetch existing chats when mounted
   useEffect(() => {
     const fetchChats = async () => {
       const response = await axios.get(`${API_URL}api/chat`, {

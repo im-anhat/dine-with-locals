@@ -4,36 +4,15 @@ import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { ChevronLeft } from 'lucide-react';
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../../../shared/types/typings';
+import { useSocket } from '../contexts/SocketContext';
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // interface of message that's returned from backend
 interface Message {
   _id: string;
-  senderId: {
-    _id: string;
-    userName: string;
-    firstName: string;
-    lastName: string;
-    avatar: string;
-    role: string;
-  };
+  senderId: string;
   content: string;
-  chat: {
-    _id: string;
-    users: Array<{
-      _id: string;
-      userName: string;
-      firstName: string;
-      lastName: string;
-      avatar: string;
-      role: string;
-    }>;
-  };
+  chat: string;
   readBy: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -42,14 +21,15 @@ interface Message {
 interface ChatProps {
   chatId?: string;
   onBack?: () => void;
-  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
-export function Chat({ chatId, onBack, socket }: ChatProps) {
+export function Chat({ chatId, onBack }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const { currentUser } = useUser();
+  const { socket } = useSocket();
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -87,22 +67,23 @@ export function Chat({ chatId, onBack, socket }: ChatProps) {
         setMessages((prevMessages) => [...prevMessages, message]);
       };
 
-      socket.on('message:new', handleNewMessage);
+      socket.on('message_created', handleNewMessage);
 
       // Cleanup socket listeners
       return () => {
-        socket.off('message:new', handleNewMessage);
+        socket.off('message_created', handleNewMessage);
       };
     }
   }, [socket]);
 
   // Send message + emit to Socket.io
   const handleSendMessage = async (e: React.FormEvent) => {
+    if (!socket || !chatId || !newMessage.trim()) return;
+
     e.preventDefault();
-    if (!chatId) return;
 
     // Send message to server through socket.io
-    socket.emit('message:send', { chatId, content: newMessage });
+    socket.emit('message_send', { chatId, content: newMessage });
     setNewMessage('');
   };
 
@@ -134,14 +115,14 @@ export function Chat({ chatId, onBack, socket }: ChatProps) {
           <div
             key={message._id}
             className={`flex ${
-              message.senderId._id === currentUser?._id
+              message.senderId === currentUser?._id
                 ? 'justify-end'
                 : 'justify-start'
             }`}
           >
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
-                message.senderId._id === currentUser?._id
+                message.senderId === currentUser?._id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted'
               }`}

@@ -9,7 +9,7 @@ function DashboardPage() {
   const { currentUser } = useUser();
   const { isAuthenticated } = useAuthContext();
   const navigate = useNavigate();
-  console.log('Is authenticated:', isAuthenticated);
+  // console.log('Is authenticated:', isAuthenticated);
   const logout = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     userLogout();
