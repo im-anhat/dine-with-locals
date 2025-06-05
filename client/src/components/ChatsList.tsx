@@ -87,18 +87,14 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <div className="flex justify-between items-start">
+                <div className=" justify-between items-start">
                   <p className="font-medium truncate">
                     {otherParticipant?.firstName} {otherParticipant?.lastName}
                   </p>
-                  {chat.latestMessage && (
-                    <span className="text-xs text-muted-foreground">
-                      {/* {chat.latestMessage.createdAt.toLocaleString()} */}
-                    </span>
-                  )}
                 </div>
                 {chat.latestMessage && (
-                  <p className="text-sm text-muted-foreground truncate">
+                  <p className="text-sm text-muted-foreground truncate text-left">
+                    {chat.latestMessage.senderId.firstName}:{' '}
                     {chat.latestMessage.content}
                   </p>
                 )}

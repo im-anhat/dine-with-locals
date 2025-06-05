@@ -5,6 +5,7 @@ import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { ChevronLeft } from 'lucide-react';
 import { useSocket } from '../contexts/SocketContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // interface of message that's returned from backend
