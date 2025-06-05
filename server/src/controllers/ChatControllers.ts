@@ -26,13 +26,16 @@ export const accessChat = asyncHandler(
         { users: { $elemMatch: { $eq: userId } } },
       ],
     }).populate([
-      { path: 'users', select: '-password' },
+      {
+        path: 'users',
+        select: '_id userName firstName lastName phone avatar role',
+      },
       {
         path: 'latestMessage',
         populate: {
           path: 'senderId',
           model: 'User',
-          select: '-password',
+          select: '_id firstName',
         },
       },
     ]);

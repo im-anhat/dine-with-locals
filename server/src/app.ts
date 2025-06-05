@@ -5,7 +5,7 @@ import userRoutes from './routes/UserRoutes.js';
 import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 // Socket.io
-import { initializeSocket } from './socket/socket.js';
+import { initializeSocket } from './config/socket.js';
 import { createServer } from 'http';
 
 // Import all models first to ensure they're registered with mongoose

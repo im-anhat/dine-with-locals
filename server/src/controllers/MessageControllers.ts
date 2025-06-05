@@ -29,16 +29,16 @@ export const sendMessage = asyncHandler(
     };
 
     try {
-      let message = await Message.create(newMessage);
-      message = await message.populate(
-        'senderId',
-        'userName firstName lastName avatar',
-      );
-      message = await message.populate('chat');
-      message = await message.populate({
-        path: 'chat.users',
-        select: '-password', // Exclude password from user details
-      });
+      const message = await Message.create(newMessage);
+      // message = await message.populate(
+      //   'senderId',
+      //   'userName firstName lastName avatar',
+      // );
+      // message = await message.populate('chat');
+      // message = await message.populate({
+      //   path: 'chat.users',
+      //   select: '-password', // Exclude password from user details
+      // });
 
       // message = await UserModel.populate(message, {
       //   path: 'chat.users',
