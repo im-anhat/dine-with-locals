@@ -1,44 +1,98 @@
 import React from 'react';
-import { UserProvider } from './contexts/UserContext';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from './hooks/auth/useAuthContext';
+import Home from './pages/HomePage';
+import SignUpPage from './pages/auth/SignUpPage';
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/auth/LoginPage';
+import FeedPage from './pages/FeedPage';
 import ProfilePage from './pages/Profile';
-import './styles/index.css';
+import { Toaster } from './components/ui/toaster';
+import './styles/main.css';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
+import { Separator } from '@/components/ui/separator';
+import { TopNavbar } from '@/components/TopNavbar';
+import { useUserContext } from './hooks/useUserContext';
 
-//The type React.FC is a type definition for type checking for functional components
-//and ensures that children are implicitly typed
 const App: React.FC = () => {
-  return (
-    <UserProvider>
-      <div className="min-h-screen flex">
-        {/* Left Sidebar - Placeholder for the navigation bar that will be implemented by c Tam */}
-        <div className="w-64 bg-brand-purple/10 border-r border-brand-purple/20 flex flex-col">
-          <div className="p-6 border-b border-brand-purple/20">
-            <h1 className="text-2xl font-bold text-brand-purple">DwL Logo</h1>
-          </div>
-          <nav className="flex-1 p-4">
-            <div className="mb-4 opacity-50">
-              <p className="text-sm text-gray-500 mb-2">Navigation area</p>
-              <p className="text-xs text-gray-500">
-                (Being implemented by teammate)
-              </p>
-            </div>
-            <div className="space-y-2">
-              <div className="py-2 px-3 rounded-md bg-brand-purple/20 text-brand-purple font-medium">
-                Profile
-              </div>
-              <div className="py-2 px-3 text-gray-600">Dashboard</div>
-              <div className="py-2 px-3 text-gray-600">Feed</div>
-              <div className="py-2 px-3 text-gray-600">Chats</div>
-              <div className="py-2 px-3 text-gray-600">Places</div>
-            </div>
-          </nav>
-        </div>
+  const { isAuthenticated } = useAuthContext();
+  const { currentUser } = useUserContext();
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          <ProfilePage userId="67f7f8281260844f9625ee33" />
-        </div>
+  console.log(isAuthenticated);
+
+  // useLocation for dynamic path in the TopNavbar
+  const location = useLocation();
+  const currentPath = location.pathname.split('/').filter(Boolean);
+  if (currentPath.length === 0) {
+    currentPath.push('dashboard'); // Default to "dashboard" if no path is present
+  }
+  console.log('Current path:', currentPath);
+
+  return (
+    // moved BrowserRouter from main.tsx to here
+    <SidebarProvider>
+      {isAuthenticated && (
+        <>
+          <AppSidebar />
+        </>
+      )}
+
+      {/* show the top navbar + wrap the other half of page (beside sidebar) into a div */}
+      <div className="flex flex-1 flex-col">
+        {isAuthenticated && (
+          <>
+            <TopNavbar currentPath={currentPath} />
+            <Separator />
+          </>
+        )}
+
+        <Routes>
+          {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
+          <Route
+            path="/signup"
+            element={
+              !isAuthenticated ? (
+                <SignUpPage />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              !isAuthenticated ? (
+                <LoginPage />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <DashboardPage /> : <Home />}
+          />
+          <Route
+            path="/feed"
+            element={isAuthenticated ? <FeedPage /> : <Home />}
+          />
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated ? (
+                <ProfilePage userId={currentUser?._id} />
+              ) : (
+                <Home />
+              )
+            }
+          />
+          <Route path="/" element={<Home />} />
+        </Routes>
+
+        <Toaster />
       </div>
-    </UserProvider>
+    </SidebarProvider>
   );
 };
 
