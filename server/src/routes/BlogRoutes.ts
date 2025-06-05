@@ -5,6 +5,7 @@ import {
   createBlog,
   updateBlog,
   deleteBlog,
+  getBlogById,
 } from '../controllers/BlogController.js';
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.get('/', getAllBlogs);
 
 // GET /api/blogs/user/:userId - Fetch all blogs by userId
 router.get('/user/:userId', getBlogsByUserId);
+
+// GET /api/blogs/:id - Fetch a single blog by ID
+router.get('/:id', getBlogById);
 
 // POST /api/blogs - Create a new blog
 router.post('/', createBlog);

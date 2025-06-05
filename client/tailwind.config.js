@@ -2,7 +2,6 @@
 export default {
   darkMode: ['class', 'class'], // we can consider this if we have time (simple though ;) )
 
-  // content: Specifies the files Tailwind CSS should scan for class names.
   // This is essential for optimizing the final CSS bundle by generating only the necessary or used styles.
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'], //Scan all js, ts, jsx, tsx file in src folder and index.html
 

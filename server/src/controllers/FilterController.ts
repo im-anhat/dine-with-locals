@@ -124,7 +124,6 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
-  console.log(matchConditions);
   const pipeline: mongoose.PipelineStage[] = [
     {
       $lookup: {

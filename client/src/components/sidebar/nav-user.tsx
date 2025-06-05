@@ -14,7 +14,7 @@ import { LogOut, Settings, User } from 'lucide-react';
 
 import { useUser } from '@/contexts/UserContext';
 import { useLogout } from '@/hooks/auth/useLogout';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export default function NavUser() {
   const { userLogout } = useLogout();
@@ -38,6 +38,7 @@ export default function NavUser() {
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onClick={() => navigate('/profile')}
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={currentUser.avatar} alt="User Avatar" />
