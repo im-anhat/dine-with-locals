@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  getAllListings,
+  getAllListing,
   getListingById,
   createListing,
   getNearbyListings,
@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // GET all listings
-router.get('/', getAllListings);
+router.get('/', getAllListing);
 
 // GET nearby listings - must be before /:listingId route to avoid being caught as an ID
 router.get('/nearby', getNearbyListings);
