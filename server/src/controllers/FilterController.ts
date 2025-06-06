@@ -14,7 +14,6 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
     city,
   } = req.body;
 
-  console.log(req.body);
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
   //Validation
@@ -124,6 +123,7 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
+  console.log(matchConditions);
   const pipeline: mongoose.PipelineStage[] = [
     {
       $lookup: {
