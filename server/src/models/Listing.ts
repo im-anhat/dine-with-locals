@@ -1,51 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Base interface for listing
-interface IBaseListing extends Document{
-  userId: mongoose.Types.ObjectId;
+export interface IListing extends Document {
+  userId: mongoose.Types.ObjectId; // now using ObjectId
   title: string;
   description: string;
-  imagesUrl?: string[];
+  images?: string[]; //urls of images
   category: 'dining' | 'travel' | 'event';
-  locationId: mongoose.Types.ObjectId;
+  locationId: string; // now using Google Maps place_id
   additionalInfo?: string;
   status: 'pending' | 'waiting' | 'approved';
   time?: Date;
   duration?: number;
   interestTopic?: string[];
   numGuests?: number;
-}
-
-interface IDiningListing extends IBaseListing {
-  category: 'dining';
+  // Dining specific properties
   cuisine?: string[];
   dietary?: string[];
-}
-
-interface ITravelListing extends IBaseListing {
-  category: 'travel';
-  // maybe: itinerary, transportation
-}
-
-interface IEventListing extends IBaseListing {
-  category: 'event';
-}
-
-export interface IListing extends Document {
-  userId: mongoose.Types.ObjectId; // now using ObjectId
-  title: string;
-  description: string;
-  imagesUrl: string[];
-  category: 'Dining' | 'Travel' | 'Event';
-  locationId: mongoose.Types.ObjectId; // now using default _id from Location
-  interestTopic?: string[];
-  time?: Date;
-  duration?: number;
-  cuisine: string[];
-  dietary: string[];
-  numGuests?: number;
-  additionalInfo: string;
-  status: 'pending' | 'waiting' | 'approved';
 }
 
 const ListingSchema: Schema = new Schema(
@@ -60,34 +30,25 @@ const ListingSchema: Schema = new Schema(
       required: true,
       trim: true,
     },
-    locationType: {
+    description: {
       type: String,
-      enum: ['home', 'res', 'either'],
+      required: true,
+      trim: true,
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
+    category: {
+      type: String,
+      enum: ['dining', 'travel', 'event'],
       required: true,
     },
+    // locationId refers to the _id field in the Location model, not place_id
     locationId: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'Location',
-    },
-    interestTopic: {
-      type: [String],
-      default: [],
-    },
-    time: {
-      type: Date,
-    },
-    cuisine: {
-      type: [String],
-      default: [],
-    },
-    dietary: {
-      type: [String],
-      default: [],
-    },
-    numGuests: {
-      type: Number,
-      default: 1,
     },
     additionalInfo: {
       type: String,
@@ -98,7 +59,28 @@ const ListingSchema: Schema = new Schema(
       type: String,
       enum: ['pending', 'waiting', 'approved'],
       default: 'waiting',
-      trim: true,
+    },
+    time: {
+      type: Date,
+    },
+    duration: {
+      type: Number,
+    },
+    interestTopic: {
+      type: [String],
+      default: [],
+    },
+    numGuests: {
+      type: Number,
+      default: 1,
+    },
+    cuisine: {
+      type: [String],
+      default: [],
+    },
+    dietary: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },
