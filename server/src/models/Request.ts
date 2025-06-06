@@ -77,4 +77,4 @@ const RequestSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-export default mongoose.model<IRequest>('Request', RequestSchema);
+export default mongoose.model<IRequest>('RequestModels', RequestSchema);
