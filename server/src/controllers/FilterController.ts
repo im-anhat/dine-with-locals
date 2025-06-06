@@ -13,7 +13,6 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
     category,
     city,
   } = req.body;
-  //Validation
 
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
@@ -22,8 +21,10 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   if (locationType) matchConditions.locationType = locationType;
   if (category) matchConditions.category = category;
   if (city) matchConditions['mergedLocation.city'] = city;
-  if (dietaryRestriction && dietaryRestriction.length > 0) {
+  if (dietaryRestriction) {
     matchConditions.dietaryRestriction = { $in: dietaryRestriction };
+  } else if (dietaryRestriction) {
+    console.error('Error: dietaryRestriction must be an array');
   }
   if (startDate && endDate) {
     matchConditions.$expr = {
@@ -33,10 +34,19 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
+  console.log(matchConditions);
   //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
     {
-      //Merge locations schema with requestmodels
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userInfo',
+      },
+    },
+    //Join location schema with request schema
+    {
       $lookup: {
         from: 'locations',
         localField: 'locationId',
@@ -44,46 +54,33 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
         as: 'mergedLocation',
       },
     },
+    //Join user schema to request schema
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'hostDetails',
+      },
+    },
+    {
+      $unwind: '$userInfo',
+    },
     {
       $unwind: '$mergedLocation',
     },
     {
-      //Match conditions specified above
+      $unwind: '$hostDetails',
+    },
+    {
       $match: matchConditions,
     },
   ];
-  /**
-   * ========================================================================
-    USER DATA FOR INPUT TO MONGODB
-    - 67f7f8281260844f9625ee32-Nhat - locationId: 682fee085960f358681a8a6d
-    - 67f7f8281260844f9625ee33-Quy - locationId: 682fed965960f358681a8a66
-    - 682ff1e72e285c458d216213-Dan - locationId: 682ff1de2e285c458d216210
-    - 682ff10f2e285c458d21620c-Tam - locationId: 682ff0ff2e285c458d216209
-   * ========================================================================
-   */
 
   try {
-    /**
-     *================== CODE TO ADD NEW REQUEST TO MONGODB ======================
-     * const object: IRequest = {
-        userId: new mongoose.Types.ObjectId('682ff10f2e285c458d21620c'),
-        createdAt: new Date(),
-        title: 'Good local Thai restaurant',
-        locationType: 'either',
-        locationId: new mongoose.Types.ObjectId('682ff0ff2e285c458d216209'),
-        interestTopic: ['Programming', 'Biology', 'Computer Science', 'Career'],
-        time: new Date('<2025-06å-31>'),
-        cuisine: ['Thai'],
-        dietaryRestriction: ['lactose intolerant'],
-        numGuests: 1,
-        additionalInfo: 'Finding another padthai enthusiast!',
-        status: 'waiting',
-      };
-     * const insert = await RequestModel.insertOne(object);
-     */
-
     const array = await RequestModel.aggregate(pipeline);
-    res.status(200).json({ dataArray: array });
+    console.log(array);
+    res.status(200).json(array);
   } catch (err) {
     console.log(err);
   }
@@ -113,8 +110,10 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   if (city) {
     matchConditions['mergedLocation.city'] = city;
   }
-  if (dietaryRestriction && dietaryRestriction.length > 0) {
+  if (Array.isArray(dietaryRestriction) && dietaryRestriction.length > 0) {
     matchConditions.dietaryRestriction = { $in: dietaryRestriction };
+  } else if (dietaryRestriction) {
+    console.error('Error: dietaryRestriction must be an array');
   }
   if (startDate && endDate) {
     matchConditions.$expr = {
@@ -124,9 +123,17 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
+  console.log(matchConditions);
   const pipeline: mongoose.PipelineStage[] = [
     {
-      //Merge locations schema with requestmodels
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userInfo',
+      },
+    },
+    {
       $lookup: {
         from: 'locations',
         localField: 'locationId',
@@ -135,17 +142,39 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
       },
     },
     {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'guestDetails',
+      },
+    },
+    {
       $unwind: '$mergedLocation',
+    },
+    {
+      $unwind: '$guestDetails',
+    },
+    {
+      $unwind: '$userInfo',
     },
     {
       $match: matchConditions,
     },
   ];
 
+  // Updated error handling and response structure
   try {
     const array = await Listing.aggregate(pipeline);
-    res.status(200).json({ dataArray: array });
+    console.log(array);
+    res.status(200).json(array);
   } catch (err) {
-    console.log(err);
+    console.error('Error during aggregation:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: errorMessage,
+    });
   }
 };

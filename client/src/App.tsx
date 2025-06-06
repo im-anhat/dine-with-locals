@@ -6,6 +6,8 @@ import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
 import FeedPage from './pages/FeedPage';
+import FilterPage from './pages/filter/FilterPage';
+import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
@@ -78,6 +80,10 @@ const App: React.FC = () => {
             element={isAuthenticated ? <FeedPage /> : <Home />}
           />
           <Route
+            path="/filter"
+            element={isAuthenticated ? <FilterPage /> : <Home />}
+          />
+          <Route
             path="/profile"
             element={
               isAuthenticated ? (
@@ -88,6 +94,7 @@ const App: React.FC = () => {
             }
           />
           <Route path="/" element={<Home />} />
+          <Route path="/filter/:id" element={<CardDetails />} />
         </Routes>
 
         <Toaster />

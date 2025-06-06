@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/sidebar';
 
 import { type LucideIcon } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function NavGroup({
   groupLabel,
@@ -21,11 +20,6 @@ export default function NavGroup({
     icon: LucideIcon;
   }[];
 }) {
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname;
-
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>
@@ -33,9 +27,11 @@ export default function NavGroup({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton onClick={() => navigate(item.url)} isActive={currentPath === item.url}>
-                <item.icon />
-                <span>{item.title}</span>
+              <SidebarMenuButton asChild>
+                <a href={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
