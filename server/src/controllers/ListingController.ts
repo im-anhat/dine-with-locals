@@ -4,30 +4,6 @@ import Location from '../models/Location.js';
 import mongoose from 'mongoose';
 
 /**
- * Get all listings
- * @route GET /api/listings
- */
-export const getAllListings: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
-  try {
-    const listings = await Listing.find()
-      .populate('userId', 'userName firstName lastName avatar')
-      .populate('locationId')
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(listings);
-  } catch (error) {
-    console.error('Error fetching listings:', error);
-    res.status(500).json({
-      message: 'Server error while fetching listings',
-      error: error,
-    });
-  }
-};
-
-/**
  * Get listing by ID
  * @route GET /api/listings/:listingId
  */
