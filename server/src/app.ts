@@ -3,7 +3,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { initializeSocket } from './config/socket.js';
 import connectDB from './config/mongo.js';
-// import authRoutes from './routes/AuthRoutes.js';
+import authRoutes from './routes/AuthRoutes.js';
 import locationRoutes from './routes/LocationRoutes.js';
 import filterRoutes from './routes/FilterRoutes.js';
 import requestRoutes from './routes/RequestRoutes.js';
