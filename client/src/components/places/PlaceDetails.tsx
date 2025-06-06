@@ -1,6 +1,7 @@
 import React from 'react';
 import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
 import { getLocationById, Location } from '@/services/LocationService';
+import { useNavigate } from 'react-router-dom';
 
 interface PlaceDetailsProps {
   listing: Listing;
@@ -8,6 +9,7 @@ interface PlaceDetailsProps {
 }
 
 const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
+  const navigate = useNavigate();
   const [location, setLocation] = React.useState<Location | null>(null);
 
   React.useEffect(() => {
@@ -164,7 +166,10 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
                 Book This Experience
               </button>
 
-              <button className="w-full mt-2 border border-brand-teal-600 text-brand-teal-600 py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-50 transition-colors">
+              <button
+                className="w-full mt-2 border border-brand-teal-600 text-brand-teal-600 py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-50 transition-colors"
+                onClick={() => navigate('/chat')}
+              >
                 Contact Host
               </button>
             </div>

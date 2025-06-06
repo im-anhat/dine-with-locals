@@ -10,6 +10,7 @@ import FilterPage from './pages/filter/FilterPage';
 import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
 import Places from './pages/Places';
+import CreateListing from './pages/CreateListing';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -100,6 +101,8 @@ const App: React.FC = () => {
           />
           <Route path="/" element={<Home />} />
           <Route path="/filter/:id" element={<CardDetails />} />
+
+          <Route path="/host/create-listing" element={<CreateListing />} />
         </Routes>
 
         <Toaster />
