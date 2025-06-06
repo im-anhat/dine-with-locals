@@ -11,6 +11,8 @@ export interface ILocation extends Document {
     lat: number;
     lng: number;
   };
+  name?: string;
+  place_id?: string;
 }
 
 const LocationSchema: Schema = new Schema(
@@ -43,6 +45,17 @@ const LocationSchema: Schema = new Schema(
     coordinates: {
       lat: { type: Number },
       lng: { type: Number },
+    },
+    name: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    //Google Maps place_id
+    place_id: {
+      type: String,
+      default: '',
+      trim: true,
     },
   },
   { timestamps: true },

@@ -45,73 +45,58 @@ export const getListingById: RequestHandler = async (
  * Create a new listing
  * @route POST /api/listings
  */
+
 export const createListing: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
   try {
-    const {
-      userId,
-      title,
-      locationType,
-      locationId,
-      interestTopic,
-      time,
-      cuisine,
-      dietary,
-      numGuests,
-      additionalInfo,
-    } = req.body;
+    console.log('creating listing with data:', req.body);
 
-    // Validate required fields
-    if (!userId || !title || !locationType || !locationId) {
-      res.status(400).json({
-        error: 'UserId, title, locationType, and locationId are required',
-      });
-      return;
-    }
+    const listingData = req.body;
+    const userId = listingData.userId;
 
-    // Validate MongoDB ObjectId formats
+    // validate mongodb object id
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       res.status(400).json({ error: 'Invalid user ID format' });
       return;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(locationId)) {
-      res.status(400).json({ error: 'Invalid location ID format' });
-      return;
+    // save location if it doesn't exist in mongodb first
+    const locationData = listingData.location;
+    const newLocation = new Location(locationData);
+    const existingLocation = await Location.findOne({
+      place_id: locationData.place_id,
+    });
+    if (existingLocation) {
+      console.log('Location already exists:', existingLocation);
+      listingData.locationId = existingLocation._id;
+    } else {
+      console.log('Creating new location:', newLocation);
+      await newLocation.save();
     }
 
-    const newListing = new Listing({
-      userId,
-      title,
-      locationType,
-      locationId,
-      interestTopic: interestTopic || [],
-      time,
-      cuisine: cuisine || [],
-      dietary: dietary || [],
-      numGuests: numGuests || 1,
-      additionalInfo: additionalInfo || '',
-    });
+    // remove location object and replace with locationId
+    if (listingData.location) {
+      delete listingData.location;
+    }
+    if (!listingData.locationId) {
+      listingData.locationId = newLocation._id;
+    }
 
+    console.log('Listing data after location check:', listingData);
+
+    // save listing
+    const newListing = new Listing(listingData);
     await newListing.save();
-
-    // Populate the created listing before returning
-    const populatedListing = await Listing.findById(newListing._id)
-      .populate('userId', 'userName firstName lastName avatar')
-      .populate('locationId');
 
     res.status(201).json({
       message: 'Listing created successfully',
-      listing: populatedListing,
+      listing: newListing,
     });
   } catch (error) {
     console.error('Error creating listing:', error);
-    res.status(500).json({
-      message: 'Server error while creating listing',
-      error: error,
-    });
+    res.status(500).json({ error: 'Failed to create listing' });
   }
 };
 

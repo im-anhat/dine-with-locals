@@ -65,7 +65,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/filter', filterRoutes);
 app.use('/api/request', requestRoutes);
-// app.use('/api/listing', listingRoutes);
+app.use('/api/listing', listingRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
