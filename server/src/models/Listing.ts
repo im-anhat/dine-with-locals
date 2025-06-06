@@ -1,12 +1,46 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Base interface for listing
+interface IBaseListing extends Document {
+  userId: mongoose.Types.ObjectId;
+  title: string;
+  description: string;
+  images?: string[];
+  category: 'dining' | 'travel' | 'event';
+  locationId: mongoose.Types.ObjectId;
+  additionalInfo?: string;
+  status: 'pending' | 'waiting' | 'approved';
+  time?: Date;
+  duration?: number;
+  interestTopic?: string[];
+  numGuests?: number;
+}
+
+interface IDiningListing extends IBaseListing {
+  category: 'dining';
+  cuisine?: string[];
+  dietary?: string[];
+}
+
+interface ITravelListing extends IBaseListing {
+  category: 'travel';
+  // maybe: itinerary, transportation
+}
+
+interface IEventListing extends IBaseListing {
+  category: 'event';
+}
+
 export interface IListing extends Document {
   userId: mongoose.Types.ObjectId; // now using ObjectId
   title: string;
-  locationType: 'home' | 'res' | 'either';
+  description: string;
+  imagesUrl: string[];
+  category: 'Dining' | 'Travel' | 'Event';
   locationId: mongoose.Types.ObjectId; // now using default _id from Location
   interestTopic?: string[];
   time?: Date;
+  duration?: number;
   cuisine: string[];
   dietary: string[];
   numGuests?: number;

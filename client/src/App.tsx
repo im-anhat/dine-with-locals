@@ -9,6 +9,7 @@ import FeedPage from './pages/FeedPage';
 import FilterPage from './pages/filter/FilterPage';
 import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
+import Places from './pages/Places';
 import { Toaster } from './components/ui/toaster';
 import './styles/main.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -92,6 +93,10 @@ const App: React.FC = () => {
                 <Home />
               )
             }
+          />
+          <Route
+            path="/places"
+            element={isAuthenticated ? <Places /> : <Home />}
           />
           <Route path="/" element={<Home />} />
           <Route path="/filter/:id" element={<CardDetails />} />
