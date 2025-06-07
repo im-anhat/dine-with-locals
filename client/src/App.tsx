@@ -19,12 +19,10 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
-import { useSocket } from './contexts/SocketContext';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
   const { currentUser } = useUserContext();
-  const { socket } = useSocket();
 
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
@@ -103,7 +101,7 @@ const App: React.FC = () => {
 
           <Route path="/host/create-listing" element={<CreateListing />} />
           <Route
-            path="/chat"
+            path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}
           />
         </Routes>
