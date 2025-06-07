@@ -3,15 +3,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IListing extends Document {
   userId: mongoose.Types.ObjectId; // now using ObjectId
   title: string;
-  locationType: 'home' | 'res' | 'either';
-  locationId: mongoose.Types.ObjectId; // now using default _id from Location
-  interestTopic?: string[];
-  time?: Date;
-  cuisine: string[];
-  dietary: string[];
-  numGuests?: number;
-  additionalInfo: string;
+  description: string;
+  images?: string[]; //urls of images
+  category: 'dining' | 'travel' | 'event';
+  locationId: string; // now using Google Maps place_id
+  additionalInfo?: string;
   status: 'pending' | 'waiting' | 'approved';
+  time?: Date;
+  duration?: number;
+  interestTopic?: string[];
+  numGuests?: number;
+  // Dining specific properties
+  cuisine?: string[];
+  dietary?: string[];
 }
 
 const ListingSchema: Schema = new Schema(
@@ -26,34 +30,25 @@ const ListingSchema: Schema = new Schema(
       required: true,
       trim: true,
     },
-    locationType: {
+    description: {
       type: String,
-      enum: ['home', 'res', 'either'],
+      required: true,
+      trim: true,
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
+    category: {
+      type: String,
+      enum: ['dining', 'travel', 'event'],
       required: true,
     },
+    // locationId refers to the _id field in the Location model, not place_id
     locationId: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'Location',
-    },
-    interestTopic: {
-      type: [String],
-      default: [],
-    },
-    time: {
-      type: Date,
-    },
-    cuisine: {
-      type: [String],
-      default: [],
-    },
-    dietary: {
-      type: [String],
-      default: [],
-    },
-    numGuests: {
-      type: Number,
-      default: 1,
     },
     additionalInfo: {
       type: String,
@@ -64,7 +59,28 @@ const ListingSchema: Schema = new Schema(
       type: String,
       enum: ['pending', 'waiting', 'approved'],
       default: 'waiting',
-      trim: true,
+    },
+    time: {
+      type: Date,
+    },
+    duration: {
+      type: Number,
+    },
+    interestTopic: {
+      type: [String],
+      default: [],
+    },
+    numGuests: {
+      type: Number,
+      default: 1,
+    },
+    cuisine: {
+      type: [String],
+      default: [],
+    },
+    dietary: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },

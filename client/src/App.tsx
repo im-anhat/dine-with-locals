@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from './hooks/auth/useAuthContext';
 import Home from './pages/HomePage';
 import SignUpPage from './pages/auth/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/LoginPage';
+import FeedPage from './pages/FeedPage';
+import FilterPage from './pages/filter/FilterPage';
+import CardDetails from './components/dashboard/CardDetails';
+import ProfilePage from './pages/Profile';
+import Places from './pages/Places';
+import CreateListing from './pages/CreateListing';
+import { Toaster } from './components/ui/toaster';
 import { ChatPage } from './pages/ChatPage';
 import './styles/main.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -13,13 +20,6 @@ import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
 import { useSocket } from './contexts/SocketContext';
-
-// Socket.io
-// import { io, Socket } from 'socket.io-client';
-// import {
-//   ServerToClientEvents,
-//   ClientToServerEvents,
-// } from '../../shared/types/typings';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -51,7 +51,7 @@ const App: React.FC = () => {
         )}
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* to-be-replaced with future pages from src/pages and paths (in AppSidebar) */}
           <Route
             path="/signup"
             element={
@@ -77,10 +77,38 @@ const App: React.FC = () => {
             element={isAuthenticated ? <DashboardPage /> : <Home />}
           />
           <Route
+            path="/feed"
+            element={isAuthenticated ? <FeedPage /> : <Home />}
+          />
+          <Route
+            path="/filter"
+            element={isAuthenticated ? <FilterPage /> : <Home />}
+          />
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated ? (
+                <ProfilePage userId={currentUser?._id} />
+              ) : (
+                <Home />
+              )
+            }
+          />
+          <Route
+            path="/places"
+            element={isAuthenticated ? <Places /> : <Home />}
+          />
+          <Route path="/" element={<Home />} />
+          <Route path="/filter/:id" element={<CardDetails />} />
+
+          <Route path="/host/create-listing" element={<CreateListing />} />
+          <Route
             path="/chat"
             element={isAuthenticated ? <ChatPage /> : <Home />}
           />
         </Routes>
+
+        <Toaster />
       </div>
     </SidebarProvider>
   );

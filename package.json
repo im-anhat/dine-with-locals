@@ -3,10 +3,16 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
   },
   "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/node": "^22.14.1",
     "prettier": "^3.5.3"
   },
   "dependencies": {
+    "@fluidjs/multer-cloudinary": "^1.0.4",
+    "axios": "^1.8.4",
     "dotenv": "^16.5.0",
-    "mongoose": "^8.13.1"
+    "mongoose": "^8.13.1",
+    "mongoose-autopopulate": "^1.1.0",
+    "node-fetch": "^2.7.0"
   }
 }

@@ -5,9 +5,8 @@ export const useLogout = () => {
   const { logout } = useAuthContext();
   const userLogout = () => {
     //remove user from local storage
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    //dispatch logout action, update the context to be null
+
+    localStorage.removeItem('token');
     logout();
   };
 
