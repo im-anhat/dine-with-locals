@@ -21,6 +21,8 @@ import './models/Notification.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
 import './models/Review.js';
+import './models/Chat.js';
+import './models/Message.js';
 
 // Import routes after models are registered
 import blogRoutes from './routes/BlogRoutes.js';
@@ -30,14 +32,14 @@ import reviewRoutes from './routes/ReviewRoutes.js';
 import likeRoutes from './routes/LikeRoutes.js';
 import commentRoutes from './routes/CommentRoutes.js';
 import notificationRoutes from './routes/NotificationRoutes.js';
+import chatRoutes from './routes/ChatRoutes.js';
+import messageRoutes from './routes/MessageRoutes.js';
 
 const app = express();
-
-// Create HTTP server
-const server = createServer(app);
+const httpServer = createServer(app);
 
 // Initialize Socket.IO
-const io = initializeSocket(server);
+const io = initializeSocket(httpServer);
 
 // Make io available throughout the app
 app.set('io', io);
@@ -47,7 +49,6 @@ connectDB();
 
 //Parse user request -> Json format
 app.use(express.json());
-app.use(express.static('public'));
 //Only receive request from some specific routes.
 app.use(
   cors({
@@ -70,12 +71,15 @@ app.use('/api/likes', likeRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/matches', MatchRoutes); // Added MatchRoutes here as it was only in the duplicate section
+app.use('/api/chat', chatRoutes);
+app.use('/api/message', messageRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Socket.IO initialized and listening for connections');
 });
 
+// Export app and io
 export default app;
