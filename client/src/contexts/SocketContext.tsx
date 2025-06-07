@@ -45,7 +45,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Initialize socket connection
     const socketInstance = io('http://localhost:3000', {
-      query: { userId: currentUser._id, token: localStorage.getItem('token') }, // this sends the userId as param for auth in BE
+      query: { userId: currentUser._id },
       withCredentials: true,
       forceNew: true, // Force a new connection
     });

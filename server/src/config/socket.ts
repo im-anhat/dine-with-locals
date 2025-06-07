@@ -1,15 +1,14 @@
+// server/src/config/socket.ts
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import Chat from '../models/Chat.js';
-import Message from '../models/Message.js';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
 
-const JWT_SECRET = process.env.SECRET;
+interface AuthenticatedSocket extends SocketIOServer {
+  userId?: string;
+}
 
 export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
-    pingTimeout: 60000,
     cors: {
       origin: 'http://localhost:5173',
       methods: ['GET', 'POST'],
@@ -17,37 +16,20 @@ export const initializeSocket = (server: HTTPServer) => {
     },
   });
 
-  // 1. Authentication middleware for websocket, i fixed so it verifies the user correctly
-  io.use(async (socket: any, next) => {
+  // Authentication middleware
+  io.use((socket: any, next) => {
     const userId = socket.handshake.query.userId;
-    const token = socket.handshake.query.token;
-
-    if (!token) {
-      return next(new Error('Authentication error: token are required'));
-    }
-
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET || 'default') as {
-        _id: string;
-      };
-      const user = await User.findById(decoded._id).select('-password');
-      if (!user) {
-        return next(new Error('Authentication error: User not found'));
-      }
-
-      socket.userId = user._id;
-      socket.user = user; // Store user data in socket for later use
+    if (userId) {
+      socket.userId = userId;
       next();
-    } catch (error) {
-      console.error('Socket authentication error:', error);
-      return next(new Error('Authentication error: Invalid token'));
+    } else {
+      next(new Error('Authentication error: userId is required'));
     }
   });
 
   io.on('connection', (socket: any) => {
     console.log(`User ${socket.userId} connected (Socket ID: ${socket.id})`);
 
-    // -- NOTIFICATIONS --
     // Join user to their personal notification room
     if (socket.userId) {
       socket.join(`user_${socket.userId}`);
@@ -144,66 +126,6 @@ export const initializeSocket = (server: HTTPServer) => {
     socket.on('error', (error: any) => {
       console.error('Socket error:', error);
     });
-
-    // -- CHAT ROOM HANDLING --
-    // a. Handle joining a chat room
-    socket.on('join_chat', async (chatId: string) => {
-      socket.join(chatId);
-      console.log(`User ${socket.userId} joined chat: ${chatId}`);
-
-      // Notify others in the chat room
-      socket.to(chatId).emit('chat_joined', {
-        userId: socket.userId,
-        chatId,
-        message: `User ${socket.userId} joined the chat`,
-      });
-    });
-
-    // b. Handle leaving a chat room
-    socket.on('leave_chat', (chatId: string) => {
-      socket.leave(chatId);
-      console.log(`User ${socket.userId} left chat: ${chatId}`);
-
-      // Notify others in the chat room
-      socket.to(chatId).emit('chat_left', {
-        userId: socket.userId,
-        chatId,
-        message: `User ${socket.userId} left the chat`,
-      });
-    });
-
-    // c. Handle new messages from CLIENT
-    socket.on(
-      'message_send',
-      async (data: { chatId: string; content: string }) => {
-        try {
-          // Create new message
-          const newMessage = {
-            senderId: socket.userId,
-            content: data.content,
-            chat: data.chatId,
-          };
-
-          // Save message to database
-          let message = await Message.create(newMessage);
-
-          // Update chat's latest message
-          await Chat.findByIdAndUpdate(data.chatId, {
-            latestMessage: message,
-          });
-
-          // populate the message with the senderId and chat
-          message = await message.populate('senderId', '_id firstName');
-
-          // broadcast to all users in the chat
-          io.to(data.chatId).emit('message_created', message);
-          console.log('message_created', message);
-        } catch (error) {
-          console.error('Error saving message:', error);
-          socket.emit('error', 'Failed to send message');
-        }
-      },
-    );
   });
 
   return io;

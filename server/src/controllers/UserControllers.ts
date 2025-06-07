@@ -24,8 +24,8 @@ export const getUserById: RequestHandler = async (
   res: Response,
 ) => {
   try {
-    const userId  = req.params.userId.trim();
-
+    const { userId } = req.params;
+    // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       res.status(400).json({ error: 'Invalid user ID format' });
       return;
