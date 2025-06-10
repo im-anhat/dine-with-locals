@@ -4,6 +4,8 @@ import Chat from '../models/Chat.js';
 import Message from '../models/Message.js';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const JWT_SECRET = process.env.SECRET;
 
