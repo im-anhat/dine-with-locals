@@ -3,6 +3,7 @@ import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
 import { getLocationById, Location } from '@/services/LocationService';
 import { useNavigate } from 'react-router-dom';
 import { startOrCreateChat } from '@/services/chat/ChatServices';
+import { useSocket } from '../../contexts/SocketContext';
 
 interface PlaceDetailsProps {
   listing: Listing;
@@ -12,6 +13,7 @@ interface PlaceDetailsProps {
 const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
   const navigate = useNavigate();
   const [location, setLocation] = React.useState<Location | null>(null);
+  const { socket } = useSocket();
 
   React.useEffect(() => {
     // Check if locationId is already a populated object or just an ID string
@@ -42,6 +44,11 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
   const handleOpenChat = async () => {
     try {
       const chat = await startOrCreateChat(listing.userId._id, listing._id);
+
+      // Emit the chat creation event to the socket server
+      if (!socket) return;
+      socket.emit('join_chat', chat._id);
+
       navigate('/chats', {
         state: { listingId: listing._id, chatId: chat._id },
       });
