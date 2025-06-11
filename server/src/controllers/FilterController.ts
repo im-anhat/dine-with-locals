@@ -17,7 +17,7 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
   //Validation
-  if (numGuests) matchConditions.numGuests = numGuests;
+  if (numGuests) matchConditions.numGuests = numGuests[0];
   if (locationType) matchConditions.locationType = locationType;
   if (category) matchConditions.category = category;
   if (city) matchConditions['mergedLocation.city'] = city;

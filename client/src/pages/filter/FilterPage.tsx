@@ -18,9 +18,8 @@ const FilterPage = () => {
 
   const [city, setCity] = useState<string | undefined>();
   const [dineAt, setDineAt] = useState<string | undefined>();
-  const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
+  const [numberOfGuests, setNumberOfGuests] = useState<number[] | undefined>();
   const [results, setResults] = useState<any[]>();
-  const { state } = useLocation();
 
   const { currentUser } = useUser();
 
@@ -29,6 +28,7 @@ const FilterPage = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     const obj = {
       startDate: dateRange?.from,
       endDate: dateRange?.to,
@@ -38,9 +38,8 @@ const FilterPage = () => {
       locationType: dineAt,
       numGuests: numberOfGuests,
     };
-    console.log('CURRENT USER RESULTS', currentUser);
+    console.log('obj', obj);
     let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
-    console.log('URL', url);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
