@@ -2,6 +2,7 @@ import React from 'react';
 import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
 import { getLocationById, Location } from '@/services/LocationService';
 import { useNavigate } from 'react-router-dom';
+import { startOrCreateChat } from '@/services/chat/ChatServices';
 
 interface PlaceDetailsProps {
   listing: Listing;
@@ -37,6 +38,17 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
         });
     }
   }, [listing]);
+
+  const handleOpenChat = async () => {
+    try {
+      const chat = await startOrCreateChat(listing.userId._id, listing._id);
+      navigate('/chats', {
+        state: { listingId: listing._id, chatId: chat._id },
+      });
+    } catch (error) {
+      console.error('Error starting or creating chat:', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -168,7 +180,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
 
               <button
                 className="w-full mt-2 border border-brand-teal-600 text-brand-teal-600 py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-50 transition-colors"
-                onClick={() => navigate('/chat')}
+                onClick={handleOpenChat}
               >
                 Contact Host
               </button>

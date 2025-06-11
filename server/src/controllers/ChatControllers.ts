@@ -10,7 +10,13 @@ interface AuthRequest extends Request {
 
 export const accessChat = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const { userId } = req.body; // id of the user to chat with
+    const { userId, listingId } = req.body; // id of the user to chat with
+    console.log(
+      'accessChat called with userId:',
+      userId,
+      'listingId:',
+      listingId,
+    );
     const currentUser = req.user; // currently logged in user
     if (!userId) {
       console.log('userId not sent with request');
@@ -24,6 +30,7 @@ export const accessChat = asyncHandler(
       $and: [
         { users: { $elemMatch: { $eq: currentUser._id } } },
         { users: { $elemMatch: { $eq: userId } } },
+        { listing: { $eq: listingId } },
       ],
     }).populate([
       {
@@ -38,6 +45,16 @@ export const accessChat = asyncHandler(
           select: '_id firstName',
         },
       },
+      // field added to view associated listing details in the chat
+      {
+        path: 'listing',
+        select: '_id title images time',
+        populate: {
+          path: 'locationId',
+          model: 'Location',
+          select: 'city state country',
+        },
+      },
     ]);
 
     console.log('isChat:', isChat);
@@ -50,14 +67,28 @@ export const accessChat = asyncHandler(
         chatName: 'sender',
         isGroupChat: false,
         users: [currentUser._id, userId],
+        listing: listingId,
       };
 
       try {
         const createdChat = await Chat.create(chatData);
         const FullChat = await Chat.findOne({ _id: createdChat._id }).populate([
-          { path: 'users', select: '-password' },
+          {
+            path: 'users',
+            select: '_id userName firstName lastName phone avatar role',
+          },
+          {
+            path: 'listing',
+            select: '_id title images time',
+            populate: {
+              path: 'locationId',
+              model: 'Location',
+              select: 'city state country',
+            },
+          },
         ]);
         res.status(200).json(FullChat);
+        console.log('Chat created successfully:', FullChat);
       } catch (error) {
         console.error('Error creating chat:', error);
         res.status(500).json({ message: 'Internal server error' });

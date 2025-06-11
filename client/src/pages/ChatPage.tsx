@@ -2,12 +2,19 @@ import { useState } from 'react';
 import { Chat } from '../components/Chat';
 import { ChatsList } from '../components/ChatsList';
 import { useSocket } from '../contexts/SocketContext';
+import { useLocation } from 'react-router-dom';
 
 export function ChatPage() {
-  const [selectedChatId, setSelectedChatId] = useState<string>();
+  // if user navigates to /chats with a chatId in state, use that as initial chat
+  const location = useLocation();
+  const initialChatId = location.state?.chatId;
+
+  const [selectedChatId, setSelectedChatId] = useState<string>(
+    initialChatId || '',
+  );
   const [showListOnMobile, setShowListOnMobile] = useState(true);
 
-  const { socket }  = useSocket();
+  const { socket } = useSocket();
 
   // Handler for selecting a chat
   const handleSelectChat = (chatId: string) => {
@@ -49,10 +56,7 @@ export function ChatPage() {
       <div
         className={`flex-1 h-full overflow-hidden ${showListOnMobile ? 'hidden' : ''} md:block`}
       >
-        <Chat
-          chatId={selectedChatId}
-          onBack={handleBackToList}
-        />
+        <Chat chatId={selectedChatId} onBack={handleBackToList} />
       </div>
     </div>
   );
