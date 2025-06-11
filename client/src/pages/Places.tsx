@@ -5,14 +5,18 @@ import PlaceRecommendations from '../components/places/PlaceRecommendations';
 import PlaceDetails from '../components/places/PlaceDetails';
 // import { dummyListings, Listing } from '../data/dummyListings';
 import { Listing } from '../../../shared/types/Listing';
+import { Request } from '../../../shared/types/Request';
 import { useUserContext } from '../hooks/useUserContext';
 import { getLngLatFromLocationId } from '../services/LocationService';
 import { getListingsWithinDistanceFromAPI } from '../services/ListingService';
+import { getRequestsWithinDistanceFromAPI } from '../services/RequestService';
 
 const Places: React.FC = () => {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [requests, setRequests] = useState<Request[]>([]);
   const { currentUser } = useUserContext();
   const userLocationId = currentUser?.locationId;
   const [userCoordinates, setUserCoordinates] =
@@ -39,23 +43,41 @@ const Places: React.FC = () => {
       console.warn('User coordinates not available yet.');
       return;
     }
-    const fetchListings = async () => {
+
+    const fetchData = async () => {
       try {
-        const listings = await getListingsWithinDistanceFromAPI(
-          userCoordinates,
-          80,
-        );
-        setListings(listings);
+        if (currentUser?.role === 'Guest') {
+          // Guests see listings (what hosts are offering)
+          const listings = await getListingsWithinDistanceFromAPI(
+            userCoordinates,
+            80,
+          );
+          setListings(listings);
+        } else if (currentUser?.role === 'Host') {
+          // Hosts see requests (what guests are requesting)
+          const requests = await getRequestsWithinDistanceFromAPI(
+            userCoordinates,
+            80,
+          );
+          setRequests(requests);
+        }
       } catch (error) {
-        console.error('Error fetching listings:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchListings();
-  }, [userCoordinates]);
+    fetchData();
+  }, [userCoordinates, currentUser?.role]);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
+    setSelectedRequest(null); // Clear request selection
+    setShowDetails(true);
+  };
+
+  const handleRequestClick = (request: Request) => {
+    setSelectedRequest(request);
+    setSelectedListing(null); // Clear listing selection
     setShowDetails(true);
   };
 
@@ -67,16 +89,21 @@ const Places: React.FC = () => {
     <div className="min-h-screen bg-brand-shell-100">
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-brand-stone-800 mb-6">
-          Find Interesting Destinations Near You
+          {currentUser?.role === 'Guest'
+            ? 'Find Interesting Destinations Near You'
+            : 'Find Guest Requests Near You'}
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-lg">
             <MapLoader>
               <PlacesMap
-                listings={listings}
+                listings={currentUser?.role === 'Guest' ? listings : []}
+                requests={currentUser?.role === 'Host' ? requests : []}
                 onListingClick={handleListingClick}
+                onRequestClick={handleRequestClick}
                 selectedListing={selectedListing}
+                selectedRequest={selectedRequest}
                 userCoordinates={userCoordinates}
               />
             </MapLoader>
@@ -84,9 +111,12 @@ const Places: React.FC = () => {
 
           <div className="max-h-[calc(100vh-10rem)] overflow-auto">
             <PlaceRecommendations
-              listings={listings}
+              listings={currentUser?.role === 'Guest' ? listings : []}
+              requests={currentUser?.role === 'Host' ? requests : []}
               onListingClick={handleListingClick}
+              onRequestClick={handleRequestClick}
               selectedListing={selectedListing}
+              selectedRequest={selectedRequest}
             />
           </div>
         </div>
@@ -94,6 +124,10 @@ const Places: React.FC = () => {
 
       {showDetails && selectedListing && (
         <PlaceDetails listing={selectedListing} onClose={handleCloseDetails} />
+      )}
+
+      {showDetails && selectedRequest && (
+        <PlaceDetails request={selectedRequest} onClose={handleCloseDetails} />
       )}
     </div>
   );
