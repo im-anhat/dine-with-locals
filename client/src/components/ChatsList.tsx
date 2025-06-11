@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { Separator } from '@/components/ui/separator';
+import { format } from 'date-fns';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,6 +32,18 @@ interface Chat {
     readBy: string[];
     createdAt: Date;
   };
+  listing?: {
+    _id: string;
+    title: string;
+    images: string[];
+    locationId: {
+      _id: string;
+      city: string;
+      state: string;
+      country: string;
+    };
+    time: string;
+  };
   groupAdmin: string; // for group chats, later feature if needed
 }
 
@@ -53,7 +66,7 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
       });
       const data = response.data;
       setChats(data);
-      console.log('Fetched chats:', data);
+      console.log('Fetched chats:', JSON.stringify(data, null, 2));
     };
     fetchChats();
   }, []);
@@ -77,28 +90,72 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
                 selectedChatId === chat._id ? 'bg-muted' : ''
               }`}
             >
-              <Avatar>
-                <AvatarImage src={otherParticipant?.avatar} />
-                <AvatarFallback>
-                  {otherParticipant?.firstName
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <div className=" justify-between items-start">
-                  <p className="font-medium truncate">
-                    {otherParticipant?.firstName} {otherParticipant?.lastName}
-                  </p>
-                </div>
-                {chat.latestMessage && (
-                  <p className="text-sm text-muted-foreground truncate text-left">
-                    {chat.latestMessage.senderId.firstName}:{' '}
-                    {chat.latestMessage.content}
-                  </p>
-                )}
-              </div>
+              {chat.listing ? (
+                <>
+                  {/* Image and Avatar Container (with listing) */}
+                  <div className="relative flex-shrink-0 w-16 h-16">
+                    {chat.listing.images[0] && (
+                      <img
+                        src={chat.listing.images[0]}
+                        alt={chat.listing.title}
+                        className="w-14 h-14 object-cover rounded-md"
+                      />
+                    )}
+                    <Avatar className="absolute bottom-0 right-0 w-8 h-8 border-2 border-background">
+                      <AvatarImage src={otherParticipant?.avatar} />
+                      <AvatarFallback>
+                        {otherParticipant?.firstName
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  {/* Text Content (with listing) */}
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="font-medium truncate">
+                      {otherParticipant?.firstName} {otherParticipant?.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {format(new Date(chat.listing.time), 'MMM dd')} -{' '}
+                      {`${chat.listing.locationId.city}, ${chat.listing.locationId.state}`}
+                    </p>
+                    {chat.latestMessage && (
+                      <p className="text-sm text-muted-foreground truncate">
+                        {chat.latestMessage.senderId.firstName}:{' '}
+                        {chat.latestMessage.content}
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Original Layout (no listing) */}
+                  <Avatar>
+                    <AvatarImage src={otherParticipant?.avatar} />
+                    <AvatarFallback>
+                      {otherParticipant?.firstName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <div className="justify-between items-start">
+                      <p className="font-medium truncate">
+                        {otherParticipant?.firstName}{' '}
+                        {otherParticipant?.lastName}
+                      </p>
+                    </div>
+                    {chat.latestMessage && (
+                      <p className="text-sm text-muted-foreground truncate text-left">
+                        {chat.latestMessage.senderId.firstName}:{' '}
+                        {chat.latestMessage.content}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
             </button>
           );
         })}

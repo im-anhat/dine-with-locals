@@ -23,6 +23,12 @@ export const accessChat = asyncHandler(
       res.sendStatus(400);
       return;
     }
+    
+    if (userId === currentUser._id) {
+      console.log('Cannot chat with yourself');
+      res.status(400).json({ message: 'Cannot chat with yourself' });
+      return;
+    }
 
     // check if chat already exists between the two users
     let isChat = await Chat.find({
@@ -57,7 +63,7 @@ export const accessChat = asyncHandler(
       },
     ]);
 
-    console.log('isChat:', isChat);
+    console.log('isChat listing:', isChat);
 
     if (isChat.length > 0) {
       res.send(isChat[0]);
@@ -115,7 +121,16 @@ export const fetchChats = asyncHandler(
             populate: {
               path: 'senderId',
               model: 'User',
-              select: '_id userName firstName lastName phone avatar role',
+              select: '_id firstName',
+            },
+          },
+          {
+            path: 'listing',
+            select: '_id title images time',
+            populate: {
+              path: 'locationId',
+              model: 'Location',
+              select: 'city state country',
             },
           },
         ])
