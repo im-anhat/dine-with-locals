@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { GoogleMap, Autocomplete } from '@react-google-maps/api';
 import { Listing } from '../../../../shared/types/Listing';
+import { Request } from '../../../../shared/types/Request';
 
 interface PlacesMapProps {
-  listings: Listing[];
+  listings?: Listing[];
+  requests?: Request[];
   onListingClick?: (listing: Listing) => void;
+  onRequestClick?: (request: Request) => void;
   selectedListing?: Listing | null;
+  selectedRequest?: Request | null;
   userCoordinates?: google.maps.LatLngLiteral | null;
 }
 
@@ -15,9 +19,12 @@ const mapContainerStyle = {
 };
 
 const PlacesMap: React.FC<PlacesMapProps> = ({
-  listings,
+  listings = [],
+  requests = [],
   onListingClick,
+  onRequestClick,
   selectedListing,
+  selectedRequest,
   userCoordinates,
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -161,6 +168,72 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
       }
     }
 
+    // Create markers for requests
+    for (const request of requests) {
+      try {
+        const isSelected = request._id === selectedRequest?._id;
+        const icon = createMarkerIcon(isSelected);
+
+        // Handle request location data similar to listings
+        const locationData =
+          typeof request.locationId === 'object' ? request.locationId : null;
+        let position = null;
+
+        if (locationData?.coordinates) {
+          const coords = locationData.coordinates;
+
+          if (
+            typeof coords.lat === 'number' &&
+            typeof coords.lng === 'number'
+          ) {
+            position = {
+              lat: coords.lat,
+              lng: coords.lng,
+            };
+          } else if (
+            Array.isArray(coords) &&
+            coords.length >= 2 &&
+            typeof coords[0] === 'number' &&
+            typeof coords[1] === 'number'
+          ) {
+            position = {
+              lat: coords[1], // latitude
+              lng: coords[0], // longitude
+            };
+          }
+        }
+
+        if (!position) {
+          console.warn(
+            `Request ${request.title} doesn't have valid coordinates:`,
+            locationData,
+          );
+          continue;
+        }
+
+        // Create the marker
+        const marker = new google.maps.Marker({
+          map,
+          position: position,
+          title: request.title,
+          icon: icon,
+          animation: isSelected ? google.maps.Animation.BOUNCE : undefined,
+          zIndex: isSelected ? 100 : 10, // Selected markers show on top
+        });
+
+        // Add click event listener
+        marker.addListener('click', () => {
+          if (onRequestClick) {
+            onRequestClick(request);
+          }
+        });
+
+        newMarkers.push(marker);
+      } catch (error) {
+        console.error('Error creating marker:', error);
+      }
+    }
+
     setMarkers(newMarkers);
 
     return () => {
@@ -168,15 +241,26 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         marker.setMap(null);
       });
     };
-  }, [map, listings, onListingClick, selectedListing]);
+  }, [
+    map,
+    listings,
+    requests,
+    onListingClick,
+    onRequestClick,
+    selectedListing,
+    selectedRequest,
+  ]);
 
-  // Center map on selected listing
+  // Center map on selected listing or request
   useEffect(() => {
-    if (map && selectedListing) {
+    if (map && (selectedListing || selectedRequest)) {
+      const selectedItem = selectedListing || selectedRequest;
+      if (!selectedItem) return;
+
       // Use same coordinate extraction logic as markers
       const locationData =
-        typeof selectedListing.locationId === 'object'
-          ? selectedListing.locationId
+        typeof selectedItem.locationId === 'object'
+          ? selectedItem.locationId
           : null;
       let position = null;
 
@@ -210,7 +294,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         map.setZoom(15);
       }
     }
-  }, [map, selectedListing]);
+  }, [map, selectedListing, selectedRequest]);
 
   // Add a slight delay to ensure Google Maps API initializes properly
   useEffect(() => {
@@ -222,7 +306,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [map, listings]);
+  }, [map, listings, requests]);
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-4 left-4 z-10 w-80 md:w-96">
