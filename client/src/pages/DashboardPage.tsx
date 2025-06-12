@@ -79,7 +79,8 @@ const DashboardPage = () => {
           className="text-brand-teal-600 p-0 h-auto font-normal"
           onClick={() => navigate('/filter', { state: { results } })}
         >
-          View All Requests →
+          View all
+          {currentUser.role === 'Guest' ? ' listings' : ' requests'} →
         </Button>
       </section>
 
