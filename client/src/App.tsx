@@ -85,14 +85,8 @@ const App: React.FC = () => {
             element={isAuthenticated ? <FilterPage /> : <Home />}
           />
           <Route
-            path="/profile"
-            element={
-              isAuthenticated ? (
-                <ProfilePage userId={currentUser?._id} />
-              ) : (
-                <Home />
-              )
-            }
+            path="/profile/:userId"
+            element={isAuthenticated ? <ProfilePage /> : <Home />}
           />
           <Route
             path="/places"

@@ -13,13 +13,15 @@ import ProfileStats from '../components/profile/ProfileStats';
 import ProfileHobbies from '../components/profile/ProfileHobbies';
 import ProfileReviews from '../components/profile/ProfileReviews';
 import ProfileBlogs from '../components/profile/ProfileBlogs';
+import { useParams } from 'react-router';
 
-interface ProfilePageProps {
-  userId?: string; // Optional: if not provided, will display current user's profile
-}
+// interface ProfilePageProps {
+//   userId?: string; // Optional: if not provided, will display current user's profile
+// }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
+const ProfilePage = () => {
   const { currentUser } = useUser();
+  const { userId } = useParams();
   const [profileUser, setProfileUser] = useState<AuthenticatedUser | null>(
     null,
   );
