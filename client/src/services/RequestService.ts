@@ -20,7 +20,8 @@ export const getRequestsWithinDistanceFromAPI = async (
   maxDistance: number = 80,
 ): Promise<Request[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/requests/nearby`, {
+    console.log('the coordinates are: ', userCoordinates);
+    const response = await axios.get(`${API_BASE_URL}/request/nearby`, {
       params: {
         lat: userCoordinates.lat,
         lng: userCoordinates.lng,
@@ -40,7 +41,7 @@ export const getRequestsWithinDistanceFromAPI = async (
  */
 export const getAllRequests = async (): Promise<Request[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/requests`);
+    const response = await axios.get(`${API_BASE_URL}/request`);
     return response.data;
   } catch (error) {
     console.error('Error fetching all requests from API:', error);

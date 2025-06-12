@@ -109,9 +109,6 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({
             onClick={() => onRequestClick && onRequestClick(request)}
           >
             <div className="flex">
-              <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden mr-4 bg-gradient-to-br from-brand-coral-100 to-brand-coral-200 flex items-center justify-center shadow-md border border-brand-coral-200">
-                <span className="text-4xl">🔍</span>
-              </div>
               <div className="flex-1">
                 <h3 className="font-bold text-lg text-brand-coral-800 mb-1">
                   {request.title}
@@ -123,8 +120,13 @@ const PlaceRecommendations: React.FC<PlaceRecommendationsProps> = ({
                 </p>
                 <div className="flex items-center mb-2 flex-wrap gap-2">
                   <span className="bg-brand-coral-100 text-brand-coral-700 text-xs px-2 py-1 rounded-full font-medium">
-                    {request.locationType.charAt(0).toUpperCase() +
-                      request.locationType.slice(1)}
+                    {request.locationType === 'res' 
+                      ? 'Restaurant'
+                      : request.locationType === 'home'
+                      ? 'Home'
+                      : request.locationType === 'either'
+                      ? 'Wherever'
+                      : request.locationType}
                   </span>
                   {request.numGuests && (
                     <span className="bg-brand-coral-200 text-brand-coral-800 text-xs px-2 py-1 rounded-full font-medium flex items-center">

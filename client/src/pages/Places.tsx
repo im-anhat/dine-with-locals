@@ -86,7 +86,7 @@ const Places: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-shell-100">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-brand-stone-800 mb-6">
           {currentUser?.role === 'Guest'

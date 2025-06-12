@@ -82,18 +82,20 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
 
         {/* Content */}
         <div className="p-6">
-          {/* Image or placeholder */}
-          <div className="mb-6 rounded-lg overflow-hidden h-64 bg-brand-shell-100 flex items-center justify-center">
-            {isListing && listing?.images && listing.images.length > 0 ? (
-              <img
-                src={listing.images[0]}
-                alt={listing.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-8xl">{isListing ? '🍽️' : '🔍'}</span>
-            )}
-          </div>
+          {/* Image or placeholder - only show for listings */}
+          {isListing && (
+            <div className="mb-6 rounded-lg overflow-hidden h-64 bg-brand-shell-100 flex items-center justify-center">
+              {listing?.images && listing.images.length > 0 ? (
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-8xl">🍽️</span>
+              )}
+            </div>
+          )}
 
           {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -141,7 +143,16 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
                 )}
                 {!isListing && request && (
                   <>
-                    <li>Location type preference: {request.locationType}</li>
+                    <li>
+                      Location type preference:{' '}
+                      {request.locationType === 'res'
+                        ? 'Restaurant'
+                        : request.locationType === 'home'
+                          ? 'Home'
+                          : request.locationType === 'either'
+                            ? 'Wherever'
+                            : request.locationType}
+                    </li>
                     {request.cuisine && request.cuisine.length > 0 && (
                       <li>Cuisine interests: {request.cuisine.join(', ')}</li>
                     )}
@@ -164,8 +175,15 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
                   {isListing
                     ? (listing?.category?.charAt(0).toUpperCase() || '') +
                       (listing?.category?.slice(1) || '')
-                    : (request?.locationType?.charAt(0).toUpperCase() || '') +
-                      (request?.locationType?.slice(1) || '')}
+                    : request
+                      ? request.locationType === 'res'
+                        ? 'Restaurant'
+                        : request.locationType === 'home'
+                          ? 'Home'
+                          : request.locationType === 'either'
+                            ? 'Wherever'
+                            : request.locationType
+                      : ''}
                 </span>
               </div>
 
