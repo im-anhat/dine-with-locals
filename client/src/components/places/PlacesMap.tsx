@@ -41,6 +41,9 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
     userCoordinates ?? defaultCenter,
   );
   const [markers, setMarkers] = useState<Array<google.maps.Marker>>([]);
+  const [searchMarker, setSearchMarker] = useState<google.maps.Marker | null>(
+    null,
+  );
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
@@ -80,13 +83,42 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         map.setCenter(newCenter);
         map.setZoom(14);
 
+        // Remove existing search marker
+        if (searchMarker) {
+          searchMarker.setMap(null);
+        }
+
+        // Create a distinctive search marker with yellow styling (same icon as listings/requests)
+        const searchMarkerIcon = {
+          path: 'M12 0C7.58 0 4 3.58 4 8c0 1.4.5 3.3 1.4 4.9.9 1.7 2 3.2 3 4.3.7.8 1.5 1.5 1.9 2 .1.1.2.2.4.3.2.1.2.2.3.3.2.2.6.2.8 0 .1-.1.1-.1.3-.3.1-.1.3-.2.4-.3.4-.4 1.2-1.1 1.9-2 1-1.1 2.1-2.6 3-4.3.9-1.6 1.4-3.5 1.4-4.9 0-4.42-3.58-8-8-8zm0 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 4.5 12 4.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z',
+          fillColor: '#fbbf24', // Bright yellow (amber-400)
+          fillOpacity: 1,
+          strokeWeight: 0, // Same as listing/request markers
+          rotation: 0,
+          scale: 2, // Larger than regular markers for distinction
+          anchor: new google.maps.Point(12, 24),
+          labelOrigin: new google.maps.Point(12, 8),
+        };
+
+        // Create the search marker with enhanced styling
+        const newSearchMarker = new google.maps.Marker({
+          map,
+          position: newCenter,
+          title: `📍 ${place.name || 'Searched Location'} - Click to explore this area`,
+          icon: searchMarkerIcon,
+          animation: google.maps.Animation.DROP, // Nice drop animation
+          zIndex: 1000, // Ensure it appears above other markers
+        });
+
+        setSearchMarker(newSearchMarker);
+
         // Notify parent component about location change
         if (onLocationChange) {
           onLocationChange(newCenter);
         }
       }
     }
-  }, [map, onLocationChange]);
+  }, [map, onLocationChange, searchMarker]);
 
   // Create markers when listings or map changes
   useEffect(() => {
@@ -273,6 +305,15 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
     selectedListing,
     selectedRequest,
   ]);
+
+  // Cleanup search marker when component unmounts
+  useEffect(() => {
+    return () => {
+      if (searchMarker) {
+        searchMarker.setMap(null);
+      }
+    };
+  }, [searchMarker]);
 
   // Center map on selected listing or request
   useEffect(() => {
