@@ -66,22 +66,24 @@ const DashboardPage = () => {
 
       {/* Match Cards Section */}
       <section className="space-y-4">
-        <div className="flex flex-row gap-6">
+        {loading ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : (
           <div>
-            {loading && <p className="text-muted-foreground">Loading...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            <FilterResults results={results?.slice(0, 3) ?? []} />
-          </div>
-        </div>
+            <div className="flex flex-row justify-center items-center gap-6">
+              <FilterResults results={results?.slice(0, 3) ?? []} />
+            </div>
 
-        <Button
-          variant="link"
-          className="text-brand-teal-600 p-0 h-auto font-normal"
-          onClick={() => navigate('/filter', { state: { results } })}
-        >
-          View all
-          {currentUser.role === 'Guest' ? ' listings' : ' requests'} →
-        </Button>
+            <Button
+              variant="link"
+              className="mx-2 text-brand-teal-600 p-0 h-auto font-normal mt-4"
+              onClick={() => navigate('/filter', { state: { results } })}
+            >
+              View all
+              {currentUser.role === 'Guest' ? ' listings' : ' requests'} →
+            </Button>
+          </div>
+        )}
       </section>
 
       <Separator />

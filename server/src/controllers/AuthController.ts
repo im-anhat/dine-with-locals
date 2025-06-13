@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { SALT } from '../seeds/constants.js';
-
+import { OAuth2Client } from 'google-auth-library'; //Google's way of verifying token
 dotenv.config();
 
 /**
@@ -16,6 +16,49 @@ dotenv.config();
 const createToken = (_id: string): string => {
   return jwt.sign({ _id }, process.env.SECRET!, { expiresIn: '3d' });
 };
+
+/**
+ * To verify a token is valid: ID signed by Google
+ * Using the email, email_verified and hd fields, you can determine if Google hosts and is authoritative for an email address
+ * client
+ */
+export const googleAuthenticate = async (req: Request, res: Response) => {
+  console.log('Get into google Authentication function');
+  //ID token sent from client
+  const { credential } = req.body;
+  //Google's verification client
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+  //Verifies that token with Google to ensure it's valid
+  const ticket = await client.verifyIdToken({
+    idToken: credential,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  const userName = payload?.email?.replace('@gmail.com', '');
+  //Check if user's record already exist on MongoDB
+  let existing = await UserModel.findOne({ userName });
+
+  //If not, create a new record in MongoDB for user
+  if (!existing) {
+    existing = await UserModel.create({
+      userName: userName,
+      firstName: payload?.given_name,
+      lastName: payload?.family_name,
+      avatar: payload?.picture,
+      role: 'Guest',
+      provider: 'Google',
+    });
+  }
+  try {
+    // Generate a token with userName and _id
+    const token = createToken(existing._id.toString());
+    res.status(200).json({ token: token, message: 'Login Successful' });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 /**
  * This function handles user login.
  * It receives the user login data from the request body,

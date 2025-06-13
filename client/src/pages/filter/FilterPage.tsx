@@ -102,9 +102,7 @@ const FilterPage = () => {
           onSubmit={submitValue}
         />
 
-        <div className="mt-6 mx-8">
-          {loading && <p className="text-muted-foreground">Loading...</p>}
-          {error && <p className="text-red-500">{error}</p>}
+        <div className="mt-4 mb-8 mx-8 flex flex-row justify-center">
           <FilterResults results={results ?? []} />
         </div>
       </div>

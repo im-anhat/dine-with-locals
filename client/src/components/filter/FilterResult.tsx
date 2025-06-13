@@ -12,10 +12,8 @@ const FilterResults = ({ results }: { results: any[] }) => {
   );
   if (!results || results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-        <div className="text-6xl mb-4"></div>
+      <div className="flex flex-col items-center justify-center bg-gray-100 p-8 rounded-md">
         <h3 className="text-lg font-medium mb-2">No results found</h3>
-        <p className="text-sm">Try adjusting your filters or search criteria</p>
       </div>
     );
   }
