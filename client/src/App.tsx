@@ -30,8 +30,6 @@ const App: React.FC = () => {
   if (currentPath.length === 0) {
     currentPath.push('dashboard'); // Default to "dashboard" if no path is present
   }
-  console.log('Current path:', currentPath);
-
   return (
     // moved BrowserRouter from main.tsx to here
     <SidebarProvider>

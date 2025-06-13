@@ -42,7 +42,7 @@ const FilterPage = () => {
     let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
+        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}s`,
         obj,
       );
       setResults(res.data);
@@ -64,10 +64,8 @@ const FilterPage = () => {
       let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}s`,
         );
-        console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
-        console.log(res.data);
         setResults(res.data);
       } catch (err) {
         setError('Something went wrong. Please try again.');
