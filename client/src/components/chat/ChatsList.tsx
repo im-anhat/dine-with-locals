@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
@@ -72,8 +71,8 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
   }, []);
 
   return (
-    <ScrollArea className="flex-1">
-      <div className="p-4 space-y-2">
+    <div className="flex-1 overflow-y-auto">
+      <div className="py-5 px-6 space-y-2  flex items-center">
         <h1 className="text-xl font-bold">Chats</h1>
       </div>
       <Separator orientation="horizontal" />
@@ -160,6 +159,6 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
           );
         })}
       </div>
-    </ScrollArea>
+    </div>
   );
 }

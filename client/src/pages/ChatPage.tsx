@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Chat } from '../components/Chat';
-import { ChatsList } from '../components/ChatsList';
+import { ChatWindow } from '../components/chat/ChatWindow';
+import { ChatsList } from '../components/chat/ChatsList';
 import { useSocket } from '../contexts/SocketContext';
 import { useLocation } from 'react-router-dom';
 
@@ -45,7 +45,7 @@ export function ChatPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       <div
-        className={`md:w-80 w-full border-r h-full flex-shrink-0 bg-background ${!showListOnMobile ? 'hidden' : ''} md:block`}
+        className={`md:w-72 w-full border-r h-full flex-shrink-0 bg-background ${!showListOnMobile ? 'hidden' : ''} md:block`}
       >
         <ChatsList
           onSelectChat={handleSelectChat}
@@ -56,7 +56,8 @@ export function ChatPage() {
       <div
         className={`flex-1 h-full overflow-hidden ${showListOnMobile ? 'hidden' : ''} md:block`}
       >
-        <Chat chatId={selectedChatId} onBack={handleBackToList} />
+        <div></div>
+        <ChatWindow chatId={selectedChatId} onBack={handleBackToList} />
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ export const accessChat = asyncHandler(
       res.sendStatus(400);
       return;
     }
-    
+
     if (userId === currentUser._id) {
       console.log('Cannot chat with yourself');
       res.status(400).json({ message: 'Cannot chat with yourself' });
@@ -140,6 +140,32 @@ export const fetchChats = asyncHandler(
       res.status(200).json(chats);
     } catch (error) {
       console.error('Error fetching chats:', error);
+      res.status(500).json({ message: 'Internal server error' });
+      return;
+    }
+  },
+);
+
+export const getChatInfo = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { chatId } = req.params;
+    try {
+      const chat = await Chat.findById(chatId).populate([
+        {
+          path: 'users',
+          select: '_id userName firstName lastName phone avatar role',
+        },
+        {
+          path: 'listing',
+          populate: {
+            path: 'locationId',
+            model: 'Location',
+          },
+        },
+      ]);
+      res.status(200).json(chat);
+    } catch (error) {
+      console.error('Error fetching chat info:', error);
       res.status(500).json({ message: 'Internal server error' });
       return;
     }
