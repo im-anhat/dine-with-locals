@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import MapLoader from '../components/places/MapLoader';
 import PlacesMap from '../components/places/PlacesMap';
 import PlaceRecommendations from '../components/places/PlaceRecommendations';
@@ -17,18 +17,68 @@ const Places: React.FC = () => {
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [listings, setListings] = useState<Listing[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
+  const [currentCoordinates, setCurrentCoordinates] =
+    useState<google.maps.LatLngLiteral | null>(null);
   const { currentUser } = useUserContext();
   const userLocationId = currentUser?.locationId;
   const [userCoordinates, setUserCoordinates] =
     useState<google.maps.LatLngLiteral | null>(null);
+
   console.log('User Location ID:', userLocationId);
+  console.log('Current Coordinates:', currentCoordinates);
+  console.log('User Coordinates:', userCoordinates);
+  console.log('Passing to map:', currentCoordinates || userCoordinates);
+
+  // Function to fetch data based on coordinates
+  const fetchDataForLocation = useCallback(
+    async (coordinates: google.maps.LatLngLiteral) => {
+      try {
+        if (currentUser?.role === 'Guest') {
+          // Guests see listings (what hosts are offering)
+          const listings = await getListingsWithinDistanceFromAPI(
+            coordinates,
+            80,
+          );
+          setListings(listings);
+          setRequests([]); // Clear requests when showing listings
+        } else if (currentUser?.role === 'Host') {
+          // Hosts see requests (what guests are requesting)
+          const requests = await getRequestsWithinDistanceFromAPI(
+            coordinates,
+            80,
+          );
+          setRequests(requests);
+          setListings([]); // Clear listings when showing requests
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+    [currentUser?.role],
+  );
+
+  // Handle location change from map search
+  const handleLocationChange = useCallback(
+    (newCoordinates: google.maps.LatLngLiteral) => {
+      setCurrentCoordinates(newCoordinates);
+      // Clear any selected items when location changes
+      setSelectedListing(null);
+      setSelectedRequest(null);
+      setShowDetails(false);
+      // Fetch new data for the new location
+      fetchDataForLocation(newCoordinates);
+    },
+    [fetchDataForLocation],
+  );
   useEffect(() => {
     const fetchUserCoordinates = async () => {
       if (userLocationId) {
         try {
           const coordinates = await getLngLatFromLocationId(userLocationId);
+          console.log('Fetched User Coordinates:', coordinates);
           setUserCoordinates(coordinates);
-          console.log('User Coordinates:', coordinates);
+          // Also set as current coordinates immediately
+          setCurrentCoordinates(coordinates);
         } catch (error) {
           console.error('Error fetching user coordinates:', error);
         }
@@ -39,35 +89,22 @@ const Places: React.FC = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    if (!userCoordinates) {
-      console.warn('User coordinates not available yet.');
+    if (!currentCoordinates) {
+      console.warn('Current coordinates not available yet.');
       return;
     }
 
-    const fetchData = async () => {
-      try {
-        if (currentUser?.role === 'Guest') {
-          // Guests see listings (what hosts are offering)
-          const listings = await getListingsWithinDistanceFromAPI(
-            userCoordinates,
-            80,
-          );
-          setListings(listings);
-        } else if (currentUser?.role === 'Host') {
-          // Hosts see requests (what guests are requesting)
-          const requests = await getRequestsWithinDistanceFromAPI(
-            userCoordinates,
-            80,
-          );
-          setRequests(requests);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    // Fetch data for current coordinates
+    fetchDataForLocation(currentCoordinates);
+  }, [currentCoordinates, currentUser?.role, fetchDataForLocation]);
 
-    fetchData();
-  }, [userCoordinates, currentUser?.role]);
+  // Debug effect to track coordinate changes
+  useEffect(() => {
+    console.log('=== Coordinate Update ===');
+    console.log('userCoordinates:', userCoordinates);
+    console.log('currentCoordinates:', currentCoordinates);
+    console.log('Will pass to map:', currentCoordinates || userCoordinates);
+  }, [userCoordinates, currentCoordinates]);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
@@ -104,7 +141,8 @@ const Places: React.FC = () => {
                 onRequestClick={handleRequestClick}
                 selectedListing={selectedListing}
                 selectedRequest={selectedRequest}
-                userCoordinates={userCoordinates}
+                userCoordinates={currentCoordinates}
+                onLocationChange={handleLocationChange}
               />
             </MapLoader>
           </div>

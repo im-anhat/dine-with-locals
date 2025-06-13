@@ -11,6 +11,7 @@ interface PlacesMapProps {
   selectedListing?: Listing | null;
   selectedRequest?: Request | null;
   userCoordinates?: google.maps.LatLngLiteral | null;
+  onLocationChange?: (coordinates: google.maps.LatLngLiteral) => void;
 }
 
 const mapContainerStyle = {
@@ -26,20 +27,37 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
   selectedListing,
   selectedRequest,
   userCoordinates,
+  onLocationChange,
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const center: google.maps.LatLngLiteral = userCoordinates ?? {
+  const defaultCenter: google.maps.LatLngLiteral = {
     lat: 41.881563,
     lng: -87.649869,
   }; // Default to Chicago if not provided
 
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>(center);
+  console.log('User coords are: ', userCoordinates);
+
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>(
+    userCoordinates ?? defaultCenter,
+  );
   const [markers, setMarkers] = useState<Array<google.maps.Marker>>([]);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
   }, []);
+
+  // Update map center when userCoordinates change
+  useEffect(() => {
+    if (userCoordinates) {
+      console.log('Updating map center to user coordinates:', userCoordinates);
+      setMapCenter(userCoordinates);
+      if (map) {
+        map.setCenter(userCoordinates);
+        map.setZoom(12); // Set a reasonable zoom level
+      }
+    }
+  }, [userCoordinates, map]);
 
   const onAutocompleteLoad = useCallback(
     (autocomplete: google.maps.places.Autocomplete) => {
@@ -60,10 +78,15 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
 
         setMapCenter(newCenter);
         map.setCenter(newCenter);
-        map.setZoom(12);
+        map.setZoom(14);
+
+        // Notify parent component about location change
+        if (onLocationChange) {
+          onLocationChange(newCenter);
+        }
       }
     }
-  }, [map]);
+  }, [map, onLocationChange]);
 
   // Create markers when listings or map changes
   useEffect(() => {
