@@ -27,7 +27,7 @@ export const googleAuthenticate = async (req: Request, res: Response) => {
   //ID token sent from client
   const { credential } = req.body;
   //Google's verification client
-  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
 
   //Verifies that token with Google to ensure it's valid
   const ticket = await client.verifyIdToken({
