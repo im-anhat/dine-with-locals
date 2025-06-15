@@ -44,23 +44,101 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
   const [searchMarker, setSearchMarker] = useState<google.maps.Marker | null>(
     null,
   );
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [selectedPlaceDetails, setSelectedPlaceDetails] =
+    useState<google.maps.places.PlaceResult | null>(null);
+  const [showPlaceDetails, setShowPlaceDetails] = useState<boolean>(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
+
+    // Add click listener for POIs (Points of Interest) like restaurants
+    map.addListener('click', (event: any) => {
+      // Check if the click was on a POI
+      if (event.placeId) {
+        // Prevent the default info window from showing
+        event.stop();
+
+        // Get place details using the place ID
+        const service = new google.maps.places.PlacesService(map);
+        service.getDetails(
+          {
+            placeId: event.placeId,
+            fields: [
+              'name',
+              'formatted_address',
+              'opening_hours',
+              'formatted_phone_number',
+              'rating',
+              'reviews',
+              'website',
+              'price_level',
+              'photos',
+              'types',
+              'business_status',
+            ],
+          },
+          (result, status) => {
+            if (
+              status === google.maps.places.PlacesServiceStatus.OK &&
+              result
+            ) {
+              setSelectedPlaceDetails(result);
+              setShowPlaceDetails(true);
+            }
+          },
+        );
+      }
+    });
   }, []);
+
+  // Function to get detailed place information
+  const getPlaceDetails = useCallback(
+    (place: google.maps.places.PlaceResult) => {
+      if (!map || !place.place_id) return;
+
+      const service = new google.maps.places.PlacesService(map);
+
+      service.getDetails(
+        {
+          placeId: place.place_id,
+          fields: [
+            'name',
+            'formatted_address',
+            'opening_hours',
+            'formatted_phone_number',
+            'rating',
+            'reviews',
+            'website',
+            'price_level',
+            'photos',
+            'types',
+            'business_status',
+          ],
+        },
+        (result, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && result) {
+            setSelectedPlaceDetails(result);
+            setShowPlaceDetails(true);
+          }
+        },
+      );
+    },
+    [map],
+  );
 
   // Update map center when userCoordinates change
   useEffect(() => {
-    if (userCoordinates) {
+    if (userCoordinates && !hasSearched) {
       console.log('Updating map center to user coordinates:', userCoordinates);
       setMapCenter(userCoordinates);
       if (map) {
         map.setCenter(userCoordinates);
-        map.setZoom(12); // Set a reasonable zoom level
+        map.setZoom(12); // Set a reasonable zoom level for user location
       }
     }
-  }, [userCoordinates, map]);
+  }, [userCoordinates, map, hasSearched]);
 
   const onAutocompleteLoad = useCallback(
     (autocomplete: google.maps.places.Autocomplete) => {
@@ -81,7 +159,10 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
 
         setMapCenter(newCenter);
         map.setCenter(newCenter);
-        map.setZoom(14);
+        map.setZoom(16); // Higher zoom level for better detail of searched location
+
+        // Mark that a search has been performed
+        setHasSearched(true);
 
         // Remove existing search marker
         if (searchMarker) {
@@ -104,10 +185,15 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         const newSearchMarker = new google.maps.Marker({
           map,
           position: newCenter,
-          title: `📍 ${place.name || 'Searched Location'} - Click to explore this area`,
+          title: `📍 ${place.name || 'Searched Location'} - Click to see details`,
           icon: searchMarkerIcon,
           animation: google.maps.Animation.DROP, // Nice drop animation
           zIndex: 1000, // Ensure it appears above other markers
+        });
+
+        // Add click listener to search marker to show place details
+        newSearchMarker.addListener('click', () => {
+          getPlaceDetails(place);
         });
 
         setSearchMarker(newSearchMarker);
@@ -438,7 +524,7 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
         onLoad={onMapLoad}
         options={{
           disableDefaultUI: false,
-          clickableIcons: false,
+          clickableIcons: true, // Enable clicking on POIs like restaurants
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: true,
@@ -462,6 +548,181 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
           ],
         }}
       />
+
+      {/* Place Details Modal */}
+      {showPlaceDetails && selectedPlaceDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-white px-6 py-4 border-b border-brand-stone-200 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-brand-stone-800">
+                {selectedPlaceDetails.name}
+              </h2>
+              <button
+                onClick={() => setShowPlaceDetails(false)}
+                className="p-2 hover:bg-brand-stone-100 rounded-full transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Address */}
+              <div>
+                <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                  📍 Address
+                </h3>
+                <p className="text-brand-stone-600">
+                  {selectedPlaceDetails.formatted_address}
+                </p>
+              </div>
+
+              {/* Rating */}
+              {selectedPlaceDetails.rating && (
+                <div>
+                  <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                    ⭐ Rating
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl font-bold text-brand-coral-500">
+                      {selectedPlaceDetails.rating}
+                    </span>
+                    <span className="text-brand-stone-600">/ 5.0</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Opening Hours */}
+              {selectedPlaceDetails.opening_hours && (
+                <div>
+                  <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                    🕒 Opening Hours
+                  </h3>
+                  <div className="space-y-1">
+                    {selectedPlaceDetails.opening_hours.weekday_text?.map(
+                      (day, index) => (
+                        <p key={index} className="text-brand-stone-600 text-sm">
+                          {day}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                  {selectedPlaceDetails.opening_hours.isOpen?.() && (
+                    <p className="mt-2 text-sm font-medium text-green-600">
+                      Currently Open
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Contact Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedPlaceDetails.formatted_phone_number && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                      📞 Phone
+                    </h3>
+                    <a
+                      href={`tel:${selectedPlaceDetails.formatted_phone_number}`}
+                      className="text-brand-coral-500 hover:text-brand-coral-600 transition-colors"
+                    >
+                      {selectedPlaceDetails.formatted_phone_number}
+                    </a>
+                  </div>
+                )}
+
+                {selectedPlaceDetails.website && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                      🌐 Website
+                    </h3>
+                    <a
+                      href={selectedPlaceDetails.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-coral-500 hover:text-brand-coral-600 transition-colors"
+                    >
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Business Status */}
+              {selectedPlaceDetails.business_status && (
+                <div>
+                  <h3 className="text-lg font-semibold text-brand-stone-800 mb-2">
+                    🏪 Status
+                  </h3>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      selectedPlaceDetails.business_status === 'OPERATIONAL'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {selectedPlaceDetails.business_status === 'OPERATIONAL'
+                      ? 'Open'
+                      : 'Closed'}
+                  </span>
+                </div>
+              )}
+
+              {/* Reviews */}
+              {selectedPlaceDetails.reviews &&
+                selectedPlaceDetails.reviews.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-brand-stone-800 mb-4">
+                      💬 Recent Reviews
+                    </h3>
+                    <div className="space-y-4">
+                      {selectedPlaceDetails.reviews
+                        .slice(0, 3)
+                        .map((review, index) => (
+                          <div
+                            key={index}
+                            className="border border-brand-stone-200 rounded-lg p-4"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-medium text-brand-stone-800">
+                                  {review.author_name}
+                                </span>
+                                <div className="flex items-center">
+                                  <span className="text-yellow-500">
+                                    {'⭐'.repeat(review.rating || 1)}
+                                  </span>
+                                </div>
+                              </div>
+                              <span className="text-sm text-brand-stone-500">
+                                {review.relative_time_description}
+                              </span>
+                            </div>
+                            <p className="text-brand-stone-600 text-sm leading-relaxed">
+                              {review.text}
+                            </p>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
