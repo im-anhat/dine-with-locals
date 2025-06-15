@@ -27,7 +27,7 @@ const MatchSchema: Schema = new Schema(
     },
     requestId: {
       type: Schema.Types.ObjectId,
-      ref: 'Request',
+      ref: 'RequestModels',
     },
     status: {
       type: String,

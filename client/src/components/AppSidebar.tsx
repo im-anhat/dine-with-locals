@@ -56,7 +56,7 @@ const items = {
     },
     {
       title: 'Pending Approvals',
-      url: '/approvals',
+      url: '/pendings',
       icon: LayoutList,
     },
   ],
