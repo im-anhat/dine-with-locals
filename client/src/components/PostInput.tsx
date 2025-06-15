@@ -2,15 +2,33 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { ImageIcon, XIcon } from 'lucide-react';
+import { ImageIcon, XIcon, MapPin } from 'lucide-react';
+import { getMatchedListingsByUserId } from '../services/MatchService';
+import { useUserContext } from '../hooks/useUserContext';
+import { Listing } from '../../../shared/types/Listing';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 
 interface PostInputProps {
-  onSubmit: (data: { title: string; content: string; photos: File[] }) => void;
+  onSubmit: (data: {
+    title: string;
+    content: string;
+    photos: File[];
+    listingId?: string;
+  }) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
   initialValues?: {
     title: string;
     content: string;
+    listingId?: string;
   };
 }
 
@@ -24,12 +42,38 @@ const PostInput: React.FC<PostInputProps> = ({
   const [content, setContent] = useState(initialValues?.content || '');
   const [photos, setPhotos] = useState<File[]>([]);
   const [errors, setErrors] = useState({ title: '', content: '' });
+  const [matchedListings, setMatchedListings] = useState<Listing[]>([]);
+  const [selectedListingId, setSelectedListingId] = useState<
+    string | undefined
+  >(initialValues?.listingId);
+  const [isLoadingListings, setIsLoadingListings] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { currentUser } = useUserContext();
+
+  // Fetch matched listings when component mounts
+  useEffect(() => {
+    const fetchMatchedListings = async () => {
+      if (!currentUser?._id) return;
+
+      setIsLoadingListings(true);
+      try {
+        const listings = await getMatchedListingsByUserId(currentUser._id);
+        setMatchedListings(listings);
+      } catch (error) {
+        console.error('Failed to fetch matched listings:', error);
+      } finally {
+        setIsLoadingListings(false);
+      }
+    };
+
+    fetchMatchedListings();
+  }, [currentUser?._id]);
 
   useEffect(() => {
     if (initialValues) {
       setTitle(initialValues.title);
       setContent(initialValues.content);
+      setSelectedListingId(initialValues.listingId);
     }
   }, [initialValues]);
 
@@ -62,6 +106,23 @@ const PostInput: React.FC<PostInputProps> = ({
     fileInputRef.current?.click();
   };
 
+  const handleListingChange = (value: string) => {
+    // If value is "none" or not valid, set to undefined
+    if (value === 'none') {
+      setSelectedListingId(undefined);
+      return;
+    }
+
+    // Verify the listingId is a valid MongoDB ObjectId
+    if (value && /^[0-9a-fA-F]{24}$/.test(value)) {
+      console.log('Setting valid listing ID:', value);
+      setSelectedListingId(value);
+    } else {
+      console.warn('Invalid listing ID format detected:', value);
+      setSelectedListingId(undefined);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {
       title: '',
@@ -87,7 +148,7 @@ const PostInput: React.FC<PostInputProps> = ({
       return;
     }
 
-    onSubmit({ title, content, photos });
+    onSubmit({ title, content, photos, listingId: selectedListingId });
   };
 
   return (
@@ -114,6 +175,37 @@ const PostInput: React.FC<PostInputProps> = ({
         {errors.content && (
           <p className="text-red-500 text-sm mt-1">{errors.content}</p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
+          <MapPin className="h-4 w-4 mr-1" />
+          Attach a matched listing
+        </label>
+        <Select value={selectedListingId} onValueChange={handleListingChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue
+              placeholder={
+                isLoadingListings ? 'Loading listings...' : 'Select a listing'
+              }
+            />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Your matched listings</SelectLabel>
+              {matchedListings.length === 0 && !isLoadingListings && (
+                <SelectItem value="none" disabled>
+                  No matched listings found
+                </SelectItem>
+              )}
+              {matchedListings.map((listing) => (
+                <SelectItem key={listing._id} value={listing._id}>
+                  {listing.title}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
