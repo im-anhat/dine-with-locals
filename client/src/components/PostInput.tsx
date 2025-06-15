@@ -179,23 +179,24 @@ const PostInput: React.FC<PostInputProps> = ({
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700 flex items-center">
-          <MapPin className="h-4 w-4 mr-1" />
-          Attach a matched listing
+          Link To Experience
         </label>
         <Select value={selectedListingId} onValueChange={handleListingChange}>
           <SelectTrigger className="w-full">
             <SelectValue
               placeholder={
-                isLoadingListings ? 'Loading listings...' : 'Select a listing'
+                isLoadingListings
+                  ? 'Loading listings...'
+                  : 'Select an experience'
               }
             />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Your matched listings</SelectLabel>
+              <SelectLabel>Your matched experiences</SelectLabel>
               {matchedListings.length === 0 && !isLoadingListings && (
                 <SelectItem value="none" disabled>
-                  No matched listings found
+                  No matched experiences found
                 </SelectItem>
               )}
               {matchedListings.map((listing) => (

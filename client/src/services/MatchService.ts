@@ -16,11 +16,7 @@ export interface Match {
   updatedAt: string;
 }
 
-/**
- * Get all matches for a user
- * @param userId ID of the user
- * @returns Promise<Match[]> Array of user's matches
- */
+//Get all matches for user by user ID
 export const getMatchesByUserId = async (userId: string): Promise<Match[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/matches/${userId}`);
@@ -31,19 +27,13 @@ export const getMatchesByUserId = async (userId: string): Promise<Match[]> => {
   }
 };
 
-/**
- * Get all matched listings for a user
- * @param userId ID of the user
- * @returns Promise<Listing[]> Array of matched listings
- */
+// Get all matched listings for a user by their ID
 export const getMatchedListingsByUserId = async (
   userId: string,
 ): Promise<Listing[]> => {
   try {
-    // First, get all matches for the user
     const matches = await getMatchesByUserId(userId);
 
-    // Filter matches that have listingId
     const listingIds = matches
       .filter((match) => match.listingId)
       .map((match) => match.listingId as string);
