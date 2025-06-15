@@ -231,7 +231,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
               </button>
 
               <button
-                className="w-full mt-2 border bg-brand-coral-300 text-brand-teal-600 py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors"
+                className="w-full mt-2 border bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors"
                 onClick={() => navigate('/chats')}
               >
                 {isListing ? 'Contact Host' : 'Contact Guest'}
