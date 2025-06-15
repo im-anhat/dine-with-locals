@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_NO_WARNINGS=1 nodemon --watch src --exec \"node --loader ts-node/esm\" src/app.ts",
-    "seed": "NODE_NO_WARNINGS=1 node --loader ts-node/esm src/seeds/seed.ts"
+    "seed": "NODE_NO_WARNINGS=1 node --loader ts-node/esm src/seeds/seed.ts",
+    "seed:faker": "NODE_NO_WARNINGS=1 node --loader ts-node/esm src/seeds/fakerSeed.ts"
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +19,7 @@
     "bcrypt": "^5.1.1",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
@@ -32,6 +33,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
