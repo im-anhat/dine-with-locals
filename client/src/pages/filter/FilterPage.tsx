@@ -39,10 +39,10 @@ const FilterPage = () => {
       numGuests: numberOfGuests,
     };
     console.log('obj', obj);
-    let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+    let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}s`,
+        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
       );
       setResults(res.data);
@@ -61,10 +61,10 @@ const FilterPage = () => {
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}api/${url}s`,
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
         );
         setResults(res.data);
       } catch (err) {

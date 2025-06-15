@@ -21,10 +21,10 @@ const DashboardPage = () => {
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}api/${url}s/`,
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}/`,
         );
         setResults(res.data);
       } catch (err) {
