@@ -7,4 +7,5 @@ export interface Blog {
   createdAt: string;
   likes: number;
   comments: number;
+  listingId?: string;
 }

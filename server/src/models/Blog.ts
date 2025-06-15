@@ -5,8 +5,9 @@ export interface IBlog extends Document {
   blogTitle: string;
   blogContent: string;
   photos: string[];
-  likes: number; // Track number of likes
-  comments: number; // Track number of comments
+  likes: number;
+  comments: number;
+  listingId?: mongoose.Types.ObjectId;
 }
 
 const BlogSchema: Schema = new Schema(
@@ -37,6 +38,11 @@ const BlogSchema: Schema = new Schema(
     comments: {
       type: Number,
       default: 0,
+    },
+    listingId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Listing',
+      required: false,
     },
   },
   { timestamps: true },

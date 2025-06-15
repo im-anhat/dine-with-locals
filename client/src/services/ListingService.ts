@@ -132,11 +132,32 @@ export const createListing = async (
  * @returns Promise<Listing> Listing data
  */
 export const getListingById = async (listingId: string): Promise<Listing> => {
+  // Validate listingId before making the request
+  if (!listingId || typeof listingId !== 'string') {
+    throw new Error(`Missing or invalid listing ID: ${listingId}`);
+  }
+
+  // Check for valid MongoDB ObjectID format (24 hex characters)
+  if (!/^[0-9a-fA-F]{24}$/.test(listingId)) {
+    throw new Error(
+      `Invalid listing ID format: ${listingId}. Expected 24 hexadecimal characters.`,
+    );
+  }
+
   try {
+    console.log(`Making API request for listing ID: ${listingId}`);
     const response = await axios.get(`${API_BASE_URL}/listings/${listingId}`);
+    console.log(`Successfully fetched listing for ID: ${listingId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching listing by ID:', error);
+    console.error(`Error fetching listing by ID ${listingId}:`, error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 400) {
+        throw new Error(`Invalid listing ID format on server: ${listingId}`);
+      } else if (error.response?.status === 404) {
+        throw new Error(`Listing not found: ${listingId}`);
+      }
+    }
     throw error;
   }
 };

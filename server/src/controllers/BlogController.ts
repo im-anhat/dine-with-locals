@@ -10,6 +10,7 @@ export const getAllBlogs: RequestHandler = async (
   try {
     const blogs = await Blog.find()
       .populate('userId', 'userName firstName lastName avatar')
+      .populate('listingId')
       .sort({ createdAt: -1 });
 
     res.status(200).json(blogs);
@@ -35,6 +36,7 @@ export const getBlogsByUserId: RequestHandler = async (
 
     const blogs = await Blog.find({ userId })
       .populate('userId', 'userName firstName lastName avatar')
+      .populate('listingId')
       .sort({ createdAt: -1 });
 
     res.status(200).json(blogs);
@@ -50,7 +52,7 @@ export const createBlog: RequestHandler = async (
   res: Response,
 ) => {
   try {
-    const { userId, blogTitle, blogContent, photos } = req.body;
+    const { userId, blogTitle, blogContent, photos, listingId } = req.body;
 
     console.log('Creating blog with data:', req.body);
 
@@ -68,11 +70,18 @@ export const createBlog: RequestHandler = async (
       return;
     }
 
+    // Validate listingId if provided
+    if (listingId && !mongoose.Types.ObjectId.isValid(listingId)) {
+      res.status(400).json({ error: 'Invalid listing ID format' });
+      return;
+    }
+
     const newBlog = new Blog({
       userId,
       blogTitle,
       blogContent,
       photos: photos || [], // Use provided photos or default to empty array
+      listingId: listingId || null, // Add the optional listingId
     });
 
     await newBlog.save();
@@ -102,7 +111,7 @@ export const updateBlog: RequestHandler = async (
 ) => {
   try {
     const { id } = req.params;
-    const { blogTitle, blogContent, photos } = req.body;
+    const { blogTitle, blogContent, photos, listingId } = req.body;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -111,11 +120,21 @@ export const updateBlog: RequestHandler = async (
     }
 
     // Validate required fields
-    if (!blogTitle && !blogContent && !photos) {
+    if (!blogTitle && !blogContent && !photos && listingId === undefined) {
       res.status(400).json({
         error:
-          'At least one of blogTitle, blogContent, or photos must be provided',
+          'At least one of blogTitle, blogContent, photos, or listingId must be provided',
       });
+      return;
+    }
+
+    // Validate listingId if provided
+    if (
+      listingId !== undefined &&
+      listingId !== null &&
+      !mongoose.Types.ObjectId.isValid(listingId)
+    ) {
+      res.status(400).json({ error: 'Invalid listing ID format' });
       return;
     }
 
@@ -131,6 +150,7 @@ export const updateBlog: RequestHandler = async (
     if (blogTitle) updateData.blogTitle = blogTitle;
     if (blogContent) updateData.blogContent = blogContent;
     if (photos) updateData.photos = photos;
+    if (listingId !== undefined) updateData.listingId = listingId || null;
 
     // Update the blog
     const updatedBlog = await Blog.findByIdAndUpdate(id, updateData, {
@@ -193,10 +213,9 @@ export const getBlogById: RequestHandler = async (
       res.status(400).json({ error: 'Invalid blog ID format' });
     }
 
-    const blog = await Blog.findById(id).populate(
-      'userId',
-      'userName firstName lastName avatar',
-    );
+    const blog = await Blog.findById(id)
+      .populate('userId', 'userName firstName lastName avatar')
+      .populate('listingId');
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found' });

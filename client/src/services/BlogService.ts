@@ -21,6 +21,7 @@ export interface BlogWithUser {
   updatedAt: string;
   likes: number;
   comments: number;
+  listingId?: string;
 }
 
 // Fetch all blogs
