@@ -3,14 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { useNavigate } from 'react-router';
 
 const FilterResults = ({ results }: { results: any[] }) => {
+  const navigate = useNavigate();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
@@ -42,23 +38,6 @@ const FilterResults = ({ results }: { results: any[] }) => {
   const openPhotoView = (index: number) => {
     setSelectedPhotoIndex(index);
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-brand-teal-100 text-brand-teal-800';
-      case 'waiting':
-        return 'bg-brand-orange-100 text-brand-orange-800';
-      case 'cancelled':
-        return 'bg-brand-coral-100 text-brand-coral-800';
-      case 'pending':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  console.log('in filter result', results);
-  console.log(Array.isArray(results));
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">
@@ -95,13 +74,6 @@ const FilterResults = ({ results }: { results: any[] }) => {
                 <h3 className="text-lg font-semibold text-gray-900 break-words">
                   {item.title || 'Untitled Reservation'}
                 </h3>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                    item.status,
-                  )}`}
-                >
-                  {item.status || 'Unknown'}
-                </span>
               </div>
               {/* Additional Information about Listing */}
               {item.additionalInfo ? (
@@ -111,47 +83,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
               ) : (
                 <></>
               )}
-              {/* <Accordion type="single" collapsible>
-                <AccordionItem value="item-1">
-                  <AccordionTrigger>More information</AccordionTrigger>
-                  <AccordionContent className="bg-brand-shell-200 p-4 rounded-lg">
-                    {item.cuisine.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        <span className="font-medium mr-2">Cuisine:</span>
-                        {item.cuisine.map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-coral-100 text-brand-coral-800"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {item.dietary && item.dietary.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        <span className="font-medium mr-2">
-                          Dietary restrictions :
-                        </span>
-                        {item.dietary.map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-coral-100 text-brand-coral-800"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      <span className="font-medium mr-2">
-                        Number of Guests:
-                      </span>
-                      {item.numGuests}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion> */}
+
               {/* IMAGES */}
               {item.images && item.images.length > 0 && (
                 <div className="relative mb-4">
@@ -194,12 +126,21 @@ const FilterResults = ({ results }: { results: any[] }) => {
                     View Details
                   </Link>
                 </Button>
-                <Button className="">Book now</Button>
+                <Button className="book">Book now</Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* View all cards */}
+      <Button
+        variant="link"
+        className="text-brand-teal-600 p-0 h-auto font-normal"
+        onClick={() => navigate('/filter', { state: { results } })}
+      >
+        View All Requests →
+      </Button>
     </div>
   );
 };

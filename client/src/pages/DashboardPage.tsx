@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Calendar } from 'lucide-react';
-import { useUser } from '@/contexts/UserContext';
-import FilterResults from '../components/filter/FilterResult';
-import { useNavigate } from 'react-router';
 import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useUser } from '@/contexts/UserContext';
+import { Separator } from '@/components/ui/separator';
+import FilterResults from '../components/filter/FilterResult';
+import DashboardHeader from '../components/dashboard/DashboardHeader';
+import UpcomingMeetup from '../components/dashboard/UpcomingMeetup';
 
 const DashboardPage = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
 
+  //Use effect to load all cards from user
   useEffect(() => {
     if (!currentUser) return;
     const fetchAllData = async () => {
@@ -43,25 +40,10 @@ const DashboardPage = () => {
     return <p>Loading...</p>;
   }
 
-  //Load all card when reload page
-
   return (
     <div className="container mx-auto p-6 max-w-7xl space-y-8">
-      {/* Header Section */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Today's Matches</h1>
-          <p className="text-muted-foreground mt-1">
-            Find new connections and upcoming meetups
-          </p>
-        </div>
-        <div className="text-right">
-          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
-            {currentUser?.role}
-          </div>
-        </div>
-      </div>
-
+      {/* Heading */}
+      <DashboardHeader />
       <Separator />
 
       {/* Match Cards Section */}
@@ -73,57 +55,12 @@ const DashboardPage = () => {
             <FilterResults results={results?.slice(0, 3) ?? []} />
           </div>
         </div>
-
-        <Button
-          variant="link"
-          className="text-brand-teal-600 p-0 h-auto font-normal"
-          onClick={() => navigate('/filter', { state: { results } })}
-        >
-          View All Requests →
-        </Button>
       </section>
 
       <Separator />
 
       {/* Upcoming Meetup Section */}
-      <section className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
-            <Button
-            variant="outline"
-            onClick={() => navigate('/host/create-listing')}
-            >
-            <Calendar className="mr-2 w-4 h-4" />
-            Create New Listing
-            </Button>
-        </div>
-
-        <Tabs defaultValue="listing" className="w-full">
-          <TabsList className="grid w-fit grid-cols-2">
-            <TabsTrigger value="listing">List View</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar View</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="listing" className="mt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-              {/* {upcomingMeetups.map((meetup, index) => (
-                <MeetupCard key={index} {...meetup} />
-              ))} */}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="calendar" className="mt-6">
-            <Card>
-              <CardContent className="flex items-center justify-center h-64">
-                <div className="text-center space-y-2">
-                  <Calendar className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <p className="text-muted-foreground">Not finalized</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </section>
+      <UpcomingMeetup />
     </div>
   );
 };
