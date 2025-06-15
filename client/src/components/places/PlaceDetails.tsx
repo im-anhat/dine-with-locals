@@ -1,20 +1,33 @@
 import React from 'react';
 import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
+import { Request } from '../../../../shared/types/Request';
 import { getLocationById, Location } from '@/services/LocationService';
+import { useNavigate } from 'react-router-dom';
 
 interface PlaceDetailsProps {
-  listing: Listing;
+  listing?: Listing;
+  request?: Request;
   onClose: () => void;
 }
 
-const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
+const PlaceDetails: React.FC<PlaceDetailsProps> = ({
+  listing,
+  request,
+  onClose,
+}) => {
+  const navigate = useNavigate();
   const [location, setLocation] = React.useState<Location | null>(null);
 
+  const item = listing || request;
+  const isListing = !!listing;
+
   React.useEffect(() => {
+    if (!item) return;
+
     // Check if locationId is already a populated object or just an ID string
-    if (typeof listing.locationId === 'object' && listing.locationId !== null) {
+    if (typeof item.locationId === 'object' && item.locationId !== null) {
       // locationId is already populated, convert it to the Location format
-      const populatedLocation = listing.locationId as PopulatedLocation;
+      const populatedLocation = item.locationId as PopulatedLocation;
       setLocation({
         _id: populatedLocation._id,
         address: populatedLocation.address,
@@ -24,9 +37,9 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
         zipCode: populatedLocation.zipCode,
         coordinates: populatedLocation.coordinates,
       });
-    } else if (typeof listing.locationId === 'string') {
+    } else if (typeof item.locationId === 'string') {
       // locationId is just an ID, fetch the full location data
-      getLocationById(listing.locationId)
+      getLocationById(item.locationId)
         .then(setLocation)
         .catch((error) => {
           console.error('Error fetching location by ID:', error);
@@ -34,7 +47,9 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
           setLocation(null);
         });
     }
-  }, [listing]);
+  }, [item]);
+
+  if (!item) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -42,7 +57,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
         {/* Header with close button */}
         <div className="sticky top-0 z-10 bg-white px-6 py-4 border-b border-brand-stone-200 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-brand-stone-800">
-            {listing.title}
+            {item?.title}
           </h2>
           <button
             onClick={onClose}
@@ -67,26 +82,33 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
 
         {/* Content */}
         <div className="p-6">
-          {/* Image or placeholder */}
-          <div className="mb-6 rounded-lg overflow-hidden h-64 bg-brand-shell-100 flex items-center justify-center">
-            {listing.images && listing.images.length > 0 ? (
-              <img
-                src={listing.images[0]}
-                alt={listing.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-8xl">🍽️</span>
-            )}
-          </div>
+          {/* Image or placeholder - only show for listings */}
+          {isListing && (
+            <div className="mb-6 rounded-lg overflow-hidden h-64 bg-brand-shell-100 flex items-center justify-center">
+              {listing?.images && listing.images.length > 0 ? (
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-8xl">🍽️</span>
+              )}
+            </div>
+          )}
 
-          {/* Listing details */}
+          {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <h3 className="text-lg font-medium text-brand-stone-800 mb-2">
-                About This Experience
+                {isListing ? 'About This Experience' : 'About This Request'}
               </h3>
-              <p className="text-brand-stone-600 mb-4">{listing.description}</p>
+              <p className="text-brand-stone-600 mb-4">
+                {isListing
+                  ? listing?.description
+                  : request?.additionalInfo ||
+                    'No additional details provided.'}
+              </p>
 
               <h3 className="text-lg font-medium text-brand-stone-800 mb-2">
                 Location
@@ -102,70 +124,117 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
               </h3>
               <ul className="list-disc pl-5 text-brand-stone-600 mb-4">
                 <li>
-                  A warm welcome from your host, {listing.userId.firstName}{' '}
-                  {listing.userId.lastName}
+                  {isListing
+                    ? 'A warm welcome from your host'
+                    : 'Looking for a host for this request'}
+                  , {item.userId.firstName} {item.userId.lastName}
                 </li>
-                <li>
-                  Authentic {listing.category} experience in a local setting
-                </li>
-                <li>Cultural exchange and conversation</li>
-                {listing.duration && (
-                  <li>Duration: {listing.duration} hours</li>
+                {isListing && (
+                  <>
+                    <li>
+                      Authentic {listing?.category} experience in a local
+                      setting
+                    </li>
+                    <li>Cultural exchange and conversation</li>
+                    {listing?.duration && (
+                      <li>Duration: {listing.duration} hours</li>
+                    )}
+                  </>
                 )}
-                {listing.additionalInfo && <li>{listing.additionalInfo}</li>}
+                {!isListing && request && (
+                  <>
+                    <li>
+                      Location type preference:{' '}
+                      {request.locationType === 'res'
+                        ? 'Restaurant'
+                        : request.locationType === 'home'
+                          ? 'Home'
+                          : request.locationType === 'either'
+                            ? 'Wherever'
+                            : request.locationType}
+                    </li>
+                    {request.cuisine && request.cuisine.length > 0 && (
+                      <li>Cuisine interests: {request.cuisine.join(', ')}</li>
+                    )}
+                    {request.dietaryRestriction &&
+                      request.dietaryRestriction.length > 0 && (
+                        <li>
+                          Dietary restrictions:{' '}
+                          {request.dietaryRestriction.join(', ')}
+                        </li>
+                      )}
+                  </>
+                )}
               </ul>
             </div>
 
-            {/* Sidebar with experience details and booking */}
+            {/* Sidebar with details and actions */}
             <div className="bg-brand-shell-100 p-4 rounded-lg">
               <div className="flex items-center mb-4">
                 <span className="text-brand-stone-500">
-                  {listing.category.charAt(0).toUpperCase() +
-                    listing.category.slice(1)}
+                  {isListing
+                    ? (listing?.category?.charAt(0).toUpperCase() || '') +
+                      (listing?.category?.slice(1) || '')
+                    : request
+                      ? request.locationType === 'res'
+                        ? 'Restaurant'
+                        : request.locationType === 'home'
+                          ? 'Home'
+                          : request.locationType === 'either'
+                            ? 'Wherever'
+                            : request.locationType
+                      : ''}
                 </span>
               </div>
 
-              {listing.time && (
+              {item.time && (
                 <div className="mb-4">
                   <h4 className="text-sm text-brand-stone-500 mb-1">
-                    Scheduled Time
+                    {isListing ? 'Scheduled Time' : 'Requested Time'}
                   </h4>
                   <p className="text-lg font-semibold text-brand-orange-600">
-                    {new Date(listing.time).toLocaleDateString()}
-                    {listing.duration && ` (${listing.duration}h)`}
+                    {new Date(item.time).toLocaleDateString()}
+                    {isListing &&
+                      listing?.duration &&
+                      ` (${listing.duration}h)`}
                   </p>
                 </div>
               )}
 
-              {listing.numGuests && (
+              {item.numGuests && (
                 <div className="mb-4">
                   <h4 className="text-sm text-brand-stone-500 mb-1">
-                    Max Guests
+                    {isListing ? 'Max Guests' : 'Number of Guests'}
                   </h4>
                   <p className="text-brand-stone-800">
-                    {listing.numGuests} people
+                    {item.numGuests} people
                   </p>
                 </div>
               )}
 
               <div className="mb-4">
-                <h4 className="text-sm text-brand-stone-500 mb-1">Hosted by</h4>
+                <h4 className="text-sm text-brand-stone-500 mb-1">
+                  {isListing ? 'Hosted by' : 'Requested by'}
+                </h4>
                 <p className="text-brand-stone-800">
-                  {listing.userId.firstName} {listing.userId.lastName}
+                  {item.userId.firstName} {item.userId.lastName}
                 </p>
-                {listing.userId.userName && (
+                {item.userId.userName && (
                   <p className="text-sm text-brand-stone-600">
-                    @{listing.userId.userName}
+                    @{item.userId.userName}
                   </p>
                 )}
               </div>
 
-              <button className="w-full bg-brand-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-700 transition-colors">
-                Book This Experience
+              <button className="w-full bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors">
+                {isListing ? 'Book This Experience' : 'Offer to Host'}
               </button>
 
-              <button className="w-full mt-2 border border-brand-teal-600 text-brand-teal-600 py-3 px-4 rounded-lg font-medium hover:bg-brand-teal-50 transition-colors">
-                Contact Host
+              <button
+                className="w-full mt-2 border bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors"
+                onClick={() => navigate('/chats')}
+              >
+                {isListing ? 'Contact Host' : 'Contact Guest'}
               </button>
             </div>
           </div>

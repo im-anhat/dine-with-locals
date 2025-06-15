@@ -10,19 +10,19 @@ import FilterPage from './pages/filter/FilterPage';
 import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
 import Places from './pages/Places';
+import CreateListing from './pages/CreateListing';
 import { Toaster } from './components/ui/toaster';
+import { ChatPage } from './pages/ChatPage';
 import './styles/main.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import { Separator } from '@/components/ui/separator';
 import { TopNavbar } from '@/components/TopNavbar';
+import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
   const { currentUser } = useUserContext();
-
-  console.log(isAuthenticated);
 
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
@@ -31,7 +31,6 @@ const App: React.FC = () => {
     currentPath.push('dashboard'); // Default to "dashboard" if no path is present
   }
   return (
-    // moved BrowserRouter from main.tsx to here
     <SidebarProvider>
       {isAuthenticated && (
         <>
@@ -92,6 +91,12 @@ const App: React.FC = () => {
           />
           <Route path="/" element={<Home />} />
           <Route path="/filter/:id" element={<CardDetails />} />
+
+          <Route path="/host/create-listing" element={<CreateListing />} />
+          <Route
+            path="/chats"
+            element={isAuthenticated ? <ChatPage /> : <Home />}
+          />
         </Routes>
 
         <Toaster />

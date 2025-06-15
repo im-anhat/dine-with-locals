@@ -90,10 +90,13 @@ const DashboardPage = () => {
       <section className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
-          <Button variant="outline">
+            <Button
+            variant="outline"
+            onClick={() => navigate('/host/create-listing')}
+            >
             <Calendar className="mr-2 w-4 h-4" />
             Create New Listing
-          </Button>
+            </Button>
         </div>
 
         <Tabs defaultValue="listing" className="w-full">

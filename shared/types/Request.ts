@@ -12,7 +12,7 @@ export interface PopulatedLocation {
   };
 }
 
-export interface Listing {
+export interface Request {
   _id: string;
   userId: {
     userName: string;
@@ -20,15 +20,15 @@ export interface Listing {
     lastName: string;
     avatar?: string;
   };
+  createdAt: Date;
   title: string;
-  description: string;
-  images?: string[];
-  category: 'dining' | 'travel' | 'event';
+  locationType: 'home' | 'res' | 'either';
   locationId: string | PopulatedLocation; // Can be either string ID or populated object
-  additionalInfo?: string;
-  status: 'pending' | 'waiting' | 'approved';
-  time?: Date;
-  duration?: number;
-  interestTopic?: string[];
-  numGuests?: number;
+  interestTopic: string[];
+  time: Date;
+  cuisine: string[];
+  dietaryRestriction: string[];
+  numGuests: number;
+  additionalInfo: string;
+  status: 'waiting' | 'pending' | 'approved';
 }
