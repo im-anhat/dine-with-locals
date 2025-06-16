@@ -9,6 +9,7 @@ import ChatHeader from './ui/ChatHeader';
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 import type Chat from '../../../../shared/types/Chat.js';
 import ListingDetails from './ListingDetails.js';
+import { Drawer } from '@/components/ui/drawer';
 
 // interface of message that's returned from backend
 interface Message {
@@ -147,49 +148,52 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
   );
 
   return (
-    <div className="w-full flex flex-row h-full">
+    <Drawer>
+      <div className="w-full flex flex-row h-full">
+        <div className="flex-1 flex flex-col h-full">
+          {/* Chat Header */}
+          <ChatHeader
+            otherUser={otherUser}
+            onBack={onBack}
+            showDetails={showDetails}
+            onToggleDetails={handleToggleDetails}
+            hasListing={!!listing}
+          />
 
-      <div className="flex-1 flex flex-col h-full">
-        {/* Chat Header */}
-        <ChatHeader 
-          otherUser={otherUser} 
-          onBack={onBack}
-          showDetails={showDetails}
-          onToggleDetails={handleToggleDetails}
-          hasListing={!!listing}
-        />
-        
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto mb-4 space-y-4 min-h-0 p-4">
-          {messages.map((message) => (
-            <ChatMessage
-              key={message._id}
-              message={message}
-              isCurrentUser={message.senderId._id === currentUser?._id}
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto mb-4 space-y-4 min-h-0 p-4">
+            {messages.map((message) => (
+              <ChatMessage
+                key={message._id}
+                message={message}
+                isCurrentUser={message.senderId._id === currentUser?._id}
+              />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message Input */}
+          <form onSubmit={handleSendMessage} className="flex gap-2 p-4">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1"
             />
-          ))}
-          <div ref={messagesEndRef} />
+            <Button type="submit">Send</Button>
+          </form>
         </div>
 
-        {/* Message Input */}
-        <form onSubmit={handleSendMessage} className="flex gap-2 p-4">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1"
+        {/* Listing Details (if available and showDetails is true) */}
+        {listing && chatInfo?.listing && showDetails && (
+          <ListingDetails
+            listing={
+              chatInfo.listing as unknown as import('../../../../shared/types/ListingDetails').ListingDetails
+            }
+            onClose={handleToggleDetails}
           />
-          <Button type="submit">Send</Button>
-        </form>
+        )}
       </div>
-
-      {/* Listing Details (if available and showDetails is true) */}
-      {listing && chatInfo?.listing && showDetails && (
-        <ListingDetails 
-          listing={chatInfo.listing as unknown as import('../../../../shared/types/ListingDetails').ListingDetails} 
-          onClose={handleToggleDetails}
-        />
-      )}
-    </div>
+    </Drawer>
   );
 }

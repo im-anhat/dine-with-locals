@@ -54,11 +54,9 @@ export const accessChat = asyncHandler(
       // field added to view associated listing details in the chat
       {
         path: 'listing',
-        select: '_id title images time',
         populate: {
           path: 'locationId',
           model: 'Location',
-          select: 'city state country',
         },
       },
     ]);

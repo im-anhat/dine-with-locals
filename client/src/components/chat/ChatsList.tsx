@@ -65,14 +65,15 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
       });
       const data = response.data;
       setChats(data);
-      console.log('Fetched chats:', JSON.stringify(data, null, 2));
+      // console.log('Fetched chats:', data.map((chat) => chat._id));
+      // console.log('Fetched chats:', JSON.stringify(data, null, 2));
     };
     fetchChats();
   }, []);
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="py-5 px-6 space-y-2  flex items-center">
+      <div className="px-6 space-y-2 flex items-center h-[64px]">
         <h1 className="text-xl font-bold">Chats</h1>
       </div>
       <Separator orientation="horizontal" />
@@ -116,8 +117,13 @@ export function ChatsList({ onSelectChat, selectedChatId }: ChatsProps) {
                       {otherParticipant?.firstName} {otherParticipant?.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground truncate">
-                      {format(new Date(chat.listing.time), 'MMM dd')} -{' '}
-                      {`${chat.listing.locationId.city}, ${chat.listing.locationId.state}`}
+                      {chat.listing.time
+                        ? format(new Date(chat.listing.time), 'MMM dd')
+                        : ''}{' '}
+                      -{' '}
+                      {chat.listing
+                        ? `${chat.listing.locationId.city}, ${chat.listing.locationId.state}`
+                        : ''}
                     </p>
                     {chat.latestMessage && (
                       <p className="text-sm text-muted-foreground truncate">
