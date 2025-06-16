@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronLeft, Video, Info, Phone } from 'lucide-react';
 import { useMediaQuery } from '@custom-react-hooks/use-media-query';
 import { DrawerTrigger } from '@/components/ui/drawer';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   _id: string;
@@ -26,6 +27,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   hasListing,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    if (otherUser?._id) {
+      navigate(`/profile/${otherUser._id}`, { state: { userId: otherUser._id } });
+    }
+  };
 
   return (
     <div className="border-b py-3 px-6 flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,7 +50,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         )}
 
         {/* User Avatar and Info */}
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80"
+          onClick={handleProfileClick}
+          title="View profile"
+        >
           <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
             <AvatarImage src={otherUser?.avatar} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold">

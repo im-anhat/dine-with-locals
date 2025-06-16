@@ -43,7 +43,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({ listing, onClose }) => {
 
   const handleOpenChat = async () => {
     try {
-      const chat = await startOrCreateChat(listing.userId._id, listing._id);
+      const chat = await startOrCreateChat(listing.userId._id, listing._id); // neu co eslint error mn ke nhe
 
       // Emit the chat creation event to the socket server
       if (!socket) return;
