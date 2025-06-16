@@ -70,7 +70,7 @@ app.use('/api/listing', listingRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/matches', MatchRoutes); // Added MatchRoutes here as it was only in the duplicate section
+app.use('/api/matches', MatchRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
 
