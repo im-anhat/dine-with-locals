@@ -44,12 +44,12 @@ function LoginCard({
         <CardContent className="grid gap-4">
           <div>
             <Label htmlFor="username" className="font-medium">
-              User Name
+              Username
             </Label>
             <Input
               type="username"
               id="username"
-              placeholder="johnsmith10"
+              placeholder="Enter your username"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               required
@@ -62,6 +62,7 @@ function LoginCard({
             <Input
               type="password"
               id="password"
+              placeholder="***************"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
