@@ -15,17 +15,27 @@ const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
+  //dan/match-guest-host-frontend
 
   useEffect(() => {
     if (!currentUser) return;
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
+      let url =
+        currentUser?.role === 'Guest' ? 'listing/nearby' : 'request/nearby';
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}api/${url}/`,
+          {
+            params: {
+              lat: currentUser.locationId.coordinates.lat,
+              lng: currentUser.locationId.coordinates.lng,
+              distance: 80,
+            },
+          },
         );
+        console.log('Result', res.data);
         setResults(res.data);
       } catch (err) {
         setError('Something went wrong. Please try again.');
@@ -90,13 +100,13 @@ const DashboardPage = () => {
       <section className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
-            <Button
+          <Button
             variant="outline"
             onClick={() => navigate('/host/create-listing')}
-            >
+          >
             <Calendar className="mr-2 w-4 h-4" />
             Create New Listing
-            </Button>
+          </Button>
         </div>
 
         <Tabs defaultValue="listing" className="w-full">

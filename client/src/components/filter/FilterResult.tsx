@@ -36,7 +36,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
   const openPhotoView = (index: number) => {
     setSelectedPhotoIndex(index);
   };
-
+  console.log('user filter result', results);
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">
@@ -52,17 +52,17 @@ const FilterResults = ({ results }: { results: any[] }) => {
               {/* Header: Avatar + Name + Time */}
               <div className="flex items-start gap-3">
                 <Avatar className="w-12 h-12">
-                  <Link to={`/profile/${item.userInfo._id}`}>
+                  <Link to={`/profile/${item.userId._id}`}>
                     <AvatarImage
-                      src={item.userInfo.avatar}
-                      alt={item.userInfo.firstName}
+                      src={item.userId.avatar}
+                      alt={item.userId.firstName}
                     />
                   </Link>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/profile/${item.userInfo._id}`}>
+                  <Link to={`/profile/${item.userId._id}`}>
                     <CardTitle className="text-lg truncate">
-                      {item.userInfo.firstName} {item.userInfo.lastName}
+                      {item.userId.firstName} {item.userId.lastName}
                     </CardTitle>
                   </Link>
 

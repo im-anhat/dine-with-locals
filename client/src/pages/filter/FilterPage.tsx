@@ -39,8 +39,9 @@ const FilterPage = () => {
       numGuests: numberOfGuests,
     };
     console.log('obj', obj);
-    let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
+    let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
     try {
+      //Change the route to something else
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
@@ -61,11 +62,23 @@ const FilterPage = () => {
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listings' : 'request';
+      let url =
+        currentUser?.role === 'Guest' ? 'listing/nearby' : 'request/nearby';
       try {
+        //Change route to something else
+        // const location = JSON.parse(currentUser.locationId);
+
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+          {
+            params: {
+              lat: currentUser.locationId.coordinates.lat,
+              lng: currentUser.locationId.coordinates.lng,
+              distance: 80,
+            },
+          },
         );
+        console.log('result', res.data);
         setResults(res.data);
       } catch (err) {
         setError('Something went wrong. Please try again.');

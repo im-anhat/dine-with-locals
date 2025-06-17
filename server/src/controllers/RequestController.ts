@@ -67,6 +67,9 @@ export const getAllRequest = async (req: Request, res: Response) => {
  */
 export const getNearbyRequests = async (req: Request, res: Response) => {
   try {
+    console.log('getNearbyRequest');
+    console.log(req.query);
+
     const { lat, lng, distance = 80 } = req.query; // distance in kilometers, default 80km
 
     if (!lat || !lng) {
@@ -81,7 +84,6 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
       .populate('userId', 'userName firstName lastName avatar')
       .populate('locationId')
       .exec();
-
     // Filter requests based on distance calculation
     const nearbyRequests = requests.filter((request) => {
       const location = request.locationId as any;
@@ -119,6 +121,7 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
         };
       })
       .sort((a, b) => a.distance - b.distance);
+    console.log(requestsWithDistance);
 
     res.status(200).json(requestsWithDistance);
   } catch (error) {

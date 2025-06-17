@@ -213,8 +213,10 @@ function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);
 }
 
-
-export const createLocation: RequestHandler = async (req: Request, res: Response) => {
+export const createLocation: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     console.log('creating location with data:', req.body);
     const locationData = req.body;
@@ -226,9 +228,8 @@ export const createLocation: RequestHandler = async (req: Request, res: Response
       message: 'Location created successfully',
       location: newLocation,
     });
-
   } catch (error) {
     console.error('Error creating location:', error);
     res.status(500).json({ error: 'Failed to create location' });
   }
-}
+};
