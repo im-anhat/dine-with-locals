@@ -24,46 +24,45 @@ import { NotificationMenuItem } from '@/components/sidebar/NotificationMenuItem'
 
 import { useUser } from '@/contexts/UserContext';
 
-// Menu items.
-const items = {
-  navExplore: [
-    {
-      title: 'Dashboard',
-      url: '/dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      title: 'Places',
-      url: '/places',
-      icon: Map,
-    },
-    {
-      title: 'Feed',
-      url: '/feed',
-      icon: Newspaper,
-    },
-    {
-      title: 'Profile',
-      url: '/profile',
-      icon: User, // Change icon here
-    },
-  ],
-  navManageBookings: [
-    {
-      title: 'Chats',
-      url: '/chats',
-      icon: MessageSquare,
-    },
-    {
-      title: 'Pending Approvals',
-      url: '/approvals',
-      icon: LayoutList,
-    },
-  ],
-};
-
 export function AppSidebar() {
   const { currentUser } = useUser();
+  // Menu items.
+  const items = {
+    navExplore: [
+      {
+        title: 'Dashboard',
+        url: '/dashboard',
+        icon: LayoutDashboard,
+      },
+      {
+        title: 'Places',
+        url: '/places',
+        icon: Map,
+      },
+      {
+        title: 'Feed',
+        url: '/feed',
+        icon: Newspaper,
+      },
+      {
+        title: 'Profile',
+        url: `/profile/${currentUser?._id}`,
+        icon: User,
+      },
+    ],
+    navManageBookings: [
+      {
+        title: 'Chats',
+        url: '/chats',
+        icon: MessageSquare,
+      },
+      {
+        title: 'Pending Approvals',
+        url: '/approvals',
+        icon: LayoutList,
+      },
+    ],
+  };
 
   return (
     <Sidebar>

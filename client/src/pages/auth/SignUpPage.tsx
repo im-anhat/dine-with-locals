@@ -20,7 +20,6 @@ export const SignUpPage = () => {
             </CardContent>
           </Card>
         </div>
-
         <ProcessBar />
       </div>
     </StepProvider>

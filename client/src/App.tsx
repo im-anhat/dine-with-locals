@@ -30,7 +30,6 @@ const App: React.FC = () => {
   if (currentPath.length === 0) {
     currentPath.push('dashboard'); // Default to "dashboard" if no path is present
   }
-
   return (
     <SidebarProvider>
       {isAuthenticated && (
@@ -83,20 +82,17 @@ const App: React.FC = () => {
             element={isAuthenticated ? <FilterPage /> : <Home />}
           />
           <Route
-            path="/profile"
-            element={
-              isAuthenticated ? (
-                <ProfilePage userId={currentUser?._id} />
-              ) : (
-                <Home />
-              )
-            }
+            path="/profile/:userId"
+            element={isAuthenticated ? <ProfilePage /> : <Home />}
           />
           <Route
             path="/places"
             element={isAuthenticated ? <Places /> : <Home />}
           />
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={isAuthenticated ? <DashboardPage /> : <Home />}
+          />
           <Route path="/filter/:id" element={<CardDetails />} />
 
           <Route path="/host/create-listing" element={<CreateListing />} />

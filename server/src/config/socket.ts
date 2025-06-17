@@ -4,8 +4,11 @@ import Chat from '../models/Chat.js';
 import Message from '../models/Message.js';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const JWT_SECRET = process.env.SECRET;
+
+console.log('Socket JWT_SECRET:', JWT_SECRET);
 
 export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
@@ -25,9 +28,12 @@ export const initializeSocket = (server: HTTPServer) => {
     if (!token) {
       return next(new Error('Authentication error: token are required'));
     }
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined in environment');
+    }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET || 'default') as {
+      const decoded = jwt.verify(token, process.env.SECRET || 'default') as {
         _id: string;
       };
       const user = await User.findById(decoded._id).select('-password');
