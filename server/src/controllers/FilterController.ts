@@ -15,6 +15,7 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   } = req.body;
   let page = parseInt((req.query.p as string) || '1');
   let cardPerPage = 10;
+  console.log('THIS IS THE PLACE WHERE FILTER REQUEST GO IN');
 
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
@@ -90,7 +91,7 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   try {
     const array = await RequestModel.aggregate(pipeline);
     console.log(array[0].data.length);
-    res.status(200).json(array);
+    res.status(200).json(array[0].data);
   } catch (err) {
     console.log(err);
   }
@@ -186,7 +187,7 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
   try {
     const array = await Listing.aggregate(pipeline);
     console.log(array);
-    res.status(200).json(array);
+    res.status(200).json(array[0].data);
   } catch (err) {
     console.error('Error during aggregation:', err);
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';

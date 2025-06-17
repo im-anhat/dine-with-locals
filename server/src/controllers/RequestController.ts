@@ -78,12 +78,14 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
       });
       return;
     }
+    console.log('req.query', req.query);
 
     // Get all requests with populated location data (exclude approved/matched requests)
     const requests = await RequestModel.find({ status: { $ne: 'approved' } })
       .populate('userId', 'userName firstName lastName avatar')
       .populate('locationId')
       .exec();
+
     // Filter requests based on distance calculation
     const nearbyRequests = requests.filter((request) => {
       const location = request.locationId as any;
@@ -104,6 +106,8 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
       return calculatedDistance <= distanceParam;
     });
 
+    console.log('nearbyRequests', nearbyRequests);
+
     // Add distance to each request and sort by distance
     const requestsWithDistance = nearbyRequests
       .map((request) => {
@@ -121,7 +125,7 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
         };
       })
       .sort((a, b) => a.distance - b.distance);
-    console.log(requestsWithDistance);
+    console.log('REQUEST with DISTANCE', requestsWithDistance);
 
     res.status(200).json(requestsWithDistance);
   } catch (error) {

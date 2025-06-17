@@ -4,7 +4,7 @@ import FilterResults from '@/components/filter/FilterResult';
 import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
 import { useUser } from '../../contexts/UserContext';
-import { useLocation } from 'react-router';
+
 import axios from 'axios';
 
 const FilterPage = () => {
@@ -20,6 +20,7 @@ const FilterPage = () => {
   const [dineAt, setDineAt] = useState<string | undefined>();
   const [numberOfGuests, setNumberOfGuests] = useState<number[] | undefined>();
   const [results, setResults] = useState<any[]>();
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const { currentUser } = useUser();
 
@@ -46,6 +47,7 @@ const FilterPage = () => {
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
       );
+      console.log('THIS IS WHERE THE PROBLEM IS', res);
       setResults(res.data);
       console.log('FILTER PAGE RESULTS', results);
     } catch (err) {
@@ -94,6 +96,46 @@ const FilterPage = () => {
     return <p>Loading...</p>;
   }
 
+  const fetchResults = async (page: number) => {
+    setLoading(true);
+    setError(null);
+    const obj = {
+      startDate: dateRange?.from,
+      endDate: dateRange?.to,
+      category: category,
+      dietaryRestriction: dietaryRestrictions,
+      city: city,
+      locationType: dineAt,
+      numGuests: numberOfGuests,
+    };
+    console.log('obj', obj);
+    let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}?p=${page}`,
+        obj,
+      );
+      setResults(res.data);
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+    fetchResults(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+      fetchResults(currentPage - 1);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -115,6 +157,19 @@ const FilterPage = () => {
 
         <div className="mt-4 mb-8 mx-8 flex flex-row justify-center">
           <FilterResults results={results ?? []} />
+        </div>
+        <div className="flex flex-row gap-4 w-full justify-center p-24">
+          <button
+            disabled={currentPage === 1}
+            onClick={handlePreviousPage}
+            className=""
+          >
+            Previous
+          </button>
+          <span>Page {currentPage}</span>
+          <button onClick={handleNextPage} className="btn">
+            Next
+          </button>
         </div>
       </div>
     </>
