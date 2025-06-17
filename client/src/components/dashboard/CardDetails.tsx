@@ -26,7 +26,7 @@ const formatDate = (dateString: string) => {
   };
 };
 
-const CardDetails = ({ onClose }: { onClose: () => void }) => {
+const CardDetails = () => {
   const location = useLocation();
   const content = location.state?.content;
 
@@ -34,25 +34,19 @@ const CardDetails = ({ onClose }: { onClose: () => void }) => {
   const datetime = formatDate(content.time);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="flex flex-row justify-center mt-8">
+      <div className="bg-white overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-brand-stone-800">
             {content.title}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <XIcon className="h-6 w-6 text-brand-stone-500" />
-          </button>
         </div>
 
         {/* Main Content */}
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Left column */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="md:col-span-2 space-y-6 rounded-lg shadow-lg border-2 border-gray-100 w-full p-8">
             {content.description && (
               <div>
                 <h3 className="text-lg font-medium text-brand-stone-800 mb-2">
@@ -69,9 +63,9 @@ const CardDetails = ({ onClose }: { onClose: () => void }) => {
                 Location
               </h3>
               <p className="text-brand-stone-600 text-base">
-                {content.locationInfo?.address}, {content.locationInfo?.city},{' '}
-                {content.locationInfo?.state} {content.locationInfo?.zipCode},{' '}
-                {content.locationInfo?.country}
+                {content.locationId?.address}, {content.locationId?.city},{' '}
+                {content.locationId?.state} {content.locationId?.zipCode},{' '}
+                {content.locationId?.country}
               </p>
             </div>
 
@@ -131,7 +125,7 @@ const CardDetails = ({ onClose }: { onClose: () => void }) => {
           </div>
 
           {/* Sidebar */}
-          <div className="bg-brand-shell-100 p-4 rounded-lg space-y-4">
+          <div className="bg-brand-shell-100 p-4 rounded-lg space-y-4 shadow-lg">
             <div>
               <h4 className="text-sm text-brand-stone-500 mb-1">Date & Time</h4>
               <p className="text-brand-orange-600 font-semibold">
@@ -152,17 +146,17 @@ const CardDetails = ({ onClose }: { onClose: () => void }) => {
             <div>
               <h4 className="text-sm text-brand-stone-500 mb-1">Host</h4>
               <p className="text-brand-stone-800">
-                {content.userInfo.firstName} {content.userInfo.lastName}
+                {content.userId.firstName} {content.userId.lastName}
               </p>
               <p className="text-sm text-brand-stone-600">
-                @{content.userInfo.userName}
+                @{content.userId.userName}
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-brand-stone-500" />
               <p className="text-brand-stone-700 text-sm">
-                {content.userInfo.phone}
+                {content.userId.phone}
               </p>
             </div>
 
