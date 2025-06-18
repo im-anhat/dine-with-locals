@@ -27,12 +27,18 @@ const ProfileHobbies: React.FC<ProfileHobbiesProps> = ({ profileUser }) => {
           Preferred Cuisines
         </h3>
         <div className="flex flex-wrap gap-2">
-          <span className="px-3 py-1 bg-brand-teal-50 text-brand-teal-700 border border-brand-teal-200 rounded-full text-sm">
-            Thai
-          </span>
-          <span className="px-3 py-1 bg-brand-orange-50 text-brand-orange-700 border border-brand-orange-200 rounded-full text-sm">
-            Vietnamese
-          </span>
+          {profileUser.cuisines && profileUser.cuisines.length > 0 ? (
+            profileUser.cuisines.map((cuisine, index) => (
+              <span
+                key={index}
+                className="px-3 py-1 bg-brand-teal-50 text-brand-teal-700 border border-brand-teal-200 rounded-full text-sm"
+              >
+                {cuisine}
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-sm">No cuisines specified</span>
+          )}
         </div>
       </div>
     </div>
