@@ -9,6 +9,7 @@ export interface User {
   socialLink: string;
   role: 'Host' | 'Guest';
   hobbies: string[];
+  cuisines: string[];
   ethnicity: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   cover: string;

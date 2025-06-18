@@ -23,11 +23,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const [profileUser, setProfileUser] = useState<AuthenticatedUser | null>(
     null,
   );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState<boolean>(false);
   const [matches, setMatches] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<BlogWithUser[]>([]);
+  const [blogsLoading, setBlogsLoading] = useState<boolean>(true);
+  const [blogsError, setBlogsError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState<boolean>(true);
   const [isAllReviewsOpen, setIsAllReviewsOpen] = useState<boolean>(false);
@@ -35,9 +35,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   // fetch owner of the page
   useEffect(() => {
     const fetchUserData = async () => {
-      setLoading(true);
-      setError(null);
-
       try {
         if (userId) {
           setIsOwnProfile(currentUser?._id === userId);
@@ -57,7 +54,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
         }
       } catch (error) {
         console.error('Failed to fetch user:', error);
-        setError('Failed to load profile. Please try again later.');
+        // Could add toast notification here if needed
       }
     };
 
@@ -68,16 +65,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   useEffect(() => {
     const fetchUserBlogs = async () => {
       if (profileUser?._id) {
-        setLoading(true);
-        setError(null);
+        setBlogsLoading(true);
+        setBlogsError(null);
         try {
           const userBlogs = await getBlogsByUserId(profileUser._id);
           setBlogs(userBlogs);
         } catch (error) {
           console.error('Failed to fetch blogs:', error);
-          setError('Failed to fetch blogs. Please try again later.');
+          setBlogsError('Failed to fetch blogs. Please try again later.');
         } finally {
-          setLoading(false);
+          setBlogsLoading(false);
         }
       }
     };
@@ -139,17 +136,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
 
   const handleRetryFetchBlogs = () => {
     if (profileUser?._id) {
-      setLoading(true);
+      setBlogsLoading(true);
       getBlogsByUserId(profileUser._id)
         .then((blogs) => {
           setBlogs(blogs);
-          setError(null);
+          setBlogsError(null);
         })
         .catch((err) => {
           console.error('Error retrying blog fetch:', err);
-          setError('Failed to fetch blogs. Please try again.');
+          setBlogsError('Failed to fetch blogs. Please try again.');
         })
-        .finally(() => setLoading(false));
+        .finally(() => setBlogsLoading(false));
     }
   };
 
@@ -225,8 +222,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
             {/* Blog Posts Section Component */}
             <ProfileBlogs
               blogs={blogs}
-              loading={loading}
-              error={error}
+              loading={blogsLoading}
+              error={blogsError}
               isOwnProfile={isOwnProfile}
               profileFirstName={profileUser.firstName}
               onRetry={handleRetryFetchBlogs}

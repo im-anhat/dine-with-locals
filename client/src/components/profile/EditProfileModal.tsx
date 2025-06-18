@@ -3,6 +3,12 @@ import { AuthenticatedUser } from '../../../../shared/types/User';
 import { updateUserProfile, UpdateUserData } from '../../services/UserService';
 import { useUser } from '../../contexts/UserContext';
 import { useToast } from '../../hooks/use-toast';
+import TagSelector from '../ui/TagSelector';
+import ImageUpload from '../ui/ImageUpload';
+import {
+  PREDEFINED_HOBBIES,
+  PREDEFINED_CUISINES,
+} from '../../constants/predefines';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -27,14 +33,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     lastName: '',
     phone: '',
     avatar: '',
-    socialLink: '',
-    role: 'Guest',
     hobbies: [],
+    cuisines: [],
     ethnicity: 'Other',
     bio: '',
     cover: '',
   });
-  const [hobbyInput, setHobbyInput] = useState('');
 
   // Initialize form data when modal opens
   useEffect(() => {
@@ -44,9 +48,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         lastName: profileUser.lastName || '',
         phone: profileUser.phone || '',
         avatar: profileUser.avatar || '',
-        socialLink: profileUser.socialLink || '',
-        role: profileUser.role || 'Guest',
         hobbies: profileUser.hobbies || [],
+        cuisines: profileUser.cuisines || [],
         ethnicity: profileUser.ethnicity || 'Other',
         bio: profileUser.bio || '',
         cover: profileUser.cover || '',
@@ -63,23 +66,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
-
-  const handleAddHobby = () => {
-    if (hobbyInput.trim() && !formData.hobbies?.includes(hobbyInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        hobbies: [...(prev.hobbies || []), hobbyInput.trim()],
-      }));
-      setHobbyInput('');
-    }
-  };
-
-  const handleRemoveHobby = (hobbyToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      hobbies: prev.hobbies?.filter((hobby) => hobby !== hobbyToRemove) || [],
     }));
   };
 
@@ -150,32 +136,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Avatar Section */}
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <img
-                src={formData.avatar || profileUser.avatar}
-                alt="Profile Avatar"
-                className="w-24 h-24 rounded-full object-cover border-4 border-brand-coral-200"
-              />
-            </div>
-            <div className="w-full">
-              <label
-                htmlFor="avatar"
-                className="block text-sm font-medium text-brand-stone-700 mb-2"
-              >
-                Avatar URL
-              </label>
-              <input
-                type="url"
-                id="avatar"
-                name="avatar"
-                value={formData.avatar}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-                placeholder="https://example.com/avatar.jpg"
-              />
-            </div>
-          </div>
+          <ImageUpload
+            currentImageUrl={formData.avatar}
+            onImageUpdate={(newImageUrl) =>
+              setFormData((prev) => ({ ...prev, avatar: newImageUrl }))
+            }
+            type="avatar"
+            disabled={!isOwnProfile}
+          />
 
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -216,7 +184,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </div>
 
           {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label
                 htmlFor="phone"
@@ -233,66 +201,29 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
               />
             </div>
-            <div>
-              <label
-                htmlFor="socialLink"
-                className="block text-sm font-medium text-brand-stone-700 mb-2"
-              >
-                LinkedIn Profile
-              </label>
-              <input
-                type="url"
-                id="socialLink"
-                name="socialLink"
-                value={formData.socialLink}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-                placeholder="https://linkedin.com/in/yourprofile"
-              />
-            </div>
           </div>
 
-          {/* Role and Ethnicity */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-brand-stone-700 mb-2"
-              >
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-              >
-                <option value="Host">Host</option>
-                <option value="Guest">Guest</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="ethnicity"
-                className="block text-sm font-medium text-brand-stone-700 mb-2"
-              >
-                Ethnicity
-              </label>
-              <select
-                id="ethnicity"
-                name="ethnicity"
-                value={formData.ethnicity}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-              >
-                <option value="Asian">Asian</option>
-                <option value="Black">Black</option>
-                <option value="Hispanic">Hispanic</option>
-                <option value="White">White</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+          {/* Ethnicity */}
+          <div>
+            <label
+              htmlFor="ethnicity"
+              className="block text-sm font-medium text-brand-stone-700 mb-2"
+            >
+              Ethnicity
+            </label>
+            <select
+              id="ethnicity"
+              name="ethnicity"
+              value={formData.ethnicity}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
+            >
+              <option value="Asian">Asian</option>
+              <option value="Black">Black</option>
+              <option value="Hispanic">Hispanic</option>
+              <option value="White">White</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
           {/* Bio */}
@@ -314,67 +245,39 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             />
           </div>
 
-          {/* Hobbies */}
-          <div>
-            <label className="block text-sm font-medium text-brand-stone-700 mb-2">
-              Hobbies & Interests
-            </label>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="text"
-                value={hobbyInput}
-                onChange={(e) => setHobbyInput(e.target.value)}
-                onKeyPress={(e) =>
-                  e.key === 'Enter' && (e.preventDefault(), handleAddHobby())
-                }
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-                placeholder="Add a hobby..."
-              />
-              <button
-                type="button"
-                onClick={handleAddHobby}
-                className="px-4 py-2 bg-brand-coral-500 text-white rounded-md hover:bg-brand-coral-600 transition-colors"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.hobbies?.map((hobby, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-coral-100 text-brand-coral-700 border border-brand-coral-200"
-                >
-                  {hobby}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveHobby(hobby)}
-                    className="ml-2 text-brand-coral-500 hover:text-brand-coral-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
+          {/* Hobbies & Interests */}
+          <TagSelector
+            label="Hobbies & Interests"
+            selectedTags={formData.hobbies || []}
+            onTagsChange={(hobbies) =>
+              setFormData((prev) => ({ ...prev, hobbies }))
+            }
+            predefinedOptions={PREDEFINED_HOBBIES}
+            placeholder="Type to search hobbies..."
+            disabled={!isOwnProfile}
+          />
+
+          {/* Cuisines */}
+          <TagSelector
+            label="Preferred Cuisines"
+            selectedTags={formData.cuisines || []}
+            onTagsChange={(cuisines) =>
+              setFormData((prev) => ({ ...prev, cuisines }))
+            }
+            predefinedOptions={PREDEFINED_CUISINES}
+            placeholder="Type to search cuisines..."
+            disabled={!isOwnProfile}
+          />
 
           {/* Cover Image */}
-          <div>
-            <label
-              htmlFor="cover"
-              className="block text-sm font-medium text-brand-stone-700 mb-2"
-            >
-              Cover Image URL
-            </label>
-            <input
-              type="url"
-              id="cover"
-              name="cover"
-              value={formData.cover}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-coral-500 focus:border-transparent"
-              placeholder="https://example.com/cover.jpg"
-            />
-          </div>
+          <ImageUpload
+            currentImageUrl={formData.cover}
+            onImageUpdate={(newImageUrl) =>
+              setFormData((prev) => ({ ...prev, cover: newImageUrl }))
+            }
+            type="cover"
+            disabled={!isOwnProfile}
+          />
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
