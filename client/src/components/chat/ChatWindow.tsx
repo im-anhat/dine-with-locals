@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
@@ -34,41 +34,90 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [chatInfo, setChatInfo] = useState<Chat | null>(null);
   const [listing, setListing] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const limit = 20;
+
+  const oldScrollHeightRef = useRef(0);
 
   const { currentUser } = useUser();
   const { socket } = useSocket();
 
   // Scroll to bottom of messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior: 'smooth' | 'auto' = 'auto') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
+  // When chatId changes, reset state
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    setMessages([]);
+    setPage(1);
+    setHasMore(true);
+  }, [chatId]);
 
   // Fetch messages from database when a chat is selected
   useEffect(() => {
     const getAllMessages = async () => {
-      const response = await axios.get(`${API_URL}api/message/${chatId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      const data = response.data;
-      setMessages(data);
-      console.log('Fetched messages:', data);
+      if (!chatId) return;
+      try {
+        setLoading(true);
+        if (scrollContainerRef.current) {
+          oldScrollHeightRef.current = scrollContainerRef.current.scrollHeight;
+        }
+
+        const response = await axios.get(
+          `${API_URL}api/message/${chatId}?page=${page}&limit=${limit}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          },
+        );
+        const data = response.data;
+        if (data.length < limit) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+        console.log('Fetched messages:', data.reverse());
+        setMessages((prev) =>
+          page === 1 ? data.reverse() : [...data.reverse(), ...prev],
+        );
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (chatId) {
       getAllMessages();
     } else {
       setMessages([]);
+      setPage(1);
+      setHasMore(false);
     }
-  }, [chatId]);
+  }, [chatId, page]);
+
+  // Effect for managing scroll position
+  useLayoutEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    if (page === 1) {
+      // After initial message load, scroll to bottom
+      scrollToBottom('auto');
+    } else if (scrollContainer) {
+      // After loading more older messages, restore scroll position
+      const newScrollHeight = scrollContainer.scrollHeight;
+      scrollContainer.scrollTop = newScrollHeight - oldScrollHeightRef.current;
+    }
+  }, [messages, page]);
 
   // get additional info to display in chat header
   useEffect(() => {
@@ -96,6 +145,7 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
       const handleNewMessage = (message: Message) => {
         console.log('Message received:', message);
         setMessages((prevMessages) => [...prevMessages, message]);
+        scrollToBottom('smooth');
       };
 
       socket.on('message_created', handleNewMessage);
@@ -113,7 +163,7 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
 
     e.preventDefault();
 
-    // Send message to server through socket.io
+    // The message will be added via the socket 'message_created' event
     socket.emit('message_send', { chatId, content: newMessage });
     setNewMessage('');
   };
@@ -125,7 +175,7 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
     } else {
       setListing(null);
     }
-  }, [chatInfo]);
+  }, [chatInfo, setListing]);
 
   // Toggle details panel visibility
   const handleToggleDetails = () => {
@@ -142,6 +192,14 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
       </div>
     );
   }
+
+  const handleScroll = () => {
+    const scrollTop = scrollContainerRef.current?.scrollTop;
+    if (scrollTop === 0 && hasMore && !loading) {
+      // Load more messages when scrolled to the top
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
 
   const otherUser = chatInfo?.users.find(
     (user) => user._id !== currentUser?._id,
@@ -161,7 +219,11 @@ export function ChatWindow({ chatId, onBack }: ChatWindowProps) {
           />
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto mb-4 space-y-4 min-h-0 p-4">
+          <div
+            className="flex-1 overflow-y-auto mb-4 space-y-4 min-h-0 p-4"
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+          >
             {messages.map((message) => (
               <ChatMessage
                 key={message._id}

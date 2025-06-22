@@ -57,14 +57,21 @@ export const sendMessage = asyncHandler(
 export const allMessages = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const skip = (page - 1) * limit;
+
       const messages = await Message.find({ chat: req.params.chatId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate('senderId', 'userName firstName lastName avatar')
         .populate('chat');
+
       res.status(200).json(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       res.status(500).json({ message: 'Internal server error' });
-      return;
     }
   },
 );
