@@ -22,7 +22,8 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { Slider } from '@/components/ui/slider';
-
+import { getAllCity } from '../../services/LocationService';
+import { useEffect, useState } from 'react';
 type FilterBarProps = {
   dateRange: DateRange | undefined;
   setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
@@ -64,6 +65,17 @@ const FilterBar = ({
     'Allergies',
     'Kosher',
   ];
+  const [cities, setCities] = useState<string[]>();
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      const cities = await getAllCity();
+      setCities(cities);
+    };
+    fetchCities();
+  }, []);
+  console.log('CITITES', cities);
+
   const dietaryCount = dietaryRestrictions?.length || 0;
 
   const handleDietaryRestrictionToggle = (restriction: string) => {
@@ -90,7 +102,6 @@ const FilterBar = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="dining">Dining</SelectItem>
-              <SelectItem value="travel">Travel</SelectItem>
               <SelectItem value="event">Event</SelectItem>
             </SelectContent>
           </Select>
@@ -102,8 +113,11 @@ const FilterBar = ({
               <SelectValue placeholder="City" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Chicago">Chicago</SelectItem>
-              <SelectItem value="New York">New York</SelectItem>
+              {cities?.map((city, index) => (
+                <SelectItem key={index} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

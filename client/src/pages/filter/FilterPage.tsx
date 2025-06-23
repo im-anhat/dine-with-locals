@@ -4,8 +4,11 @@ import FilterResults from '@/components/filter/FilterResult';
 import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
 import { useUser } from '../../contexts/UserContext';
+import { calculateDistance } from '../../services/ListingService';
+import { geocodeLocation, getAllCity } from '../../services/LocationService';
 
 import axios from 'axios';
+import { o } from 'node_modules/react-router/dist/development/fog-of-war-CyHis97d.d.mts';
 
 const FilterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -48,7 +51,40 @@ const FilterPage = () => {
         obj,
       );
       console.log('THIS IS WHERE THE PROBLEM IS', res);
-      setResults(res.data);
+      let sortHashMap: Map<any, number> = new Map();
+
+      let currentLocation =
+        city == null
+          ? currentUser?.locationId.coordinates
+          : geocodeLocation({
+              address: '',
+              city: city,
+              state: '',
+              country: '',
+              zipCode: '',
+            });
+
+      for (let i = 0; i < res.data.length; i++) {
+        if (
+          calculateDistance(
+            currentUser?.locationId.coordinates,
+            res.data[i].mergedLocation.coordinates,
+          ) < 80
+        ) {
+          sortHashMap.set(
+            res.data[i],
+            calculateDistance(
+              currentUser?.locationId.coordinates,
+              res.data[i].mergedLocation.coordinates,
+            ),
+          );
+        }
+      }
+      const sortedArray = res.data.slice().sort((a: any, b: any) => {
+        return sortHashMap.get(a)! - sortHashMap.get(b)!;
+      });
+
+      setResults(sortedArray);
       console.log('FILTER PAGE RESULTS', results);
     } catch (err) {
       setError('Something went wrong. Please try again.');

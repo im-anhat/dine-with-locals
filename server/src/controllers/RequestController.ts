@@ -106,7 +106,7 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
       return calculatedDistance <= distanceParam;
     });
 
-    console.log('nearbyRequests', nearbyRequests);
+    // console.log('nearbyRequests', nearbyRequests);
 
     // Add distance to each request and sort by distance
     const requestsWithDistance = nearbyRequests
@@ -125,7 +125,6 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
         };
       })
       .sort((a, b) => a.distance - b.distance);
-    console.log('REQUEST with DISTANCE', requestsWithDistance);
 
     res.status(200).json(requestsWithDistance);
   } catch (error) {

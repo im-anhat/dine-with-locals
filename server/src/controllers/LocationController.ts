@@ -233,3 +233,24 @@ export const createLocation: RequestHandler = async (
     res.status(500).json({ error: 'Failed to create location' });
   }
 };
+
+/**
+ * Get all locations
+ * @route GET /api/location/cities
+ */
+export const getAllCities: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  console.log('GET ALL CITIES');
+  try {
+    const cities = await Location.distinct('city');
+    res.status(200).json(cities);
+  } catch (err) {
+    console.error('Error fetching:', err);
+    res.status(500).json({
+      message: 'Server error while fetching',
+      error: err,
+    });
+  }
+};

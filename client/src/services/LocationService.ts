@@ -108,7 +108,7 @@ export const getLocationById = async (
 };
 
 // Helper function to geocode an address using a third-party service
-const geocodeLocation = async (
+export const geocodeLocation = async (
   location: Omit<Location, '_id'>,
 ): Promise<LonLat> => {
   try {
@@ -143,6 +143,17 @@ const geocodeLocation = async (
     }
   } catch (error) {
     console.error('Error geocoding location:', error);
+    throw new Error('Failed to geocode location');
+  }
+};
+
+export const getAllCity = async (): Promise<string[]> => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/location/cities`);
+    console.log('CITY', res);
+    return res.data;
+  } catch (err) {
+    console.error('Error fetching all cities', err);
     throw new Error('Failed to geocode location');
   }
 };

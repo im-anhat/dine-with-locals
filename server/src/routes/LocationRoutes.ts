@@ -5,6 +5,7 @@ import {
   updateLocationCoordinates,
   getNearbyLocations,
   getAllLocations,
+  getAllCities,
 } from '../controllers/LocationController.js';
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.get('/', getAllLocations);
 
 // Create a new location
 router.post('/createLocation', createNewLocation);
+
+//Get all cities
+router.get('/cities', getAllCities);
 
 // Get nearby locations - must be before /:locationId route to avoid being caught as an ID
 router.get('/nearby', getNearbyLocations);
