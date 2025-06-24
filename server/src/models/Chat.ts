@@ -36,7 +36,9 @@ const ChatSchema: Schema = new Schema(
     listing: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Listing',
-      required: false, // Optional reference to a Listing
+      required: function (this: IChat) {
+        return this.isGroupChat;
+      },
     },
   },
   { timestamps: true },

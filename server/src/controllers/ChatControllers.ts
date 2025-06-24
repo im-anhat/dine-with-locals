@@ -3,6 +3,8 @@ import Chat from '../models/Chat.js';
 import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import UserModel from '../models/User.js';
+import Match from '../models/Match.js';
+import Listing from '../models/Listing.js';
 
 interface AuthRequest extends Request {
   user?: object | mongoose.Types.ObjectId | any; // Extend Request to include user
@@ -97,6 +99,95 @@ export const accessChat = asyncHandler(
         console.error('Error creating chat:', error);
         res.status(500).json({ message: 'Internal server error' });
         return;
+      }
+    }
+  },
+);
+
+export const createOrUpdateGroupChat = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { listingId, hostId } = req.body;
+
+    if (!listingId) {
+      res.status(400).json({ message: 'listingId not provided' });
+      return;
+    }
+
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      res.status(404).json({ message: 'Listing not found' });
+      return;
+    }
+    if (listing.userId.toString() !== hostId.toString()) {
+      res.status(403).json({
+        message: 'Only the host can create a group chat for this listing.',
+      });
+      return;
+    }
+
+    const matches = await Match.find({
+      listingId: listingId,
+      status: 'approved',
+    });
+    const guestIds = matches.map((match) => match.guestId);
+
+    const allUserIds = [hostId, ...guestIds];
+
+    let groupChat = await Chat.findOne({
+      listing: listingId,
+      isGroupChat: true,
+    });
+
+    if (groupChat) {
+      groupChat.users = allUserIds;
+      await groupChat.save();
+
+      const fullChat = await Chat.findById(groupChat._id).populate([
+        {
+          path: 'users',
+          select: '_id userName firstName lastName phone avatar role',
+        },
+        {
+          path: 'listing',
+          select: '_id title images time',
+          populate: {
+            path: 'locationId',
+            model: 'Location',
+            select: 'city state country',
+          },
+        },
+      ]);
+      res.status(200).json(fullChat);
+    } else {
+      const chatData = {
+        chatName: listing.title,
+        isGroupChat: true,
+        users: allUserIds,
+        listing: listingId,
+        groupAdmin: hostId,
+      };
+
+      try {
+        const createdChat = await Chat.create(chatData);
+        const FullChat = await Chat.findOne({ _id: createdChat._id }).populate([
+          {
+            path: 'users',
+            select: '_id userName firstName lastName phone avatar role',
+          },
+          {
+            path: 'listing',
+            select: '_id title images time',
+            populate: {
+              path: 'locationId',
+              model: 'Location',
+              select: 'city state country',
+            },
+          },
+        ]);
+        res.status(200).json(FullChat);
+      } catch (error) {
+        console.error('Error creating group chat:', error);
+        res.status(500).json({ message: 'Internal server error' });
       }
     }
   },

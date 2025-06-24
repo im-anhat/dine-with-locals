@@ -4,11 +4,13 @@ import {
   accessChat,
   fetchChats,
   getChatInfo,
+  createOrUpdateGroupChat,
 } from '../controllers/ChatControllers.js';
 
 const router = express.Router();
 
 router.post('/', authMiddleware, accessChat);
+router.post('/group', authMiddleware, createOrUpdateGroupChat);
 router.get('/', authMiddleware, fetchChats);
 router.get('/:chatId', authMiddleware, getChatInfo);
 

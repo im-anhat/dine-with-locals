@@ -1,18 +1,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ChevronLeft, Video, Info, Phone } from 'lucide-react';
+import { ChevronLeft, Video, Info, Phone, Megaphone } from 'lucide-react';
 import { useMediaQuery } from '@custom-react-hooks/use-media-query';
 import { DrawerTrigger } from '@/components/ui/drawer';
 import { useNavigate } from 'react-router-dom';
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName?: string;
-  avatar?: string;
-}
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import type Chat from '../../../../../shared/types/Chat.js';
+import { Badge } from '@/components/ui/badge';
 
 interface ChatHeaderProps {
-  otherUser?: User;
+  isGroupChat?: boolean;
+  chatInfo?: Chat;
   onBack?: () => void;
   showDetails?: boolean;
   onToggleDetails?: () => void;
@@ -20,18 +23,24 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
-  otherUser,
+  chatInfo,
   onBack,
   showDetails,
   onToggleDetails,
+  isGroupChat,
   hasListing,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
+  const otherUsers = chatInfo?.users.filter(
+    (user) => user._id !== chatInfo?.groupAdmin,
+  );
 
   const handleProfileClick = () => {
-    if (otherUser?._id) {
-      navigate(`/profile/${otherUser._id}`, { state: { userId: otherUser._id } });
+    if (otherUsers && otherUsers[0]?._id) {
+      navigate(`/profile/${otherUsers[0]._id}`, {
+        state: { userId: otherUsers[0]._id },
+      });
     }
   };
 
@@ -50,24 +59,84 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         )}
 
         {/* User Avatar and Info */}
-        <div
-          className="flex items-center gap-3 cursor-pointer hover:opacity-80"
-          onClick={handleProfileClick}
-          title="View profile"
-        >
-          <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
-            <AvatarImage src={otherUser?.avatar} />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-              {otherUser?.firstName
-                ?.split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
-          <h1 className="font-semibold text-lg leading-tight min-w-16">
-            {otherUser?.firstName} {otherUser?.lastName}
-          </h1>
-        </div>
+        {!isGroupChat && (
+          <div
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80"
+            onClick={handleProfileClick}
+            title="View profile"
+          >
+            <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
+              <AvatarImage src={otherUsers?.[0]?.avatar} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {otherUsers?.[0]?.firstName
+                  ?.split(' ')
+                  .map((n: string) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            <h1 className="font-semibold text-lg leading-tight min-w-16">
+              {otherUsers?.[0]?.firstName} {otherUsers?.[0]?.lastName}
+            </h1>
+          </div>
+        )}
+
+        {isGroupChat && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="flex items-center gap-3 cursor-pointer hover:opacity-80">
+                <Megaphone />
+                <h1 className="font-semibold text-lg leading-tight min-w-16">
+                    <span className="sm:max-w-32 md:max-w-64 truncate inline-block align-bottom" title={chatInfo?.chatName}>
+                    {chatInfo?.chatName}
+                    </span>
+                </h1>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-h-96 overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Listing Participants</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-4 mt-4 overflow-y-auto">
+                {chatInfo?.users.map((user) => (
+                  <div
+                    key={user._id}
+                    className="flex items-center gap-4 cursor-pointer hover:bg-muted p-2 rounded-lg transition-colors"
+                    onClick={() =>
+                      navigate(`/profile/${user._id}`, {
+                        state: { userId: user._id },
+                      })
+                    }
+                  >
+                    <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
+                      <AvatarImage src={user.avatar} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {user.firstName
+                          ?.split(' ')
+                          .map((n) => n[0])
+                          .join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-base">
+                        {user.firstName} {user.lastName}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        @{user.userName}
+                      </span>
+                    </div>
+                    <div className="ml-auto">
+                      {user.role === 'Host' ? (
+                        <Badge>Host</Badge>
+                      ) : (
+                        <Badge variant="outline">Guest</Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Action buttons */}

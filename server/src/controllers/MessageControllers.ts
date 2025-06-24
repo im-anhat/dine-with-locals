@@ -21,6 +21,24 @@ export const sendMessage = asyncHandler(
       return;
     }
 
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      res.status(404).json({ message: 'Chat not found' });
+      return;
+    }
+
+    if (chat.isGroupChat) {
+      if (
+        !chat.groupAdmin ||
+        chat.groupAdmin.toString() !== currentUser._id.toString()
+      ) {
+        res.status(403).json({
+          message: 'Only the host can send messages in this group chat.',
+        });
+        return;
+      }
+    }
+
     let newMessage = {
       senderId: currentUser._id,
       content: content,
