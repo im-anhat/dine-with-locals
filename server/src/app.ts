@@ -34,6 +34,7 @@ import commentRoutes from './routes/CommentRoutes.js';
 import notificationRoutes from './routes/NotificationRoutes.js';
 import chatRoutes from './routes/ChatRoutes.js';
 import messageRoutes from './routes/MessageRoutes.js';
+import paymentRoutes from './routes/PaymentRoutes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -72,6 +73,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/matches', MatchRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

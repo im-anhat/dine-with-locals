@@ -16,6 +16,9 @@ export interface IUser extends Document {
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   locationId: mongoose.Types.ObjectId;
+  stripeCustomerId: string;
+  paymentMethodDefault: string;
+  paymentMethod: string[];
 }
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
@@ -99,6 +102,21 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
       required: function () {
         return this.provider === 'Local';
       },
+    },
+    stripeCustomerId: {
+      type: String,
+      default: '',
+      trim: true,
+      sparse: true,
+    },
+    paymentMethodDefault: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    paymentMethod: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },
