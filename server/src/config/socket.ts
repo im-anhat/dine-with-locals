@@ -27,9 +27,12 @@ export const initializeSocket = (server: HTTPServer) => {
     if (!token) {
       return next(new Error('Authentication error: token are required'));
     }
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined in environment');
+    }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET || 'default') as {
+      const decoded = jwt.verify(token, process.env.SECRET || 'default') as {
         _id: string;
       };
       const user = await User.findById(decoded._id).select('-password');

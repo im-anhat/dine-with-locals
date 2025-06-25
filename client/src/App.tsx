@@ -128,7 +128,10 @@ const App: React.FC = () => {
             path="/places"
             element={isAuthenticated ? <Places /> : <Home />}
           />
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={isAuthenticated ? <DashboardPage /> : <Home />}
+          />
           <Route path="/filter/:id" element={<CardDetails />} />
 
           <Route path="/host/create-listing" element={<CreateListing />} />

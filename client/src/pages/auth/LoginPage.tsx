@@ -28,13 +28,13 @@ function LoginPage() {
   /**
    * Navigate to dashboard after isAuthenticated is updated in AuthContext
    * */
-  // useEffect(() => {
-  //   console.log('Get to the useEffect inside Login Page');
-  //   if (isAuthenticated) {
-  //     console.log('Navigate to dashboard');
-  //     navigate('/dashboard', { replace: true });
-  //   }
-  // }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    console.log('Get to the useEffect inside Login Page');
+    if (isAuthenticated) {
+      console.log('Navigate to dashboard');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <>

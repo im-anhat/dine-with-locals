@@ -3,6 +3,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { useLogin } from '@/hooks/auth/useLogin';
 
 interface LoginCardInterface {
   userName: string;
@@ -21,6 +23,16 @@ function LoginCard({
   submitLogin,
 }: LoginCardInterface) {
   const navigate = useNavigate();
+  const { handleGoogleAuth } = useLogin();
+
+  const onSuccess = async (response: any) => {
+    if (response.credential) {
+      await handleGoogleAuth(response.credential);
+    } else {
+      console.log('No credential returned from Google');
+    }
+  };
+
   return (
     <>
       <Card className="w-[350px]">
@@ -67,9 +79,12 @@ function LoginCard({
             </span>
           </div>
           <div>
-            <Button className="w-full" variant="secondary">
-              Log in with Google
-            </Button>
+            <GoogleLogin
+              onSuccess={onSuccess}
+              onError={() => {
+                console.log('failed');
+              }}
+            ></GoogleLogin>
           </div>
           <div className="text-center text-gray-400 ">
             Don't have an account?{' '}

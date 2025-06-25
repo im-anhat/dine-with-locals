@@ -60,7 +60,6 @@ app.use(
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
-app.use('/api/listings', listingRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/upload', uploadRoutes);
@@ -70,7 +69,7 @@ app.use('/api/listing', listingRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/matches', MatchRoutes); // Added MatchRoutes here as it was only in the duplicate section
+app.use('/api/matches', MatchRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
 
