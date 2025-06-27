@@ -79,6 +79,7 @@ const FeedPage: React.FC = () => {
     title: string;
     content: string;
     photos: File[];
+    listingId?: string;
   }) => {
     try {
       setIsSubmitting(true);
@@ -100,6 +101,7 @@ const FeedPage: React.FC = () => {
           blogTitle: data.title,
           blogContent: data.content,
           photos: imageUrls.length > 0 ? imageUrls : currentBlog.photos,
+          listingId: data.listingId,
         });
 
         const response = await axios.put(
@@ -108,6 +110,7 @@ const FeedPage: React.FC = () => {
             blogTitle: data.title,
             blogContent: data.content,
             photos: imageUrls.length > 0 ? imageUrls : currentBlog.photos,
+            listingId: data.listingId,
           },
         );
 
@@ -131,6 +134,7 @@ const FeedPage: React.FC = () => {
           blogTitle: data.title,
           blogContent: data.content,
           photos: imageUrls,
+          listingId: data.listingId,
         });
 
         // Make API call to create blog post
@@ -139,6 +143,7 @@ const FeedPage: React.FC = () => {
           blogTitle: data.title,
           blogContent: data.content,
           photos: imageUrls,
+          listingId: data.listingId,
         });
 
         console.log('New blog created:', response.data);
@@ -222,6 +227,7 @@ const FeedPage: React.FC = () => {
                 ? {
                     title: currentBlog.blogTitle,
                     content: currentBlog.blogContent,
+                    listingId: currentBlog.listingId,
                   }
                 : undefined
             }

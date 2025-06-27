@@ -13,11 +13,14 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
     category,
     city,
   } = req.body;
+  let page = parseInt((req.query.p as string) || '1');
+  let cardPerPage = 10;
+  console.log('THIS IS THE PLACE WHERE FILTER REQUEST GO IN');
 
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
   //Validation
-  if (numGuests) matchConditions.numGuests = numGuests;
+  if (numGuests) matchConditions.numGuests = numGuests[0];
   if (locationType) matchConditions.locationType = locationType;
   if (category) matchConditions.category = category;
   if (city) matchConditions['mergedLocation.city'] = city;
@@ -75,12 +78,20 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
     {
       $match: matchConditions,
     },
+    {
+      //Facet stage allow simultaneous processing of the same data, result in the total number of documents and paginated documents
+      //Improve data consistency + reduce database calls
+      $facet: {
+        metadata: [{ $count: 'totalCount' }],
+        data: [{ $skip: (page - 1) * cardPerPage }, { $limit: cardPerPage }],
+      },
+    },
   ];
 
   try {
     const array = await RequestModel.aggregate(pipeline);
-    console.log(array);
-    res.status(200).json(array);
+    console.log(array[0].data.length);
+    res.status(200).json(array[0].data);
   } catch (err) {
     console.log(err);
   }
@@ -96,6 +107,9 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
     category,
     city,
   } = req.body;
+  let page = parseInt((req.query.p as string) || '1');
+  let cardPerPage = 10;
+
   const matchConditions: Record<string, any> = {};
   if (locationType) {
     matchConditions.locationType = locationType;
@@ -161,13 +175,19 @@ export const fetchListingDocuments = async (req: Request, res: Response) => {
     {
       $match: matchConditions,
     },
+    {
+      $facet: {
+        metadata: [{ $count: 'totalCount' }],
+        data: [{ $skip: (page - 1) * cardPerPage }, { $limit: cardPerPage }],
+      },
+    },
   ];
 
   // Updated error handling and response structure
   try {
     const array = await Listing.aggregate(pipeline);
     console.log(array);
-    res.status(200).json(array);
+    res.status(200).json(array[0].data);
   } catch (err) {
     console.error('Error during aggregation:', err);
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';

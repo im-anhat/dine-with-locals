@@ -15,19 +15,27 @@ const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
+  //dan/match-guest-host-frontend
 
   useEffect(() => {
     if (!currentUser) return;
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      let url =
+        currentUser?.role === 'Guest' ? 'listing/nearby' : 'request/nearby';
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+          `${import.meta.env.VITE_API_BASE_URL}api/${url}/`,
+          {
+            params: {
+              lat: currentUser.locationId.coordinates.lat,
+              lng: currentUser.locationId.coordinates.lng,
+              distance: 80,
+            },
+          },
         );
-        console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
-        console.log(res.data);
+        console.log('Result', res.data);
         setResults(res.data);
       } catch (err) {
         setError('Something went wrong. Please try again.');
@@ -66,21 +74,24 @@ const DashboardPage = () => {
 
       {/* Match Cards Section */}
       <section className="space-y-4">
-        <div className="flex flex-row gap-6">
+        {loading ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : (
           <div>
-            {loading && <p className="text-muted-foreground">Loading...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            <FilterResults results={results?.slice(0, 3) ?? []} />
-          </div>
-        </div>
+            <div className="flex flex-row justify-center items-center gap-6">
+              <FilterResults results={results?.slice(0, 3) ?? []} />
+            </div>
 
-        <Button
-          variant="link"
-          className="text-brand-teal-600 p-0 h-auto font-normal"
-          onClick={() => navigate('/filter', { state: { results } })}
-        >
-          View All Requests →
-        </Button>
+            <Button
+              variant="link"
+              className="mx-2 text-brand-teal-600 p-0 h-auto font-normal mt-4"
+              onClick={() => navigate('/filter', { state: { results } })}
+            >
+              View all
+              {currentUser.role === 'Guest' ? ' listings' : ' requests'} →
+            </Button>
+          </div>
+        )}
       </section>
 
       <Separator />
@@ -89,13 +100,13 @@ const DashboardPage = () => {
       <section className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
-            <Button
+          <Button
             variant="outline"
             onClick={() => navigate('/host/create-listing')}
-            >
+          >
             <Calendar className="mr-2 w-4 h-4" />
             Create New Listing
-            </Button>
+          </Button>
         </div>
 
         <Tabs defaultValue="listing" className="w-full">

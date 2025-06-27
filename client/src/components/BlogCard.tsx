@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import { BlogWithUser } from '../services/BlogService';
+import { Listing } from '../../../shared/types/Listing';
+import { getListingById } from '../services/ListingService';
 import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
@@ -23,6 +25,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -64,8 +73,9 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const [commentsCount, setCommentsCount] = useState(blog.comments || 0);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
-
-  console.log('BlogCard received blog:', blog);
+  const [showListingModal, setShowListingModal] = useState(false);
+  const [attachedListing, setAttachedListing] = useState<Listing | null>(null);
+  const [isLoadingListing, setIsLoadingListing] = useState(false);
 
   // Check like status when component mounts
   useEffect(() => {
@@ -80,6 +90,36 @@ const BlogCard: React.FC<BlogCardProps> = ({
       fetchComments();
     }
   }, [showCommentForm]);
+
+  // Fetch attached listing details if there is a listingId
+  useEffect(() => {
+    const fetchAttachedListing = async () => {
+      if (!blog.listingId) return;
+
+      //Handle case where listingId might be a populated object
+      let listingIdStr: string;
+      if (typeof blog.listingId === 'object' && blog.listingId !== null) {
+        listingIdStr = (blog.listingId as any)._id || String(blog.listingId);
+      } else {
+        listingIdStr = String(blog.listingId).trim();
+      }
+
+      setIsLoadingListing(true);
+      try {
+        const listing = await getListingById(listingIdStr);
+        setAttachedListing(listing);
+        console.log('Successfully fetched listing:', listing);
+      } catch (error) {
+        console.error('Error fetching attached listing:', error);
+        // Set attachedListing to null to show error state
+        setAttachedListing(null);
+      } finally {
+        setIsLoadingListing(false);
+      }
+    };
+
+    fetchAttachedListing();
+  }, [blog.listingId]);
 
   const checkLikeStatus = async () => {
     try {
@@ -297,6 +337,89 @@ const BlogCard: React.FC<BlogCardProps> = ({
             {commentsCount} comments
           </span>
         </div>
+
+        {/* Attached listing section */}
+        {blog.listingId && (
+          <div className="mt-4 p-4 bg-muted rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-sm text-muted-foreground">
+                The previous experience:
+              </p>
+            </div>
+
+            {isLoadingListing ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin h-6 w-6 border-2 border-brand-coral-300 rounded-full border-t-transparent"></div>
+              </div>
+            ) : attachedListing ? (
+              <>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-shrink-0">
+                    {attachedListing.images &&
+                      attachedListing.images.length > 0 && (
+                        <img
+                          src={attachedListing.images[0]}
+                          alt="Listing"
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                      )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold">
+                      {attachedListing.title}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {typeof attachedListing.locationId === 'object' &&
+                      attachedListing.locationId
+                        ? attachedListing.locationId.address +
+                          ', ' +
+                          attachedListing.locationId.city +
+                          ', ' +
+                          attachedListing.locationId.state +
+                          ', ' +
+                          attachedListing.locationId.zipCode
+                        : typeof attachedListing.locationId === 'string'
+                          ? attachedListing.locationId
+                          : 'Location not available'}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
+                        {attachedListing.category}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="default"
+                    className="flex-1"
+                    onClick={() => setShowListingModal(true)}
+                  >
+                    View Experience
+                  </Button>
+                </div>
+              </>
+            ) : blog.listingId ? (
+              <div className="flex flex-col items-center justify-center py-4">
+                <div className="text-center text-muted-foreground">
+                  <p className="text-sm">Unable to load listing details</p>
+                  <p className="text-xs mt-1">
+                    Listing ID:{' '}
+                    {typeof blog.listingId === 'object' &&
+                    blog.listingId !== null
+                      ? (blog.listingId as any)._id || '[populated object]'
+                      : String(blog.listingId)}
+                  </p>
+                  <p className="text-xs text-red-500 mt-1"></p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-2">
+                No listing attached
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="flex border-t p-4 flex-shrink-0">
@@ -432,6 +555,91 @@ const BlogCard: React.FC<BlogCardProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Listing details dialog */}
+      {attachedListing && (
+        <Dialog open={showListingModal} onOpenChange={setShowListingModal}>
+          <DialogContent className="max-w-3xl p-4">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-semibold">
+                Listing Details
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="mt-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-shrink-0">
+                  {attachedListing.images &&
+                    attachedListing.images.length > 0 && (
+                      <img
+                        src={attachedListing.images[0]}
+                        alt="Listing"
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                    )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-xl font-semibold">
+                    {attachedListing.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {typeof attachedListing.locationId === 'object' &&
+                    attachedListing.locationId
+                      ? attachedListing.locationId.address +
+                        ', ' +
+                        attachedListing.locationId.city +
+                        ', ' +
+                        attachedListing.locationId.state +
+                        ', ' +
+                        attachedListing.locationId.zipCode
+                      : 'Location not available'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {attachedListing.time
+                      ? new Date(attachedListing.time).toLocaleDateString()
+                      : 'Date not available'}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
+                      {attachedListing.category}
+                    </span>
+                    {attachedListing.numGuests && (
+                      <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
+                        {attachedListing.numGuests} Guest(s)
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="font-medium">Description</p>
+                    <p className="text-sm text-muted-foreground">
+                      {attachedListing.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="font-medium">Additional Information</p>
+                    <p className="text-sm text-muted-foreground">
+                      {attachedListing.additionalInfo ||
+                        'No additional information available'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-4">
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => setShowListingModal(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </Card>
   );

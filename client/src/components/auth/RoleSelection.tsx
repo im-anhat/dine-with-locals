@@ -1,11 +1,22 @@
 import { useStep } from '../../hooks/auth/useStep';
 import { Button } from '../ui/button';
+import { GoogleLogin } from '@react-oauth/google';
+import { useLogin } from '@/hooks/auth/useLogin';
+
 interface RoleSelectionProps {
   setRole: (role: 'Host' | 'Guest') => void;
 }
 
 function RoleSelection({ setRole }: RoleSelectionProps) {
   const { goNext } = useStep();
+  const { handleGoogleAuth } = useLogin();
+  const onSuccess = async (response: any) => {
+    if (response.credential) {
+      await handleGoogleAuth(response.credential);
+    } else {
+      console.log('No credential returned from Google');
+    }
+  };
 
   return (
     <div>
@@ -40,9 +51,12 @@ function RoleSelection({ setRole }: RoleSelectionProps) {
             </span>
           </div>
           <div>
-            <Button className="w-full" variant="secondary">
-              Sign up with Google
-            </Button>
+            <GoogleLogin
+              onSuccess={onSuccess}
+              onError={() => {
+                console.log('failed');
+              }}
+            ></GoogleLogin>
           </div>
         </div>
       </div>
