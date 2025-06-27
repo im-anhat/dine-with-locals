@@ -4,6 +4,7 @@ import { getBlogsByUserId, BlogWithUser } from '../services/BlogService';
 import { getUserById } from '../services/UserService';
 import { getReviewsByUserId, Review } from '../services/ReviewService';
 import { AuthenticatedUser } from '../../../shared/types/User';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 // Import modular components
@@ -13,7 +14,6 @@ import ProfileStats from '../components/profile/ProfileStats';
 import ProfileHobbies from '../components/profile/ProfileHobbies';
 import ProfileReviews from '../components/profile/ProfileReviews';
 import ProfileBlogs from '../components/profile/ProfileBlogs';
-import { useParams } from 'react-router';
 
 // interface ProfilePageProps {
 //   userId?: string; // Optional: if not provided, will display current user's profile
@@ -33,7 +33,7 @@ const ProfilePage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState<boolean>(true);
   const [isAllReviewsOpen, setIsAllReviewsOpen] = useState<boolean>(false);
-
+  const { userId: paramUserId } = useParams<{ userId?: string }>();
   // fetch owner of the page
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,13 +41,18 @@ const ProfilePage = () => {
       setError(null);
 
       try {
-        if (userId) {
+        if (paramUserId || userId) {
           setIsOwnProfile(currentUser?._id === userId);
 
           // If not the current user, fetch the user data
           if (currentUser?._id !== userId) {
-            const userData = await getUserById(userId);
-            setProfileUser(userData);
+            const idToFetch = paramUserId ?? userId;
+            if (idToFetch) {
+              const userData = await getUserById(idToFetch);
+              setProfileUser(userData);
+            } else {
+              throw new Error('No user ID provided');
+            }
           } else {
             // It's the current user's profile
             setProfileUser(currentUser);
@@ -64,7 +69,7 @@ const ProfilePage = () => {
     };
 
     fetchUserData();
-  }, [userId, currentUser]);
+  }, [paramUserId, userId, currentUser]);
 
   // fetch blogs
   useEffect(() => {
