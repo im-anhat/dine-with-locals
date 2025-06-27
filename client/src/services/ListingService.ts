@@ -81,7 +81,7 @@ export const getListingsWithinDistanceFromAPI = async (
   maxDistance: number = 80,
 ): Promise<Listing[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/listings/nearby`, {
+    const response = await axios.get(`${API_BASE_URL}/listing/nearby`, {
       params: {
         lat: userCoordinates.lat,
         lng: userCoordinates.lng,
@@ -146,7 +146,7 @@ export const getListingById = async (listingId: string): Promise<Listing> => {
 
   try {
     console.log(`Making API request for listing ID: ${listingId}`);
-    const response = await axios.get(`${API_BASE_URL}/listings/${listingId}`);
+    const response = await axios.get(`${API_BASE_URL}/listing/${listingId}`);
     console.log(`Successfully fetched listing for ID: ${listingId}`);
     return response.data;
   } catch (error) {

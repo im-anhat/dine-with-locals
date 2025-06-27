@@ -24,12 +24,12 @@ const Places: React.FC = () => {
   const [userCoordinates, setUserCoordinates] =
     useState<google.maps.LatLngLiteral | null>(null);
 
-  console.log('User Location ID:', userLocationId);
-  console.log('Current Coordinates:', currentCoordinates);
-  console.log('User Coordinates:', userCoordinates);
-  console.log('Passing to map:', currentCoordinates || userCoordinates);
-
   // Function to fetch data based on coordinates
+  useEffect(() => {
+    console.log('Location ID:', userLocationId);
+    console.log('Current User:', currentUser);
+  }, [currentUser]);
+
   const fetchDataForLocation = useCallback(
     async (coordinates: google.maps.LatLngLiteral) => {
       try {
@@ -97,14 +97,6 @@ const Places: React.FC = () => {
     // Fetch data for current coordinates
     fetchDataForLocation(currentCoordinates);
   }, [currentCoordinates, currentUser?.role, fetchDataForLocation]);
-
-  // Debug effect to track coordinate changes
-  useEffect(() => {
-    console.log('=== Coordinate Update ===');
-    console.log('userCoordinates:', userCoordinates);
-    console.log('currentCoordinates:', currentCoordinates);
-    console.log('Will pass to map:', currentCoordinates || userCoordinates);
-  }, [userCoordinates, currentCoordinates]);
 
   const handleListingClick = (listing: Listing) => {
     setSelectedListing(listing);
