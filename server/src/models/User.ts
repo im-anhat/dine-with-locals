@@ -39,7 +39,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     phone: {
       type: String,
       trim: true,
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
@@ -50,7 +50,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
@@ -62,7 +62,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     cover: {
       type: String,
       default: '',
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
@@ -74,7 +74,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     role: {
       type: String,
       enum: ['Host', 'Guest'],
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
       default: 'Guest',
@@ -96,7 +96,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     locationId: {
       type: Schema.Types.ObjectId,
       ref: 'Location',
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
