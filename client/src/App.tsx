@@ -37,8 +37,8 @@ const App: React.FC = () => {
       // if it's the root path, set it to ['dashboard']
       if (pathSegments.length === 0) {
         setCurrentPath(['dashboard']);
-      } 
-      
+      }
+
       // if it's the profile path, fetch the user name by ID
       else if (pathSegments[0] === 'profile') {
         if (pathSegments.length > 1) {
@@ -111,16 +111,10 @@ const App: React.FC = () => {
           />
 
           <Route path="/profile">
-            <Route
+            {/* <Route
               index
-              element={
-                isAuthenticated ? (
-                  <ProfilePage userId={currentUser?._id} />
-                ) : (
-                  <Home />
-                )
-              }
-            />
+              element={isAuthenticated ? <ProfilePage /> : <Home />}
+            /> */}
             <Route path=":userId" element={<ProfilePage />} />
           </Route>
 

@@ -30,9 +30,7 @@ export const getUserById: RequestHandler = async (
       res.status(400).json({ error: 'Invalid user ID format' });
       return;
     }
-    const user = await User.findById(userId)
-      .select('-password')
-      .populate('locationId', 'coordinates'); // Exclude password field
+    const user = await User.findById(userId).select('-password'); // Exclude password field
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
