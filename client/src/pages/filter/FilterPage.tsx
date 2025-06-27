@@ -4,6 +4,7 @@ import FilterResults from '@/components/filter/FilterResult';
 import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
 import { useUser } from '../../contexts/UserContext';
+import { getLngLatFromLocationId } from '@/services/LocationService';
 
 import axios from 'axios';
 
@@ -69,13 +70,16 @@ const FilterPage = () => {
       try {
         //Change route to something else
         // const location = JSON.parse(currentUser.locationId);
+        const { lng, lat } = await getLngLatFromLocationId(
+          currentUser.locationId,
+        );
 
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
           {
             params: {
-              lat: currentUser.locationId.coordinates.lat,
-              lng: currentUser.locationId.coordinates.lng,
+              lat: lat,
+              lng: lng,
               distance: 80,
             },
           },
