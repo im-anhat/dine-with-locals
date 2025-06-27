@@ -59,6 +59,7 @@ export const updateUser: RequestHandler = async (
       socialLink,
       role,
       hobbies,
+      cuisines,
       ethnicity,
       bio,
       cover,
@@ -86,6 +87,7 @@ export const updateUser: RequestHandler = async (
     if (socialLink !== undefined) updateData.socialLink = socialLink;
     if (role !== undefined) updateData.role = role;
     if (hobbies !== undefined) updateData.hobbies = hobbies;
+    if (cuisines !== undefined) updateData.cuisines = cuisines;
     if (ethnicity !== undefined) updateData.ethnicity = ethnicity;
     if (bio !== undefined) updateData.bio = bio;
     if (cover !== undefined) updateData.cover = cover;

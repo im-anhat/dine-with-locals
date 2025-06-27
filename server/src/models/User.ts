@@ -13,6 +13,7 @@ export interface IUser extends Document {
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
+  cuisines: string[];
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   locationId: mongoose.Types.ObjectId;
@@ -80,6 +81,10 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
       default: 'Guest',
     },
     hobbies: {
+      type: [String],
+      default: [],
+    },
+    cuisines: {
       type: [String],
       default: [],
     },
