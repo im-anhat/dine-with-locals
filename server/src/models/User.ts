@@ -6,12 +6,14 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   phone?: string;
+  provider: 'Local' | 'Google';
   password: string;
   avatar: string;
   cover?: string;
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
+  cuisines: string[];
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   locationId: mongoose.Types.ObjectId;
@@ -38,11 +40,20 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     phone: {
       type: String,
       trim: true,
-      required: true,
+      required: function (this: IUser) {
+        return this.provider === 'Local';
+      },
+    },
+    provider: {
+      type: String,
+      enum: ['Local', 'Google'],
+      default: 'Local',
     },
     password: {
       type: String,
-      required: true,
+      required: function (this: IUser) {
+        return this.provider === 'Local';
+      },
     },
     avatar: {
       type: String,
@@ -52,7 +63,9 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     cover: {
       type: String,
       default: '',
-      trim: true,
+      required: function (this: IUser) {
+        return this.provider === 'Local';
+      },
     },
     socialLink: {
       type: String,
@@ -62,10 +75,16 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     role: {
       type: String,
       enum: ['Host', 'Guest'],
-      required: true,
+      required: function (this: IUser) {
+        return this.provider === 'Local';
+      },
       default: 'Guest',
     },
     hobbies: {
+      type: [String],
+      default: [],
+    },
+    cuisines: {
       type: [String],
       default: [],
     },
@@ -82,7 +101,9 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     locationId: {
       type: Schema.Types.ObjectId,
       ref: 'Location',
-      required: true,
+      required: function (this: IUser) {
+        return this.provider === 'Local';
+      },
     },
   },
   { timestamps: true },

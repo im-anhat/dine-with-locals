@@ -21,6 +21,24 @@ export const sendMessage = asyncHandler(
       return;
     }
 
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      res.status(404).json({ message: 'Chat not found' });
+      return;
+    }
+
+    if (chat.isGroupChat) {
+      if (
+        !chat.groupAdmin ||
+        chat.groupAdmin.toString() !== currentUser._id.toString()
+      ) {
+        res.status(403).json({
+          message: 'Only the host can send messages in this group chat.',
+        });
+        return;
+      }
+    }
+
     let newMessage = {
       senderId: currentUser._id,
       content: content,
@@ -57,14 +75,21 @@ export const sendMessage = asyncHandler(
 export const allMessages = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const skip = (page - 1) * limit;
+
       const messages = await Message.find({ chat: req.params.chatId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate('senderId', 'userName firstName lastName avatar')
         .populate('chat');
+
       res.status(200).json(messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       res.status(500).json({ message: 'Internal server error' });
-      return;
     }
   },
 );

@@ -135,7 +135,7 @@ const CardDetails = () => {
     numGuests: 8,
     duration: 3,
     time: '2024-12-15T19:00:00',
-    locationInfo: {
+    locationId: {
       address: '123 Culinary Street',
       city: 'San Francisco',
       state: 'CA',
@@ -143,7 +143,7 @@ const CardDetails = () => {
       country: 'United States',
       coordinates: { lat: 37.7749, lng: -122.4194 },
     },
-    userInfo: {
+    userId: {
       firstName: 'Chef',
       lastName: 'Rodriguez',
       userName: 'chef_rodriguez',
@@ -152,7 +152,7 @@ const CardDetails = () => {
     interestTopic: ['Food & Wine', 'Travel Stories', 'Local Culture'],
     dietary: ['Vegetarian Options', 'Gluten-Free Available'],
   };
-  console.log('content.userInfo.role', content.userInfo.role);
+  console.log('content.userId.role', content.userId.role);
   const datetime = formatDate(content.time);
 
   return (
@@ -259,24 +259,24 @@ const CardDetails = () => {
           >
             <div className="space-y-3">
               <p className="text-brand-stone-900 font-semibold text-lg">
-                {content.locationInfo.address}
+                {content.locationId.address}
               </p>
               <p className="text-brand-stone-600 text-lg">
-                {content.locationInfo.city}, {content.locationInfo.state}{' '}
-                {content.locationInfo.zipCode}
+                {content.locationId.city}, {content.locationId.state}{' '}
+                {content.locationId.zipCode}
               </p>
               <p className="text-brand-stone-600 text-lg">
-                {content.locationInfo.country}
+                {content.locationId.country}
               </p>
             </div>
-            {content.locationInfo.coordinates && (
+            {content.locationId.coordinates && (
               <div className="pt-4 border-t border-brand-shell-200">
                 <p className="text-sm text-brand-stone-500 mb-2 font-medium">
                   Coordinates
                 </p>
                 <p className="text-sm font-mono text-brand-stone-700 bg-brand-shell-100 p-2 rounded-lg">
-                  {content.locationInfo.coordinates.lat},{' '}
-                  {content.locationInfo.coordinates.lng}
+                  {content.locationId.coordinates.lat},{' '}
+                  {content.locationId.coordinates.lng}
                 </p>
               </div>
             )}
@@ -284,23 +284,23 @@ const CardDetails = () => {
 
           <DetailSection
             icon={User}
-            title={content.userInfo.role}
+            title={content.userId.role}
             iconBg="bg-brand-teal-100"
             iconColor="text-brand-teal-600"
           >
             <div className="space-y-4">
               <div>
                 <p className="text-brand-stone-900 font-semibold text-xl">
-                  {content.userInfo.firstName} {content.userInfo.lastName}
+                  {content.userId.firstName} {content.userId.lastName}
                 </p>
                 <p className="text-brand-stone-600 text-lg">
-                  @{content.userInfo.userName}
+                  @{content.userId.userName}
                 </p>
               </div>
               <div className="flex items-center gap-3 bg-brand-shell-100 p-3 rounded-lg">
                 <Phone className="w-5 h-5 text-brand-stone-500" />
                 <p className="text-brand-stone-700 font-medium">
-                  {content.userInfo.phone}
+                  {content.userId.phone}
                 </p>
               </div>
             </div>

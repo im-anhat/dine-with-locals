@@ -24,7 +24,7 @@ export const getUserById: RequestHandler = async (
   res: Response,
 ) => {
   try {
-    const userId  = req.params.userId.trim();
+    const userId = req.params.userId.trim();
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       res.status(400).json({ error: 'Invalid user ID format' });
@@ -57,6 +57,7 @@ export const updateUser: RequestHandler = async (
       socialLink,
       role,
       hobbies,
+      cuisines,
       ethnicity,
       bio,
       cover,
@@ -84,6 +85,7 @@ export const updateUser: RequestHandler = async (
     if (socialLink !== undefined) updateData.socialLink = socialLink;
     if (role !== undefined) updateData.role = role;
     if (hobbies !== undefined) updateData.hobbies = hobbies;
+    if (cuisines !== undefined) updateData.cuisines = cuisines;
     if (ethnicity !== undefined) updateData.ethnicity = ethnicity;
     if (bio !== undefined) updateData.bio = bio;
     if (cover !== undefined) updateData.cover = cover;

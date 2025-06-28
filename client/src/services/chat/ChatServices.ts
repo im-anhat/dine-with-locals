@@ -35,3 +35,21 @@ export const sendMessage = async (chatId: string, content: string) => {
   );
   return response.data;
 };
+
+// This function starts or creates a chat for a user with an optional listing ID.
+// for displaying the listing details in the chat
+export const startOrCreateChat = async (userId: string, listingId?: string) => {
+  const response = await axios.post(
+    `${API_URL}api/chat`,
+    {
+      userId,
+      listingId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response.data;
+};

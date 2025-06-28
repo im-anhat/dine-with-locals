@@ -4,7 +4,8 @@ import FilterResults from '@/components/filter/FilterResult';
 import FilterBar from '../../components/filter/FilterBar';
 import { DateRange } from 'react-day-picker';
 import { useUser } from '../../contexts/UserContext';
-import { useLocation } from 'react-router';
+import { getLngLatFromLocationId } from '@/services/LocationService';
+
 import axios from 'axios';
 
 const FilterPage = () => {
@@ -18,9 +19,9 @@ const FilterPage = () => {
 
   const [city, setCity] = useState<string | undefined>();
   const [dineAt, setDineAt] = useState<string | undefined>();
-  const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
+  const [numberOfGuests, setNumberOfGuests] = useState<number[] | undefined>();
   const [results, setResults] = useState<any[]>();
-  const { state } = useLocation();
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const { currentUser } = useUser();
 
@@ -29,6 +30,7 @@ const FilterPage = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     const obj = {
       startDate: dateRange?.from,
       endDate: dateRange?.to,
@@ -38,14 +40,15 @@ const FilterPage = () => {
       locationType: dineAt,
       numGuests: numberOfGuests,
     };
-    console.log('CURRENT USER RESULTS', currentUser);
+    console.log('obj', obj);
     let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
-    console.log('URL', url);
     try {
+      //Change the route to something else
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}`,
         obj,
       );
+      console.log('THIS IS WHERE THE PROBLEM IS', res);
       setResults(res.data);
       console.log('FILTER PAGE RESULTS', results);
     } catch (err) {
@@ -62,13 +65,26 @@ const FilterPage = () => {
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
-      let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+      let url =
+        currentUser?.role === 'Guest' ? 'listing/nearby' : 'request/nearby';
       try {
+        //Change route to something else
+        // const location = JSON.parse(currentUser.locationId);
+        const { lng, lat } = await getLngLatFromLocationId(
+          currentUser.locationId,
+        );
+
         const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}api/${url}`,
+          {
+            params: {
+              lat: lat,
+              lng: lng,
+              distance: 80,
+            },
+          },
         );
-        console.log('URL', `${import.meta.env.VITE_API_BASE_URL}api/${url}`);
-        console.log(res.data);
+        console.log('result', res.data);
         setResults(res.data);
       } catch (err) {
         setError('Something went wrong. Please try again.');
@@ -83,6 +99,46 @@ const FilterPage = () => {
   if (!currentUser) {
     return <p>Loading...</p>;
   }
+
+  const fetchResults = async (page: number) => {
+    setLoading(true);
+    setError(null);
+    const obj = {
+      startDate: dateRange?.from,
+      endDate: dateRange?.to,
+      category: category,
+      dietaryRestriction: dietaryRestrictions,
+      city: city,
+      locationType: dineAt,
+      numGuests: numberOfGuests,
+    };
+    console.log('obj', obj);
+    let url = currentUser?.role === 'Guest' ? 'listing' : 'request';
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}api/filter/${url}?p=${page}`,
+        obj,
+      );
+      setResults(res.data);
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+    fetchResults(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+      fetchResults(currentPage - 1);
+    }
+  };
 
   return (
     <>
@@ -103,10 +159,21 @@ const FilterPage = () => {
           onSubmit={submitValue}
         />
 
-        <div className="mt-6 mx-8">
-          {loading && <p className="text-muted-foreground">Loading...</p>}
-          {error && <p className="text-red-500">{error}</p>}
+        <div className="mt-4 mb-8 mx-8 flex flex-row justify-center">
           <FilterResults results={results ?? []} />
+        </div>
+        <div className="flex flex-row gap-4 w-full justify-center p-24">
+          <button
+            disabled={currentPage === 1}
+            onClick={handlePreviousPage}
+            className=""
+          >
+            Previous
+          </button>
+          <span>Page {currentPage}</span>
+          <button onClick={handleNextPage} className="btn">
+            Next
+          </button>
         </div>
       </div>
     </>
