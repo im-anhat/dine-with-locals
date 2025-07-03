@@ -7,7 +7,7 @@
     "test": "jest --testPathIgnorePatterns=dist",
     "test:watch": "jest --watch --testPathIgnorePatterns=dist",
     "test:coverage": "jest --coverage --testPathIgnorePatterns=dist",
-    "test:ci": "jest --config=jest.config.ci.json --ci",
+    "test:ci": "jest --testPathIgnorePatterns=dist --ci --verbose=false",
     "test:integration": "jest src/test/integration",
     "test:controllers": "jest src/test/controllers",
     "dev": "NODE_NO_WARNINGS=1 nodemon --watch src --exec \"node --loader ts-node/esm\" src/app.ts",

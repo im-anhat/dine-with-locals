@@ -141,14 +141,12 @@ export const signupUser = async (req: Request, res: Response) => {
       avatar: avatar,
       cover: cover,
     });
-    const token = createToken(user._id.toString());
+    // const token = createToken(user._id.toString());
 
-    res
-      .status(200)
-      .json({ token: token, message: 'User created successfully' });
+    res.status(200).json({ Message: 'Sign up success' });
   } catch (error: any) {
     //Error during signup: User validation failed: _id: Cast to ObjectId failed for value "" (type string) at path "_id" because of "BSONError"
     console.error('Error during signup:', error.message);
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ Error: error.message });
   }
 };

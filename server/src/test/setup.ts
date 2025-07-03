@@ -13,6 +13,8 @@ dotenv.config({ path: '.env.test' });
 
 // Set test environment
 process.env.NODE_ENV = 'test';
+// Set the same JWT secret that tests expect
+process.env.SECRET = 'test-secret';
 
 let mongod: any;
 

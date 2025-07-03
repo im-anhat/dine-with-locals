@@ -5,9 +5,8 @@
 
 import request from 'supertest';
 import mongoose from 'mongoose';
-import createTestApp from '../testApp.js';
+import testApp from '../testApp.js';
 
-const testApp = createTestApp();
 import {
   createTestUser,
   createTestListing,

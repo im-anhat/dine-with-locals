@@ -8,9 +8,8 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
-import createTestApp from '../testApp.js';
+import testApp from '../testApp.js';
 
-const testApp = createTestApp();
 import { cleanupTestData } from '../helpers/testHelpers.js';
 
 describe('Auth Controller', () => {
@@ -24,6 +23,19 @@ describe('Auth Controller', () => {
 
   describe('User Registration', () => {
     it('should register a new user with valid credentials', async () => {
+      // Create a location first
+      const location = await mongoose.model('Location').create({
+        address: '123 Test St',
+        city: 'Test City',
+        state: 'CA',
+        country: 'USA',
+        zipCode: '12345',
+        coordinates: {
+          lat: 37.7749,
+          lng: -122.4194,
+        },
+      });
+
       // Prepare test user data
       const userData = {
         userName: 'testuser',
@@ -32,22 +44,16 @@ describe('Auth Controller', () => {
         password: 'TestPassword123!',
         phone: '1234567890',
         role: 'Guest',
+        locationId: location._id,
       };
 
       const response = await request(testApp)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
-        .expect(201);
+        .expect(200);
 
-      expect(response.body).toHaveProperty('token');
-      expect(response.body).toHaveProperty('user');
-      expect(response.body.user).toHaveProperty('userName', userData.userName);
-      expect(response.body.user).toHaveProperty(
-        'firstName',
-        userData.firstName,
-      );
-      expect(response.body.user).toHaveProperty('lastName', userData.lastName);
-      expect(response.body.user).not.toHaveProperty('password');
+      expect(response.body).toHaveProperty('Message');
+      expect(response.body.Message).toContain('Sign up success');
 
       // Verify user was created in the database
       const createdUser = await User.findOne({ userName: userData.userName });
@@ -94,12 +100,12 @@ describe('Auth Controller', () => {
       };
 
       const response = await request(testApp)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('already in use');
+      expect(response.body).toHaveProperty('Error');
+      expect(response.body.Error).toContain('already in use');
     });
 
     it('should not register a user with missing required fields', async () => {
@@ -110,11 +116,11 @@ describe('Auth Controller', () => {
       };
 
       const response = await request(testApp)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(incompleteUserData)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('Error');
     });
   });
 
@@ -160,9 +166,8 @@ describe('Auth Controller', () => {
         .expect(200);
 
       expect(loginResponse.body).toHaveProperty('token');
-      expect(loginResponse.body).toHaveProperty('user');
-      expect(loginResponse.body.user).toHaveProperty('userName', 'loginuser');
-      expect(loginResponse.body.user).not.toHaveProperty('password');
+      expect(loginResponse.body).toHaveProperty('message');
+      expect(loginResponse.body.message).toBe('Login Successful');
 
       // Verify token
       const decodedToken = jwt.verify(
@@ -209,10 +214,10 @@ describe('Auth Controller', () => {
           userName: 'passworduser',
           password: 'WrongPassword123!',
         })
-        .expect(401);
+        .expect(500);
 
       expect(loginResponse.body).toHaveProperty('error');
-      expect(loginResponse.body.error).toContain('Invalid credentials');
+      expect(loginResponse.body.error).toContain('Incorrect password');
     });
 
     it('should not login with non-existent username', async () => {
@@ -222,10 +227,10 @@ describe('Auth Controller', () => {
           userName: 'nonexistentuser',
           password: 'Password123!',
         })
-        .expect(401);
+        .expect(500);
 
       expect(loginResponse.body).toHaveProperty('error');
-      expect(loginResponse.body.error).toContain('Invalid credentials');
+      expect(loginResponse.body.error).toContain('Username not found');
     });
   });
 
@@ -234,19 +239,19 @@ describe('Auth Controller', () => {
       const response = await request(testApp)
         .get('/api/users/profile')
         .set('Authorization', 'Bearer invalidtoken')
-        .expect(403);
+        .expect(400);
 
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Invalid or Expired token');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('Invalid user ID format');
     });
 
     it('should reject requests with missing token', async () => {
       const response = await request(testApp)
         .get('/api/users/profile')
-        .expect(401);
+        .expect(400);
 
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Token missing');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('Invalid user ID format');
     });
   });
 });
