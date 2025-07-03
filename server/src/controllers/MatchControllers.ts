@@ -5,6 +5,15 @@ import Listing from '../models/Listing.js';
 import { RequestHandler } from 'express';
 import mongoose from 'mongoose';
 
+export const getMatches: RequestHandler = async (req, res) => {
+  try {
+    const { hostId, guestId, listingId, requestId } = req.params;
+  } catch (err) {
+    console.error('Error fetching match', err);
+    res.status(500).json({ error: 'Failed to fetch match data' });
+  }
+};
+
 export const getMatchesByUserId: RequestHandler = async (req, res) => {
   try {
     const { userId } = req.params;

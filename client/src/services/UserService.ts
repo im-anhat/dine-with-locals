@@ -5,6 +5,7 @@ const API_BASE_URL =
 
 export const getUserById = async (userId: string): Promise<User> => {
   try {
+    console.log(`${API_BASE_URL}/users/${userId}`);
     const response = await fetch(`${API_BASE_URL}/users/${userId}`);
 
     if (!response.ok) {

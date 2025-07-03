@@ -101,7 +101,7 @@ export const getListingsWithinDistanceFromAPI = async (
  */
 export const getAllListings = async (): Promise<Listing[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/listings`);
+    const response = await axios.get(`${API_BASE_URL}/listing`);
     return response.data;
   } catch (error) {
     console.error('Error fetching all listings from API:', error);
@@ -118,7 +118,7 @@ export const createListing = async (
   listingData: Partial<Listing>,
 ): Promise<Listing> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/listings`, listingData);
+    const response = await axios.post(`${API_BASE_URL}/listing`, listingData);
     return response.data.listing;
   } catch (error) {
     console.error('Error creating listing:', error);
@@ -171,7 +171,7 @@ export const getListingsByUserId = async (
   userId: string,
 ): Promise<Listing[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/listings/user/${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/listing/user/${userId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching listings by user ID:', error);
@@ -191,7 +191,7 @@ export const updateListing = async (
 ): Promise<Listing> => {
   try {
     const response = await axios.put(
-      `${API_BASE_URL}/listings/${listingId}`,
+      `${API_BASE_URL}/listing/${listingId}`,
       listingData,
     );
     return response.data.listing;
@@ -208,7 +208,7 @@ export const updateListing = async (
  */
 export const deleteListing = async (listingId: string): Promise<void> => {
   try {
-    await axios.delete(`${API_BASE_URL}/listings/${listingId}`);
+    await axios.delete(`${API_BASE_URL}/listing/${listingId}`);
   } catch (error) {
     console.error('Error deleting listing:', error);
     throw error;

@@ -4,12 +4,16 @@ import {
   createMatchRequest,
   updateMatchRequest,
   deleteMatchRequest,
+  getMatches,
 } from '../controllers/MatchControllers.js';
 
 const router = express.Router();
 
 // GET matches by user ID
 router.get('/:userId', getMatchesByUserId);
+
+//GET matches with a combination of criteria: listingId, hostId, guestId
+router.get('/getMatches', getMatches);
 
 // POST create new matches
 router.post('/createMatch', createMatchRequest);
