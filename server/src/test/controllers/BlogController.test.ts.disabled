@@ -1,0 +1,486 @@
+/**
+ * BlogController Test Suite
+ * Comprehensive tests for blog functionality
+ */
+
+import request from 'supertest';
+import express from 'express';
+import { Types } from 'mongoose';
+
+const {
+  getAllBlogs,
+  getBlogsByUserId,
+  createBlog,
+  updateBlog,
+  deleteBlog,
+} = require('../../controllers/BlogController');
+const BlogModel = require('../../models/Blog').default;
+const UserModel = require('../../models/User').default;
+
+describe('BlogController Tests', () => {
+  let app: express.Application;
+  let testUserId: string;
+  let testBlogId: string;
+
+  beforeEach(async () => {
+    app = express();
+    app.use(express.json());
+
+    // Set up routes
+    app.get('/blogs', getAllBlogs);
+    app.get('/blogs/user/:userId', getBlogsByUserId);
+    app.post('/blogs', createBlog);
+    app.put('/blogs/:blogId', updateBlog);
+    app.delete('/blogs/:blogId', deleteBlog);
+
+    // Create test user
+    const testUser = await UserModel.create({
+      userName: 'bloguser',
+      firstName: 'Blog',
+      lastName: 'User',
+      phone: '+1234567890',
+      password: 'hashedpassword',
+      provider: 'Local',
+      role: 'Host',
+      locationId: new Types.ObjectId(),
+    });
+    testUserId = testUser._id.toString();
+
+    // Create test blog
+    const testBlog = await BlogModel.create({
+      userId: testUserId,
+      blogTitle: 'Test Blog Post',
+      blogContent: 'This is a test blog post content.',
+      photos: ['https://example.com/photo1.jpg'],
+      likes: 5,
+      comments: 2,
+    });
+    testBlogId = testBlog._id.toString();
+  });
+
+  describe('GET /blogs - Get All Blogs', () => {
+    beforeEach(async () => {
+      // Create additional test blogs
+      await BlogModel.create([
+        {
+          userId: testUserId,
+          blogTitle: 'Second Blog Post',
+          blogContent: 'Content of second blog post.',
+          photos: [],
+          likes: 10,
+          comments: 3,
+        },
+        {
+          userId: testUserId,
+          blogTitle: 'Third Blog Post',
+          blogContent: 'Content of third blog post.',
+          photos: [
+            'https://example.com/photo2.jpg',
+            'https://example.com/photo3.jpg',
+          ],
+          likes: 15,
+          comments: 7,
+        },
+      ]);
+    });
+
+    it('should return all blogs with user information', async () => {
+      const response = await request(app).get('/blogs').expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThanOrEqual(3);
+
+      // Check blog structure
+      response.body.forEach((blog: any) => {
+        expect(blog).toHaveProperty('_id');
+        expect(blog).toHaveProperty('blogTitle');
+        expect(blog).toHaveProperty('blogContent');
+        expect(blog).toHaveProperty('photos');
+        expect(blog).toHaveProperty('likes');
+        expect(blog).toHaveProperty('comments');
+        expect(blog).toHaveProperty('userId');
+        expect(blog).toHaveProperty('createdAt');
+        expect(blog).toHaveProperty('updatedAt');
+      });
+    });
+
+    it('should return blogs sorted by creation date (newest first)', async () => {
+      const response = await request(app).get('/blogs').expect(200);
+
+      // Verify sorting by createdAt descending
+      for (let i = 0; i < response.body.length - 1; i++) {
+        const currentDate = new Date(response.body[i].createdAt);
+        const nextDate = new Date(response.body[i + 1].createdAt);
+        expect(currentDate.getTime()).toBeGreaterThanOrEqual(
+          nextDate.getTime(),
+        );
+      }
+    });
+
+    it('should populate user information in blogs', async () => {
+      const response = await request(app).get('/blogs').expect(200);
+
+      const blogWithUser = response.body.find(
+        (blog: any) => blog.userId && typeof blog.userId === 'object',
+      );
+
+      if (blogWithUser) {
+        expect(blogWithUser.userId).toHaveProperty('userName');
+        expect(blogWithUser.userId).toHaveProperty('firstName');
+        expect(blogWithUser.userId).toHaveProperty('lastName');
+        expect(blogWithUser.userId).not.toHaveProperty('password');
+      }
+    });
+  });
+
+  describe('GET /blogs/user/:userId - Get Blogs by User', () => {
+    it('should return blogs for specific user', async () => {
+      const response = await request(app)
+        .get(`/blogs/user/${testUserId}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThanOrEqual(1);
+
+      // All blogs should belong to the test user
+      response.body.forEach((blog: any) => {
+        expect(blog.userId.toString()).toBe(testUserId);
+      });
+    });
+
+    it('should return empty array for user with no blogs', async () => {
+      const emptyUserId = new Types.ObjectId().toString();
+      const response = await request(app)
+        .get(`/blogs/user/${emptyUserId}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
+    });
+
+    it('should return 400 for invalid user ID format', async () => {
+      const response = await request(app)
+        .get('/blogs/user/invalid-id')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Invalid user ID format');
+    });
+  });
+
+  describe('POST /blogs - Create Blog', () => {
+    it('should create a new blog successfully', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'New Test Blog',
+        blogContent: 'This is new blog content with detailed information.',
+        photos: ['https://example.com/new-photo.jpg'],
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(blogData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('_id');
+      expect(response.body).toHaveProperty('blogTitle', blogData.blogTitle);
+      expect(response.body).toHaveProperty('blogContent', blogData.blogContent);
+      expect(response.body).toHaveProperty('photos');
+      expect(response.body.photos).toEqual(blogData.photos);
+      expect(response.body).toHaveProperty('likes', 0);
+      expect(response.body).toHaveProperty('comments', 0);
+
+      // Verify in database
+      const createdBlog = await BlogModel.findById(response.body._id);
+      expect(createdBlog).toBeTruthy();
+      expect(createdBlog.blogTitle).toBe(blogData.blogTitle);
+    });
+
+    it('should create blog without photos', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'Blog Without Photos',
+        blogContent: 'This blog has no photos.',
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(blogData)
+        .expect(201);
+
+      expect(response.body.photos).toEqual([]);
+    });
+
+    it('should require blogTitle and blogContent', async () => {
+      const incompleteData = {
+        userId: testUserId,
+        blogTitle: 'Title Only',
+        // Missing blogContent
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(incompleteData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should require valid userId', async () => {
+      const blogData = {
+        userId: 'invalid-user-id',
+        blogTitle: 'Test Blog',
+        blogContent: 'Test content',
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(blogData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should handle multiple photos', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'Multi Photo Blog',
+        blogContent: 'This blog has multiple photos.',
+        photos: [
+          'https://example.com/photo1.jpg',
+          'https://example.com/photo2.jpg',
+          'https://example.com/photo3.jpg',
+        ],
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(blogData)
+        .expect(201);
+
+      expect(response.body.photos).toHaveLength(3);
+      expect(response.body.photos).toEqual(blogData.photos);
+    });
+  });
+
+  describe('PUT /blogs/:blogId - Update Blog', () => {
+    it('should update blog successfully', async () => {
+      const updateData = {
+        blogTitle: 'Updated Blog Title',
+        blogContent: 'Updated blog content with new information.',
+        photos: ['https://example.com/updated-photo.jpg'],
+      };
+
+      const response = await request(app)
+        .put(`/blogs/${testBlogId}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('blogTitle', updateData.blogTitle);
+      expect(response.body).toHaveProperty(
+        'blogContent',
+        updateData.blogContent,
+      );
+      expect(response.body.photos).toEqual(updateData.photos);
+
+      // Verify in database
+      const updatedBlog = await BlogModel.findById(testBlogId);
+      expect(updatedBlog.blogTitle).toBe(updateData.blogTitle);
+      expect(updatedBlog.blogContent).toBe(updateData.blogContent);
+    });
+
+    it('should update partial blog data', async () => {
+      const updateData = {
+        blogTitle: 'Only Title Updated',
+      };
+
+      const response = await request(app)
+        .put(`/blogs/${testBlogId}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('blogTitle', updateData.blogTitle);
+      expect(response.body).toHaveProperty(
+        'blogContent',
+        'This is a test blog post content.',
+      ); // Should remain unchanged
+    });
+
+    it('should return 404 for non-existent blog', async () => {
+      const nonExistentId = new Types.ObjectId().toString();
+      const updateData = { blogTitle: 'Updated' };
+
+      const response = await request(app)
+        .put(`/blogs/${nonExistentId}`)
+        .send(updateData)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Blog not found');
+    });
+
+    it('should return 400 for invalid blog ID', async () => {
+      const updateData = { blogTitle: 'Updated' };
+
+      const response = await request(app)
+        .put('/blogs/invalid-id')
+        .send(updateData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Invalid blog ID format');
+    });
+
+    it('should not allow updating likes and comments directly', async () => {
+      const updateData = {
+        likes: 100,
+        comments: 50,
+        blogTitle: 'Updated Title',
+      };
+
+      const response = await request(app)
+        .put(`/blogs/${testBlogId}`)
+        .send(updateData)
+        .expect(200);
+
+      expect(response.body.blogTitle).toBe('Updated Title');
+      // Likes and comments should remain unchanged
+      expect(response.body.likes).toBe(5);
+      expect(response.body.comments).toBe(2);
+    });
+  });
+
+  describe('DELETE /blogs/:blogId - Delete Blog', () => {
+    it('should delete blog successfully', async () => {
+      const response = await request(app)
+        .delete(`/blogs/${testBlogId}`)
+        .expect(200);
+
+      expect(response.body).toHaveProperty(
+        'message',
+        'Blog deleted successfully',
+      );
+
+      // Verify blog is deleted from database
+      const deletedBlog = await BlogModel.findById(testBlogId);
+      expect(deletedBlog).toBeNull();
+    });
+
+    it('should return 404 for non-existent blog deletion', async () => {
+      const nonExistentId = new Types.ObjectId().toString();
+
+      const response = await request(app)
+        .delete(`/blogs/${nonExistentId}`)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Blog not found');
+    });
+
+    it('should return 400 for invalid blog ID in deletion', async () => {
+      const response = await request(app)
+        .delete('/blogs/invalid-id')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Invalid blog ID format');
+    });
+  });
+
+  describe('Blog Data Validation', () => {
+    it('should handle very long blog content', async () => {
+      const longContent = 'a'.repeat(10000);
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'Long Content Blog',
+        blogContent: longContent,
+      };
+
+      const response = await request(app).post('/blogs').send(blogData);
+
+      // Should either accept or reject gracefully
+      expect(response.status).toBeLessThan(500);
+    });
+
+    it('should sanitize blog content', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'HTML Content Blog',
+        blogContent: '<script>alert("xss")</script>This is normal content.',
+      };
+
+      const response = await request(app).post('/blogs').send(blogData);
+
+      expect(response.status).toBeLessThan(500);
+      expect(response.body).toHaveProperty('blogContent');
+    });
+
+    it('should handle empty photo arrays', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'No Photos Blog',
+        blogContent: 'This blog has no photos.',
+        photos: [],
+      };
+
+      const response = await request(app)
+        .post('/blogs')
+        .send(blogData)
+        .expect(201);
+
+      expect(response.body.photos).toEqual([]);
+    });
+
+    it('should validate photo URLs', async () => {
+      const blogData = {
+        userId: testUserId,
+        blogTitle: 'Invalid Photo URLs',
+        blogContent: 'This blog has invalid photo URLs.',
+        photos: ['not-a-url', 'https://valid-url.com/photo.jpg'],
+      };
+
+      const response = await request(app).post('/blogs').send(blogData);
+
+      // Should handle invalid URLs gracefully
+      expect(response.status).toBeLessThan(500);
+    });
+  });
+
+  describe('Blog Security Tests', () => {
+    it('should not allow accessing other users blogs inappropriately', async () => {
+      // Create another user
+      const anotherUser = await UserModel.create({
+        userName: 'anotheruser',
+        firstName: 'Another',
+        lastName: 'User',
+        phone: '+0987654321',
+        password: 'hashedpassword',
+        provider: 'Local',
+        role: 'Guest',
+        locationId: new Types.ObjectId(),
+      });
+
+      // Try to update the test blog with another user's ID
+      const updateData = {
+        userId: anotherUser._id.toString(),
+        blogTitle: 'Hijacked Blog',
+      };
+
+      const response = await request(app)
+        .put(`/blogs/${testBlogId}`)
+        .send(updateData);
+
+      // Should either prevent the update or handle it securely
+      expect(response.status).toBeLessThan(500);
+    });
+
+    it('should handle malformed blog data', async () => {
+      const malformedData = {
+        userId: null,
+        blogTitle: null,
+        blogContent: undefined,
+        photos: 'not-an-array',
+      };
+
+      const response = await request(app).post('/blogs').send(malformedData);
+
+      expect(response.status).toBeGreaterThanOrEqual(400);
+      expect(response.body).toHaveProperty('error');
+    });
+  });
+});

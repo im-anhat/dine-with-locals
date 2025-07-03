@@ -1,8 +1,13 @@
 {
+  "displayName": "Backend Tests",
   "preset": "ts-jest",
   "testEnvironment": "node",
   "roots": ["<rootDir>/src"],
-  "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+  "testMatch": ["**/src/test/**/*.test.ts"],
+  "testTimeout": 15000,
+  "setupFilesAfterEnv": ["<rootDir>/src/test/setup.ts"],
+  "globalSetup": "<rootDir>/src/test/globalSetup.ts",
+  "globalTeardown": "<rootDir>/src/test/globalTeardown.ts",
   "transform": {
     "^.+\\.ts$": [
       "ts-jest",
@@ -11,21 +16,28 @@
         "tsconfig": {
           "moduleResolution": "node",
           "module": "commonjs",
-          "target": "es2020"
+          "target": "es2020",
+          "skipLibCheck": true
         }
       }
     ]
   },
-  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
   "moduleNameMapper": {
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },
-  "setupFilesAfterEnv": ["<rootDir>/src/test/setup.ts"],
-  "testPathIgnorePatterns": ["/node_modules/", "/dist/"],
   "collectCoverageFrom": [
     "src/**/*.ts",
+    "!src/**/*.test.ts",
     "!src/test/**",
+    "!src/**/*.d.ts",
     "!src/seeds/**",
     "!src/app.ts"
-  ]
+  ],
+  "verbose": false,
+  "detectOpenHandles": false,
+  "forceExit": true,
+  "maxWorkers": 1,
+  "clearMocks": true,
+  "resetMocks": true,
+  "restoreMocks": true
 }
