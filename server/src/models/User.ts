@@ -62,10 +62,8 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     },
     cover: {
       type: String,
-      default: '',
-      required: function (this: IUser) {
-        return this.provider === 'Local';
-      },
+      default:
+        'https://plus.unsplash.com/premium_photo-1673177667569-e3321a8d8256?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y292ZXIlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D',
     },
     socialLink: {
       type: String,
