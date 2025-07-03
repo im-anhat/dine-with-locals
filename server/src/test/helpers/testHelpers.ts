@@ -67,6 +67,9 @@ export const createTestListing = async (
   locationId: mongoose.Types.ObjectId,
   listingData: any = {},
 ) => {
+  // Get location details to create the location object
+  const locationDetails = await Location.findById(locationId);
+
   const listing = await Listing.create({
     userId: userId,
     title: listingData.title || 'Test Listing',
@@ -77,7 +80,13 @@ export const createTestListing = async (
       'https://example.com/image2.jpg',
     ],
     category: listingData.category || 'dining',
-    locationId: locationId,
+    location: listingData.location || {
+      place_id: locationDetails?.place_id,
+      address: locationDetails?.address,
+      name: locationDetails?.name,
+      coordinates: locationDetails?.coordinates,
+    },
+    locationId: locationId, // Keep this field as it's required in the model
     additionalInfo: listingData.additionalInfo || 'Additional test info',
     status: listingData.status || 'waiting',
     time: listingData.time || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
