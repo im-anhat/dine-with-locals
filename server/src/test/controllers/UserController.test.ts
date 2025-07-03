@@ -6,7 +6,9 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 import User from '../../models/User.js';
-import testApp from '../testApp.js';
+import createTestApp from '../testApp.js';
+
+const testApp = createTestApp();
 import { createTestUser, cleanupTestData } from '../helpers/testHelpers.js';
 
 describe('User Controller', () => {

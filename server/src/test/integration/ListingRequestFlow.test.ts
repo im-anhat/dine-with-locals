@@ -4,7 +4,9 @@
  */
 
 import request from 'supertest';
-import testApp from '../testApp.js';
+import createTestApp from '../testApp.js';
+
+const testApp = createTestApp();
 import User from '../../models/User.js';
 import Listing from '../../models/Listing.js';
 import RequestModel from '../../models/Request.js';

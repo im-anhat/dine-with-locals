@@ -8,7 +8,9 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
-import testApp from '../testApp.js';
+import createTestApp from '../testApp.js';
+
+const testApp = createTestApp();
 import { cleanupTestData } from '../helpers/testHelpers.js';
 
 describe('Auth Controller', () => {
