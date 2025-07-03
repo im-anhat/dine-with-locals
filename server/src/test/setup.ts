@@ -3,17 +3,21 @@
  * This file is run before all tests to set up the testing environment
  */
 
+// @ts-nocheck - This file uses CommonJS for Jest compatibility
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
-// Load test environment variables
+// Load test environment variables first
 dotenv.config({ path: '.env.test' });
 
 // Set test environment
 process.env.NODE_ENV = 'test';
 
-let mongod: typeof MongoMemoryServer;
+// Override MongoDB URI to ensure we never connect to production
+process.env.MONGO_URI = 'mongodb://localhost:27017/test-memory-db';
+
+let mongod: any;
 
 /**
  * Connect to the in-memory database before running tests
