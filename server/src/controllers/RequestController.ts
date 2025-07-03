@@ -125,8 +125,6 @@ export const getNearbyRequests = async (req: Request, res: Response) => {
         };
       })
       .sort((a, b) => a.distance - b.distance);
-    console.log('REQUEST with DISTANCE', requestsWithDistance);
-
     res.status(200).json(requestsWithDistance);
   } catch (error) {
     console.error('Error finding nearby requests:', error);
