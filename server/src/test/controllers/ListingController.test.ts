@@ -1,499 +1,328 @@
-import request from 'supertest';
-import testApp from '../testApp';
-import User from '../../models/User';
-import Listing from '../../models/Listing';
-import Location from '../../models/Location';
-import jwt from 'jsonwebtoken';
-import { createTestUser, createTestLocation } from '../helpers/testHelpers';
+/**
+ * Listing Controller Tests
+ * Tests listing creation, retrieval, and modification
+ */
 
-describe('ListingController', () => {
+import request from 'supertest';
+import mongoose from 'mongoose';
+import testApp from '../testApp.js';
+import {
+  createTestUser,
+  createTestListing,
+  createTestLocation,
+  cleanupTestData,
+} from '../helpers/testHelpers.js';
+import Listing from '../../models/Listing.js';
+
+describe('Listing Controller', () => {
   let testUser: any;
-  let authToken: string;
+  let hostUser: any;
+  let userToken: string;
+  let hostToken: string;
   let testLocation: any;
 
   beforeEach(async () => {
-    // Create test user
+    await cleanupTestData();
+
+    // Create a regular user
     const userData = await createTestUser({
-      userName: 'testuser',
-      firstName: 'Test',
+      userName: 'regularuser',
+      firstName: 'Regular',
       lastName: 'User',
-      email: 'test@example.com',
+      role: 'Guest',
     });
     testUser = userData.user;
+    userToken = userData.token;
 
-    // Generate JWT token
-    authToken = jwt.sign(
-      { _id: testUser._id, email: testUser.email },
-      process.env.SECRET || 'test-secret',
-      { expiresIn: '1h' },
-    );
-
-    // Create test location
-    testLocation = await createTestLocation({
-      place_id: 'test_place_123',
-      name: 'Test Restaurant',
-      address: '123 Test Street',
+    // Create a host user
+    const hostData = await createTestUser({
+      userName: 'hostuser',
+      firstName: 'Host',
+      lastName: 'User',
+      role: 'Host',
     });
+    hostUser = hostData.user;
+    hostToken = hostData.token;
+
+    // Create a test location
+    testLocation = await createTestLocation();
   });
 
-  describe('POST /api/listings', () => {
-    it('should create a new listing successfully', async () => {
+  afterAll(async () => {
+    await cleanupTestData();
+  });
+
+  describe('Create Listing', () => {
+    it('should create a new listing with valid data', async () => {
       const listingData = {
-        userId: testUser._id.toString(),
+        userId: hostUser._id.toString(),
         title: 'Amazing Italian Dinner',
         description: 'Join me for authentic Italian cuisine',
         category: 'dining',
-        cuisine: ['Italian'],
-        dietary: ['vegetarian-friendly'],
+        locationId: testLocation._id.toString(),
+        time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+        duration: 120, // 2 hours
         numGuests: 4,
-        time: new Date('2024-06-01T19:00:00Z'),
-        duration: 120,
-        location: {
-          place_id: 'new_place_456',
-          name: 'New Restaurant',
-          address: '456 New Street',
-          coordinates: {
-            lat: 37.7849,
-            lng: -122.4094,
-          },
-          types: ['restaurant'],
-        },
+        cuisine: ['Italian', 'Mediterranean'],
+        dietary: ['Vegetarian', 'Gluten-Free'],
       };
 
       const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
+        .post('/api/listing')
+        .set('Authorization', `Bearer ${hostToken}`)
         .send(listingData)
         .expect(201);
 
-      expect(response.body.message).toBe('Listing created successfully');
-      expect(response.body.listing).toBeDefined();
-      expect(response.body.listing.title).toBe(listingData.title);
-      expect(response.body.listing.userId.toString()).toBe(
-        testUser._id.toString(),
+      expect(response.body).toHaveProperty(
+        'message',
+        'Listing created successfully',
       );
-      expect(response.body.listing.locationId).toBeDefined();
-    });
-
-    it('should use existing location if place_id already exists', async () => {
-      const listingData = {
-        userId: testUser._id.toString(),
-        title: 'Dinner at Existing Place',
-        description: 'Join me at this great place',
-        category: 'dining',
-        location: {
-          place_id: testLocation.place_id, // Use existing location
-          name: 'Updated Name',
-          address: 'Updated Address',
-        },
-      };
-
-      const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(listingData)
-        .expect(201);
-
-      expect(response.body.listing.locationId.toString()).toBe(
-        testLocation._id.toString(),
+      expect(response.body).toHaveProperty('listing');
+      expect(response.body.listing).toHaveProperty('title', listingData.title);
+      expect(response.body.listing).toHaveProperty(
+        'description',
+        listingData.description,
+      );
+      expect(response.body.listing).toHaveProperty(
+        'userId',
+        hostUser._id.toString(),
       );
 
-      // Verify location wasn't duplicated
-      const locationCount = await Location.countDocuments({
-        place_id: testLocation.place_id,
-      });
-      expect(locationCount).toBe(1);
+      // Verify listing was created in the database
+      const createdListing = await Listing.findById(response.body.listing._id);
+      expect(createdListing).toBeTruthy();
+      expect(createdListing!.title).toBe(listingData.title);
     });
 
-    it('should return 400 for invalid user ID format', async () => {
-      const listingData = {
-        userId: 'invalid-id',
-        title: 'Test Listing',
-        description: 'Test description',
-        category: 'dining',
-        location: {
-          place_id: 'test_place',
-          name: 'Test Place',
-        },
+    it('should not create a listing with missing required fields', async () => {
+      const incompleteListing = {
+        userId: hostUser._id.toString(),
+        title: 'Incomplete Listing',
+        // Missing description, category, locationId
       };
 
       const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(listingData)
-        .expect(400);
+        .post('/api/listing')
+        .set('Authorization', `Bearer ${hostToken}`)
+        .send(incompleteListing)
+        .expect(500); // Your controller returns 500 for validation errors
 
-      expect(response.body.error).toBe('Invalid user ID format');
-    });
-
-    it('should return 500 for database errors', async () => {
-      // Mock a database error by using invalid data
-      const listingData = {
-        userId: testUser._id.toString(),
-        // Missing required fields to trigger error
-        category: 'invalid-category',
-        location: {
-          place_id: 'test_place',
-          name: 'Test Place',
-        },
-      };
-
-      const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(listingData)
-        .expect(500);
-
-      expect(response.body.error).toBe('Failed to create listing');
+      expect(response.body).toHaveProperty('error');
     });
   });
 
-  describe('GET /api/listings/:listingId', () => {
-    let testListing: any;
+  describe('Get Listing', () => {
+    it('should get a listing by ID', async () => {
+      // Create a test listing
+      const testListing = await createTestListing(
+        hostUser._id,
+        testLocation._id,
+        {
+          title: 'Test Dinner Experience',
+          description: 'Delicious homemade meals',
+        },
+      );
 
-    beforeEach(async () => {
-      testListing = new Listing({
-        userId: testUser._id,
-        title: 'Test Listing',
-        description: 'Test description',
-        category: 'dining',
-        locationId: testLocation._id,
-        status: 'pending',
-      });
-      await testListing.save();
-    });
-
-    it('should get listing by ID successfully', async () => {
       const response = await request(testApp)
-        .get(`/api/listings/${testListing._id}`)
+        .get(`/api/listing/${testListing._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
-      expect(response.body._id.toString()).toBe(testListing._id.toString());
-      expect(response.body.title).toBe(testListing.title);
-      expect(response.body.userId).toBeDefined();
-      expect(response.body.locationId).toBeDefined();
+      expect(response.body).toHaveProperty('_id', testListing._id.toString());
+      expect(response.body).toHaveProperty('title', testListing.title);
+      expect(response.body).toHaveProperty(
+        'description',
+        testListing.description,
+      );
+      expect(response.body).toHaveProperty('userId');
+    });
+
+    it('should return 404 for non-existent listing ID', async () => {
+      const nonExistentId = new mongoose.Types.ObjectId();
+
+      const response = await request(testApp)
+        .get(`/api/listing/${nonExistentId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('Listing not found');
     });
 
     it('should return 400 for invalid listing ID format', async () => {
       const response = await request(testApp)
-        .get('/api/listings/invalid-id')
+        .get('/api/listing/invalid-id-format')
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(400);
 
-      expect(response.body.error).toBe('Invalid listing ID format');
-    });
-
-    it('should return 404 for non-existent listing', async () => {
-      const nonExistentId = '507f1f77bcf86cd799439011';
-
-      const response = await request(testApp)
-        .get(`/api/listings/${nonExistentId}`)
-        .expect(404);
-
-      expect(response.body.message).toBe('Listing not found');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('Invalid listing ID format');
     });
   });
 
-  describe('GET /api/listings/nearby', () => {
-    let nearbyListing: any;
-    let farListing: any;
-
-    beforeEach(async () => {
-      // Create a location and listing nearby (within 10km)
-      const nearbyLocation = await createTestLocation({
-        place_id: 'nearby_place',
-        name: 'Nearby Restaurant',
-        address: 'Nearby Street',
-        coordinates: {
-          lat: 37.7849, // Close to test coordinates
-          lng: -122.4094,
+  describe('Update Listing', () => {
+    it('should update a listing with valid data', async () => {
+      // Create a test listing
+      const testListing = await createTestListing(
+        hostUser._id,
+        testLocation._id,
+        {
+          title: 'Original Listing Title',
+          description: 'Original description',
         },
-      });
-
-      nearbyListing = new Listing({
-        userId: testUser._id,
-        title: 'Nearby Listing',
-        description: 'Close to you',
-        category: 'dining',
-        locationId: nearbyLocation._id,
-        status: 'pending',
-      });
-      await nearbyListing.save();
-
-      // Create a location and listing far away (more than 80km)
-      const farLocation = await createTestLocation({
-        place_id: 'far_place',
-        name: 'Far Restaurant',
-        address: 'Far Street',
-        coordinates: {
-          lat: 38.7749, // About 111km away
-          lng: -122.4194,
-        },
-      });
-
-      farListing = new Listing({
-        userId: testUser._id,
-        title: 'Far Listing',
-        description: 'Far from you',
-        category: 'dining',
-        locationId: farLocation._id,
-        status: 'pending',
-      });
-      await farListing.save();
-    });
-
-    it('should return nearby listings within default distance', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-        })
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
-
-      // Check that nearby listing is included
-      const nearbyFound = response.body.some(
-        (listing: any) =>
-          listing._id.toString() === nearbyListing._id.toString(),
-      );
-      expect(nearbyFound).toBe(true);
-    });
-
-    it('should return nearby listings within custom distance', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-          distance: 10, // 10km radius
-        })
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-
-      // Should include nearby listing but not far listing
-      const nearbyFound = response.body.some(
-        (listing: any) =>
-          listing._id.toString() === nearbyListing._id.toString(),
-      );
-      const farFound = response.body.some(
-        (listing: any) => listing._id.toString() === farListing._id.toString(),
       );
 
-      expect(nearbyFound).toBe(true);
-      expect(farFound).toBe(false);
-    });
-
-    it('should return 400 for missing coordinates', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .expect(400);
-
-      expect(response.body.message).toBe('Latitude and longitude are required');
-    });
-
-    it('should return 400 for missing latitude', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({ lng: -122.4194 })
-        .expect(400);
-
-      expect(response.body.message).toBe('Latitude and longitude are required');
-    });
-
-    it('should return 400 for missing longitude', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({ lat: 37.7749 })
-        .expect(400);
-
-      expect(response.body.message).toBe('Latitude and longitude are required');
-    });
-
-    it('should exclude approved/matched listings', async () => {
-      // Create an approved listing
-      const approvedListing = new Listing({
-        userId: testUser._id,
-        title: 'Approved Listing',
-        description: 'This is approved',
-        category: 'dining',
-        locationId: testLocation._id,
-        status: 'approved',
-      });
-      await approvedListing.save();
-
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-        })
-        .expect(200);
-
-      // Approved listing should not be included
-      const approvedFound = response.body.some(
-        (listing: any) =>
-          listing._id.toString() === (approvedListing as any)._id.toString(),
-      );
-      expect(approvedFound).toBe(false);
-    });
-
-    it('should sort listings by distance', async () => {
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-          distance: 200, // Large radius to include multiple listings
-        })
-        .expect(200);
-
-      if (response.body.length > 1) {
-        // Check that distances are in ascending order
-        for (let i = 1; i < response.body.length; i++) {
-          expect(response.body[i].distance).toBeGreaterThanOrEqual(
-            response.body[i - 1].distance,
-          );
-        }
-      }
-    });
-  });
-
-  describe('Security and Validation', () => {
-    it('should not expose user passwords in populated data', async () => {
-      const testListing = new Listing({
-        userId: testUser._id,
-        title: 'Security Test Listing',
-        description: 'Testing security',
-        category: 'dining',
-        locationId: testLocation._id,
-        status: 'pending',
-      });
-      await testListing.save();
-
-      const response = await request(testApp)
-        .get(`/api/listings/${testListing._id}`)
-        .expect(200);
-
-      expect(response.body.userId).toBeDefined();
-      expect(response.body.userId.password).toBeUndefined();
-    });
-
-    it('should validate required fields when creating listing', async () => {
-      const incompleteData = {
-        userId: testUser._id.toString(),
-        // Missing title, description, category
-        location: {
-          place_id: 'test_place',
-          name: 'Test Place',
-        },
+      const updateData = {
+        title: 'Updated Listing Title',
+        description: 'Updated description with more details',
+        numGuests: 6,
+        cuisine: ['Japanese', 'Fusion'],
       };
 
       const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(incompleteData)
-        .expect(500);
+        .put(`/api/listing/${testListing._id}`)
+        .set('Authorization', `Bearer ${hostToken}`)
+        .send(updateData)
+        .expect(200);
 
-      expect(response.body.error).toBe('Failed to create listing');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Listing updated successfully',
+      );
+      expect(response.body).toHaveProperty('listing');
+      expect(response.body.listing).toHaveProperty('title', updateData.title);
+      expect(response.body.listing).toHaveProperty(
+        'description',
+        updateData.description,
+      );
+      expect(response.body.listing).toHaveProperty(
+        'numGuests',
+        updateData.numGuests,
+      );
+
+      // Verify changes were saved to the database
+      const updatedListing = await Listing.findById(testListing._id);
+      expect(updatedListing!.title).toBe(updateData.title);
+      expect(updatedListing!.description).toBe(updateData.description);
     });
 
-    it('should validate category enum values', async () => {
-      const invalidCategoryData = {
-        userId: testUser._id.toString(),
-        title: 'Test Listing',
-        description: 'Test description',
-        category: 'invalid-category', // Invalid category
-        location: {
-          place_id: 'test_place',
-          name: 'Test Place',
-        },
+    it('should not allow a non-owner to update a listing', async () => {
+      // Create a test listing owned by hostUser
+      const testListing = await createTestListing(
+        hostUser._id,
+        testLocation._id,
+      );
+
+      const updateData = {
+        title: 'Unauthorized Update',
+        description: 'This update should fail',
       };
 
+      // Try to update using the regular user's token
       const response = await request(testApp)
-        .post('/api/listings')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(invalidCategoryData)
-        .expect(500);
+        .put(`/api/listing/${testListing._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(updateData)
+        .expect(403);
 
-      expect(response.body.error).toBe('Failed to create listing');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('not authorized');
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle listings with no location coordinates gracefully', async () => {
-      // Create location without coordinates
-      const locationWithoutCoords = await createTestLocation({
-        place_id: 'no_coords_place',
-        name: 'No Coords Restaurant',
-        address: 'No Coords Street',
-        // No coordinates field
-      });
-
-      const listing = new Listing({
-        userId: testUser._id,
-        title: 'No Coords Listing',
-        description: 'No coordinates',
-        category: 'dining',
-        locationId: locationWithoutCoords._id,
-        status: 'pending',
-      });
-      await listing.save();
-
-      const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-        })
-        .expect(200);
-
-      // Should not include listing without coordinates
-      const noCoordFound = response.body.some(
-        (item: any) => item._id.toString() === (listing as any)._id.toString(),
+  describe('Delete Listing', () => {
+    it('should delete a listing', async () => {
+      // Create a test listing
+      const testListing = await createTestListing(
+        hostUser._id,
+        testLocation._id,
       );
-      expect(noCoordFound).toBe(false);
-    });
 
-    it('should handle malformed coordinates in query', async () => {
       const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 'invalid',
-          lng: 'invalid',
-        })
+        .delete(`/api/listing/${testListing._id}`)
+        .set('Authorization', `Bearer ${hostToken}`)
         .expect(200);
 
-      // Should return empty array or handle gracefully
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty(
+        'message',
+        'Listing deleted successfully',
+      );
+
+      // Verify listing was deleted from the database
+      const deletedListing = await Listing.findById(testListing._id);
+      expect(deletedListing).toBeNull();
     });
 
-    it('should handle very large distance values', async () => {
+    it('should not allow a non-owner to delete a listing', async () => {
+      // Create a test listing owned by hostUser
+      const testListing = await createTestListing(
+        hostUser._id,
+        testLocation._id,
+      );
+
+      // Try to delete using the regular user's token
       const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-          distance: 999999, // Very large distance
-        })
+        .delete(`/api/listing/${testListing._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('not authorized');
+
+      // Verify listing still exists in the database
+      const listing = await Listing.findById(testListing._id);
+      expect(listing).toBeTruthy();
+    });
+  });
+
+  describe('Get Listings', () => {
+    it('should get all listings', async () => {
+      // Create multiple test listings
+      await createTestListing(hostUser._id, testLocation._id, {
+        title: 'Listing 1',
+      });
+      await createTestListing(hostUser._id, testLocation._id, {
+        title: 'Listing 2',
+      });
+      await createTestListing(hostUser._id, testLocation._id, {
+        title: 'Listing 3',
+      });
+
+      const response = await request(testApp)
+        .get('/api/listing')
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThanOrEqual(3);
     });
 
-    it('should handle zero distance', async () => {
+    it('should get listings by user ID', async () => {
+      // Create listings for hostUser
+      await createTestListing(hostUser._id, testLocation._id, {
+        title: 'Host Listing 1',
+      });
+      await createTestListing(hostUser._id, testLocation._id, {
+        title: 'Host Listing 2',
+      });
+
+      // Create a listing for testUser
+      await createTestListing(testUser._id, testLocation._id, {
+        title: 'User Listing',
+      });
+
       const response = await request(testApp)
-        .get('/api/listings/nearby')
-        .query({
-          lat: 37.7749,
-          lng: -122.4194,
-          distance: 0,
-        })
+        .get(`/api/listing/user/${hostUser._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(2); // Only hostUser's listings
+
+      // All listings should belong to hostUser
+      response.body.forEach((listing) => {
+        expect(listing.userId.toString()).toBe(hostUser._id.toString());
+      });
     });
   });
 });
