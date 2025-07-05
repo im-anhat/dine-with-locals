@@ -19,3 +19,8 @@ ehthumbs.db
 
 node_modules/
 __pycache__/
+
+# Coverage reports
+coverage/
+client/coverage/
+server/coverage/
