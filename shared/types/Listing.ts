@@ -15,6 +15,7 @@ export interface PopulatedLocation {
 export interface Listing {
   _id: string;
   userId: {
+    _id: string;
     userName: string;
     firstName: string;
     lastName: string;
