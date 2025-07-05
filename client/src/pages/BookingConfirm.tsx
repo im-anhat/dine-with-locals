@@ -194,7 +194,8 @@ const BookingConfirm = () => {
             </DialogTitle>
           </DialogHeader>
           <DialogDescription>
-            You have already requested a booking for this experience. You can check the status in your dashboard.
+            You have already requested a booking for this experience. You can
+            check the status in your dashboard.
           </DialogDescription>
           <DialogFooter>
             <Button

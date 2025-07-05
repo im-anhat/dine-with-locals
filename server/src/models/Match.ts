@@ -42,6 +42,6 @@ const MatchSchema: Schema = new Schema(
 );
 
 // Update composite index to use ObjectId fields
-MatchSchema.index({ hostId: 1, guestId: 1, time: 1 }, { unique: true });
+MatchSchema.index({ hostId: 1, guestId: 1, listingId: 1 }, { unique: true });
 
 export default mongoose.model<IMatch>('Match', MatchSchema);
