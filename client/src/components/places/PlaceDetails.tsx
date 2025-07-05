@@ -56,7 +56,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
 
   const handleOpenChat = async () => {
     try {
-      const chat = await startOrCreateChat(item.userId._id, item._id); // neu co eslint error mn ke nhe
+      const chat = await startOrCreateChat((item.userId as any)._id, item._id); // Type assertion for userId._id
 
       // Emit the chat creation event to the socket server
       if (!socket) return;

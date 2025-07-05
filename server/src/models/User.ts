@@ -62,10 +62,8 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     },
     cover: {
       type: String,
-      default: '',
-      required: function (this: IUser) {
-        return this.provider === 'Local';
-      },
+      default:
+        'https://iwritingsolutions.com/wp-content/uploads/2022/05/starry-sky-night-dark-wallpaper-preview-1.jpg',
     },
     socialLink: {
       type: String,

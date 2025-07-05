@@ -117,6 +117,7 @@ export const signupUser = async (req: Request, res: Response) => {
       role,
       locationId,
       avatar,
+      cover,
     } = req.body;
     // Check if the userName is already in use
     const existing = await UserModel.findOne({ userName });
@@ -138,6 +139,7 @@ export const signupUser = async (req: Request, res: Response) => {
       role: role,
       locationId: locationId,
       avatar: avatar,
+      cover: cover,
     });
     // const token = createToken(user._id.toString());
 

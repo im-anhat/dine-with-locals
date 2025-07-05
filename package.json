@@ -1,6 +1,22 @@
 {
   "scripts": {
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:ci": "npm run test:backend:ci && npm run test:frontend:ci",
+    "test:backend": "cd server && npm test",
+    "test:backend:ci": "cd server && npm run test:ci",
+    "test:frontend": "cd client && npm test",
+    "test:frontend:ci": "cd client && npm run test:ci",
+    "test:coverage": "npm run test:backend:coverage && npm run test:frontend:coverage",
+    "test:backend:coverage": "cd server && npm run test:coverage",
+    "test:frontend:coverage": "cd client && npm run test:coverage",
+    "dev:backend": "cd server && npm run dev",
+    "dev:frontend": "cd client && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd server && npm run build",
+    "build:frontend": "cd client && npm run build",
+    "setup": "npm install && cd server && npm install && cd ../client && npm install",
+    "clean": "rm -rf node_modules server/node_modules client/node_modules"
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
