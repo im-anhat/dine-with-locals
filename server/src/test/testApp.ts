@@ -12,6 +12,7 @@ import locationRoutes from '../routes/LocationRoutes.js';
 import userRoutes from '../routes/UserRoutes.js';
 import listingRoutes from '../routes/ListingRoutes.js';
 import requestRoutes from '../routes/RequestRoutes.js';
+import blogRoutes from '../routes/BlogRoutes.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 
 const app = express();
@@ -39,6 +40,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/blogs', blogRoutes);
 app.use('/api/listing', authMiddleware, listingRoutes);
 app.use('/api/request', authMiddleware, requestRoutes);
 
