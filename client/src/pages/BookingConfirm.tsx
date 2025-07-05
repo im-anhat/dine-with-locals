@@ -94,11 +94,7 @@ const BookingConfirm = () => {
       additionalDetails: values.additionalDetails,
       hostInfo: values.hostInfo,
     };
-
-    console.log('handleBookingConfirm called with values:', bookingData);
-    console.log('Booking Success', bookingSuccess);
-    console.log('Booking Exists', bookingExists);
-
+    
     try {
       const response = await createBookingRequest(bookingData);
       console.log('Booking confirmed:', response);
