@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 // Mock environment variables for testing - NO PRODUCTION DATA
 Object.defineProperty(import.meta, 'env', {
   value: {
-    VITE_API_BASE_URL: 'http://localhost:3001/',
+    VITE_API_BASE_URL: 'http://localhost:3000/',
     VITE_GOOGLE_MAPS_API_KEY: 'test_api_key',
     GOOGLE_AUTH_CLIENT_ID: 'test_client_id',
     MODE: 'test',

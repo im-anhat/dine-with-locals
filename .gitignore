@@ -18,6 +18,12 @@ ehthumbs.db
 node_modules/
 __pycache__/
 
+# Build outputs
+dist/
+build/
+client/dist/
+server/dist/
+
 # Coverage reports
 coverage/
 client/coverage/
