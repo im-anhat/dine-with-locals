@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import PendingCard from './ui/PendingCard';
-import { getListingsByUserId } from '../../services/ListingService';
+import {
+  getListingsByUserId,
+  getMatchesFromListingId,
+} from '../../services/ListingService';
+import { Match } from '../../services/ListingService';
 import { useUser } from '../../contexts/UserContext';
 import { Listing } from '../../../../shared/types/Listing';
 import { getMatches } from '../../services/MatchService';
@@ -26,12 +30,11 @@ export type PendingCardProps = Pick<
   time: Date;
 };
 
-type matchGuestInfo = Record<string, PendingCardProps>;
 function HostSidePending() {
   const [listings, setListings] = useState<Listing[] | null>(null);
   //Mapping is a dictionary map a listingID in line 31 to a List of Matches, get user information in the match using .populate()
   //OR create another API endpoint to get all user information in each match.
-  const [mapping, setMapping] = useState<R>();
+  const [mapping, setMapping] = useState<Record<string, Match[]>>({});
   const { currentUser } = useUser();
   const currUserId = currentUser?._id ?? 'undefined';
 
@@ -47,21 +50,34 @@ function HostSidePending() {
     fetchUserListing();
   }, []);
 
-  //Fetch all listing
+  //Populate listingID, Match to mapping record
+  useEffect(() => {
+    const fetchMatches = async () => {
+      if (!listings) return;
+      const entries = await Promise.all(
+        listings.map(async (listing) => {
+          const matches = await getMatchesFromListingId(listing._id);
+          return [listing._id, matches] as [string, Match[]];
+        }),
+      );
+      setMapping(Object.fromEntries(entries));
+    };
+
+    fetchMatches();
+    console.log(mapping);
+  }, [listings]);
 
   //Get the maatches -> user of each listing
-  const fetchMatches = async (listingId: string) => {
-    const matches = await getMatches(
-      currentUser?._id ?? null,
-      null,
-      listingId ?? null,
-      null,
-    );
-    return matches;
-  };
-  const [currentMatches, setCurrentMatches] = useState<PendingCardProps | null>(
-    null,
-  );
+  // const fetchMatches = async (listingId: string) => {
+  //   const matches = await getMatches(
+  //     currentUser?._id ?? null,
+  //     null,
+  //     listingId ?? null,
+  //     null,
+  //   );
+  //   return matches;
+  // };
+
   // const matches: matchGuestInfo =
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto px-4 py-8">
@@ -112,7 +128,7 @@ function HostSidePending() {
               )}
             </div>
             <div className="mb-8">
-              <PendingCard {...currentMatches} />
+              {/* <PendingCard {...currentMatches} /> */}
             </div>
           </div>
         );

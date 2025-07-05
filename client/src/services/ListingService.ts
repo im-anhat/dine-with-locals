@@ -1,11 +1,17 @@
 import axios from 'axios';
 import { Listing } from '../../../shared/types/Listing';
-
 export interface Coordinates {
   lat: number;
   lng: number;
 }
-
+export interface Match {
+  hostId: string;
+  guestId: string;
+  listingId?: string; // References Listing._id
+  requestId?: string; // References Request._id
+  status: 'pending' | 'approved';
+  time: Date;
+}
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL + 'api' || 'http://localhost:3000/api';
 
@@ -159,6 +165,26 @@ export const getListingById = async (listingId: string): Promise<Listing> => {
       }
     }
     throw error;
+  }
+};
+
+/**
+ * Get a list of Match document from listingID
+ * @param listingId ID of the listing to fetch
+ * @returns Promise<Listing> Listing data
+ */
+
+export const getMatchesFromListingId = async (
+  listingId: string,
+): Promise<Match[]> => {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/listing/match/${listingId}`,
+    );
+    return result.data;
+  } catch (err) {
+    console.error('Error fetching matching by listing ID:', err);
+    throw err;
   }
 };
 
