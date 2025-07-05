@@ -8,8 +8,6 @@
 Thumbs.db
 cicd.md
 
-package-lock.json
-
 .idea/
 *.sublime-workspace
 *.sublime-project
