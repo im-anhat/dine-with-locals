@@ -34,7 +34,7 @@ describe('Location Controller', () => {
         zipCode: '12345',
         coordinates: { lat: 37.7749, lng: -122.4194 },
         name: 'Test Location 1',
-        place_id: 'test-place-1'
+        place_id: 'test-place-1',
       });
 
       const location2 = await Location.create({
@@ -43,14 +43,12 @@ describe('Location Controller', () => {
         state: 'NY',
         country: 'USA',
         zipCode: '67890',
-        coordinates: { lat: 40.7128, lng: -74.0060 },
+        coordinates: { lat: 40.7128, lng: -74.006 },
         name: 'Test Location 2',
-        place_id: 'test-place-2'
+        place_id: 'test-place-2',
       });
 
-      const response = await request(testApp)
-        .get('/api/location')
-        .expect(200);
+      const response = await request(testApp).get('/api/location').expect(200);
 
       expect(response.body).toHaveLength(2);
       expect(response.body[0].city).toBeDefined();
@@ -58,9 +56,7 @@ describe('Location Controller', () => {
     });
 
     it('should return empty array when no locations exist', async () => {
-      const response = await request(testApp)
-        .get('/api/location')
-        .expect(200);
+      const response = await request(testApp).get('/api/location').expect(200);
 
       expect(response.body).toHaveLength(0);
     });
@@ -70,11 +66,12 @@ describe('Location Controller', () => {
         throw new Error('Database error');
       });
 
-      const response = await request(testApp)
-        .get('/api/location')
-        .expect(500);
+      const response = await request(testApp).get('/api/location').expect(500);
 
-      expect(response.body).toHaveProperty('message', 'Server error while fetching locations');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Server error while fetching locations',
+      );
     });
   });
 
@@ -83,15 +80,17 @@ describe('Location Controller', () => {
       // Mock successful Google Maps API response
       mockedAxios.get.mockResolvedValue({
         data: {
-          results: [{
-            geometry: {
-              location: {
-                lat: 37.7749,
-                lng: -122.4194
-              }
-            }
-          }]
-        }
+          results: [
+            {
+              geometry: {
+                location: {
+                  lat: 37.7749,
+                  lng: -122.4194,
+                },
+              },
+            },
+          ],
+        },
       });
     });
 
@@ -101,7 +100,7 @@ describe('Location Controller', () => {
         city: 'Mountain View',
         state: 'CA',
         country: 'USA',
-        zipCode: '94043'
+        zipCode: '94043',
       };
 
       const response = await request(testApp)
@@ -110,7 +109,10 @@ describe('Location Controller', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty('locationId');
-      expect(response.body).toHaveProperty('message', 'Location created successfully in location collection');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Location created successfully in location collection',
+      );
 
       // Verify location was saved to database
       const savedLocation = await Location.findById(response.body.locationId);
@@ -118,19 +120,21 @@ describe('Location Controller', () => {
       expect(savedLocation!.city).toBe(locationData.city);
       expect(savedLocation!.coordinates).toEqual({
         lat: 37.7749,
-        lng: -122.4194
+        lng: -122.4194,
       });
 
       // Verify Google Maps API was called
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        expect.stringContaining('https://maps.googleapis.com/maps/api/geocode/json')
+        expect.stringContaining(
+          'https://maps.googleapis.com/maps/api/geocode/json',
+        ),
       );
     });
 
     it('should create location with minimal required fields', async () => {
       const locationData = {
         city: 'Simple City',
-        country: 'USA'
+        country: 'USA',
       };
 
       const response = await request(testApp)
@@ -139,7 +143,7 @@ describe('Location Controller', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty('locationId');
-      
+
       // Verify in database
       const savedLocation = await Location.findById(response.body.locationId);
       expect(savedLocation!.city).toBe(locationData.city);
@@ -152,7 +156,7 @@ describe('Location Controller', () => {
       const locationData = {
         address: '123 Error St',
         city: 'Error City',
-        country: 'USA'
+        country: 'USA',
       };
 
       const response = await request(testApp)
@@ -170,7 +174,7 @@ describe('Location Controller', () => {
 
       const locationData = {
         city: 'Error City',
-        country: 'USA'
+        country: 'USA',
       };
 
       const response = await request(testApp)
@@ -192,9 +196,9 @@ describe('Location Controller', () => {
         state: 'TX',
         country: 'USA',
         zipCode: '75001',
-        coordinates: { lat: 32.7767, lng: -96.7970 },
+        coordinates: { lat: 32.7767, lng: -96.797 },
         name: 'Get Test Location',
-        place_id: 'get-test-place'
+        place_id: 'get-test-place',
       });
     });
 
@@ -208,7 +212,7 @@ describe('Location Controller', () => {
       expect(response.body.address).toBe('789 Get Test St');
       expect(response.body.coordinates).toEqual({
         lat: 32.7767,
-        lng: -96.7970
+        lng: -96.797,
       });
     });
 
@@ -217,12 +221,15 @@ describe('Location Controller', () => {
         .get('/api/location/invalid-id')
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Invalid location ID format');
+      expect(response.body).toHaveProperty(
+        'error',
+        'Invalid location ID format',
+      );
     });
 
     it('should return 404 for non-existent location', async () => {
       const nonExistentId = new mongoose.Types.ObjectId();
-      
+
       const response = await request(testApp)
         .get(`/api/location/${nonExistentId}`)
         .expect(404);
@@ -239,7 +246,10 @@ describe('Location Controller', () => {
         .get(`/api/location/${testLocation._id}`)
         .expect(500);
 
-      expect(response.body).toHaveProperty('message', 'Server error while fetching location');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Server error while fetching location',
+      );
     });
   });
 
@@ -254,7 +264,7 @@ describe('Location Controller', () => {
         country: 'USA',
         zipCode: '33101',
         coordinates: { lat: 25.7617, lng: -80.1918 },
-        name: 'Update Test Location'
+        name: 'Update Test Location',
       });
     });
 
@@ -262,8 +272,8 @@ describe('Location Controller', () => {
       const newCoordinates = {
         coordinates: {
           lat: 26.7617,
-          lng: -81.1918
-        }
+          lng: -81.1918,
+        },
       };
 
       const response = await request(testApp)
@@ -271,8 +281,13 @@ describe('Location Controller', () => {
         .send(newCoordinates)
         .expect(200);
 
-      expect(response.body).toHaveProperty('message', 'Location coordinates updated successfully');
-      expect(response.body.location.coordinates).toEqual(newCoordinates.coordinates);
+      expect(response.body).toHaveProperty(
+        'message',
+        'Location coordinates updated successfully',
+      );
+      expect(response.body.location.coordinates).toEqual(
+        newCoordinates.coordinates,
+      );
 
       // Verify in database
       const updatedLocation = await Location.findById(testLocation._id);
@@ -281,7 +296,7 @@ describe('Location Controller', () => {
 
     it('should return 400 for invalid location ID format', async () => {
       const coordinates = {
-        coordinates: { lat: 25.7617, lng: -80.1918 }
+        coordinates: { lat: 25.7617, lng: -80.1918 },
       };
 
       const response = await request(testApp)
@@ -289,7 +304,10 @@ describe('Location Controller', () => {
         .send(coordinates)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Invalid location ID format');
+      expect(response.body).toHaveProperty(
+        'error',
+        'Invalid location ID format',
+      );
     });
 
     it('should return 400 for missing coordinates', async () => {
@@ -298,12 +316,15 @@ describe('Location Controller', () => {
         .send({})
         .expect(400);
 
-      expect(response.body).toHaveProperty('message', 'Invalid coordinates provided');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Invalid coordinates provided',
+      );
     });
 
     it('should return 400 for invalid coordinates format', async () => {
       const invalidCoordinates = {
-        coordinates: { lat: 'invalid' }
+        coordinates: { lat: 'invalid' },
       };
 
       const response = await request(testApp)
@@ -311,13 +332,16 @@ describe('Location Controller', () => {
         .send(invalidCoordinates)
         .expect(400);
 
-      expect(response.body).toHaveProperty('message', 'Invalid coordinates provided');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Invalid coordinates provided',
+      );
     });
 
     it('should return 404 for non-existent location', async () => {
       const nonExistentId = new mongoose.Types.ObjectId();
       const coordinates = {
-        coordinates: { lat: 25.7617, lng: -80.1918 }
+        coordinates: { lat: 25.7617, lng: -80.1918 },
       };
 
       const response = await request(testApp)
@@ -334,7 +358,7 @@ describe('Location Controller', () => {
       });
 
       const coordinates = {
-        coordinates: { lat: 25.7617, lng: -80.1918 }
+        coordinates: { lat: 25.7617, lng: -80.1918 },
       };
 
       const response = await request(testApp)
@@ -342,7 +366,10 @@ describe('Location Controller', () => {
         .send(coordinates)
         .expect(500);
 
-      expect(response.body).toHaveProperty('message', 'Server error while updating location coordinates');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Server error while updating location coordinates',
+      );
     });
   });
 
@@ -351,22 +378,22 @@ describe('Location Controller', () => {
       // Create test locations at various distances
       await Location.create({
         city: 'San Francisco',
-        coordinates: { lat: 37.7749, lng: -122.4194 }
+        coordinates: { lat: 37.7749, lng: -122.4194 },
       });
 
       await Location.create({
         city: 'Oakland',
-        coordinates: { lat: 37.8044, lng: -122.2711 }
+        coordinates: { lat: 37.8044, lng: -122.2711 },
       });
 
       await Location.create({
         city: 'Los Angeles',
-        coordinates: { lat: 34.0522, lng: -118.2437 }
+        coordinates: { lat: 34.0522, lng: -118.2437 },
       });
 
       await Location.create({
         city: 'New York',
-        coordinates: { lat: 40.7128, lng: -74.0060 }
+        coordinates: { lat: 40.7128, lng: -74.006 },
       });
     });
 
@@ -376,12 +403,12 @@ describe('Location Controller', () => {
         .get('/api/location/nearby')
         .query({
           lat: 37.7749,
-          lng: -122.4194
+          lng: -122.4194,
         })
         .expect(200);
 
       expect(response.body.length).toBeGreaterThan(0);
-      
+
       // Should include San Francisco and Oakland (close), but not New York (far)
       const cities = response.body.map((loc: any) => loc.city);
       expect(cities).toContain('San Francisco');
@@ -395,12 +422,12 @@ describe('Location Controller', () => {
         .query({
           lat: 37.7749,
           lng: -122.4194,
-          distance: 20
+          distance: 20,
         })
         .expect(200);
 
       expect(response.body.length).toBeGreaterThan(0);
-      
+
       // Should include San Francisco and Oakland
       const cities = response.body.map((loc: any) => loc.city);
       expect(cities).toContain('San Francisco');
@@ -414,7 +441,7 @@ describe('Location Controller', () => {
         .query({
           lat: 0,
           lng: 0,
-          distance: 1
+          distance: 1,
         })
         .expect(200);
 
@@ -425,22 +452,28 @@ describe('Location Controller', () => {
       const response = await request(testApp)
         .get('/api/location/nearby')
         .query({
-          lng: -122.4194
+          lng: -122.4194,
         })
         .expect(400);
 
-      expect(response.body).toHaveProperty('message', 'Latitude and longitude are required');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Latitude and longitude are required',
+      );
     });
 
     it('should return 400 when longitude is missing', async () => {
       const response = await request(testApp)
         .get('/api/location/nearby')
         .query({
-          lat: 37.7749
+          lat: 37.7749,
         })
         .expect(400);
 
-      expect(response.body).toHaveProperty('message', 'Latitude and longitude are required');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Latitude and longitude are required',
+      );
     });
 
     it('should handle server errors gracefully', async () => {
@@ -452,31 +485,34 @@ describe('Location Controller', () => {
         .get('/api/location/nearby')
         .query({
           lat: 37.7749,
-          lng: -122.4194
+          lng: -122.4194,
         })
         .expect(500);
 
-      expect(response.body).toHaveProperty('message', 'Server error while finding nearby locations');
+      expect(response.body).toHaveProperty(
+        'message',
+        'Server error while finding nearby locations',
+      );
     });
 
     it('should handle locations without coordinates', async () => {
       // Create location without coordinates
       await Location.create({
         city: 'No Coordinates City',
-        country: 'USA'
+        country: 'USA',
       });
 
       const response = await request(testApp)
         .get('/api/location/nearby')
         .query({
           lat: 37.7749,
-          lng: -122.4194
+          lng: -122.4194,
         })
         .expect(200);
 
       // Should still return locations with coordinates
       expect(response.body.length).toBeGreaterThan(0);
-      
+
       // All returned locations should have coordinates
       response.body.forEach((location: any) => {
         expect(location.coordinates).toBeDefined();

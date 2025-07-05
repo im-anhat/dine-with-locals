@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -94,7 +94,8 @@
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
-<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -103,28 +104,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import express from 'express';
 import {
   getAllBlogs,
@@ -135,25 +135,25 @@ import {
   getBlogById,
 } from '../controllers/BlogController.js';
 &nbsp;
-const router = <span class="cstat-no" title="statement not covered" >express.Router();</span>
+const router = express.Router();
 &nbsp;
 // GET /api/blogs - Fetch all blogs
-<span class="cstat-no" title="statement not covered" >router.get('/', getAllBlogs);</span>
+router.get('/', getAllBlogs);
 &nbsp;
 // GET /api/blogs/user/:userId - Fetch all blogs by userId
-<span class="cstat-no" title="statement not covered" >router.get('/user/:userId', getBlogsByUserId);</span>
+router.get('/user/:userId', getBlogsByUserId);
 &nbsp;
 // GET /api/blogs/:id - Fetch a single blog by ID
-<span class="cstat-no" title="statement not covered" >router.get('/:id', getBlogById);</span>
+router.get('/:id', getBlogById);
 &nbsp;
 // POST /api/blogs - Create a new blog
-<span class="cstat-no" title="statement not covered" >router.post('/', createBlog);</span>
+router.post('/', createBlog);
 &nbsp;
 // PUT /api/blogs/:id - Update a blog
-<span class="cstat-no" title="statement not covered" >router.put('/:id', updateBlog);</span>
+router.put('/:id', updateBlog);
 &nbsp;
 // DELETE /api/blogs/:id - Delete a blog
-<span class="cstat-no" title="statement not covered" >router.delete('/:id', deleteBlog);</span>
+router.delete('/:id', deleteBlog);
 &nbsp;
 export default router;
 &nbsp;</pre></td></tr></table></pre>
@@ -163,7 +163,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-03T18:02:13.040Z
+                at 2025-07-05T04:12:36.377Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
