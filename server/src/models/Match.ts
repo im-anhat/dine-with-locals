@@ -6,7 +6,7 @@ export interface IMatch extends Document {
   listingId?: mongoose.Types.ObjectId; // References Listing._id
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
-  time: Date;
+  time?: Date;
 }
 
 const MatchSchema: Schema = new Schema(
@@ -36,7 +36,6 @@ const MatchSchema: Schema = new Schema(
     },
     time: {
       type: Date,
-      required: true,
     },
   },
   { timestamps: true },

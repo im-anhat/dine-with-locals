@@ -37,6 +37,10 @@ const FilterResults = ({ results }: { results: any[] }) => {
     setSelectedPhotoIndex(index);
   };
   console.log('user filter result', results);
+
+  const handleNavigateBooking = (id: string) => {
+    navigate(`/booking/${id}`, { state: { listingId: id } });
+  };
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">
@@ -129,7 +133,12 @@ const FilterResults = ({ results }: { results: any[] }) => {
                     View Details
                   </Link>
                 </Button>
-                <Button className="">Book now</Button>
+                <Button
+                  className=""
+                  onClick={() => handleNavigateBooking(item._id)}
+                >
+                  Book now
+                </Button>
               </div>
             </CardContent>
           </Card>

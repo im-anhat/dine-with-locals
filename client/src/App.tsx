@@ -20,6 +20,7 @@ import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
 import { getUserById } from './services/UserService';
+import BookingConfirm from './pages/BookingConfirm';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -132,6 +133,10 @@ const App: React.FC = () => {
           <Route
             path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}
+          />
+          <Route
+            path="/booking/:listingId"
+            element={isAuthenticated ? <BookingConfirm /> : <Home />}
           />
         </Routes>
 
