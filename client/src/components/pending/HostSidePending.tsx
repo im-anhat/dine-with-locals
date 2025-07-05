@@ -1,15 +1,41 @@
 import { useEffect, useState } from 'react';
 import PendingCard from './ui/PendingCard';
-import EventTable from './ui/EventTable';
 import { getListingsByUserId } from '../../services/ListingService';
 import { useUser } from '../../contexts/UserContext';
 import { Listing } from '../../../../shared/types/Listing';
-import { ListStart } from 'lucide-react';
+import { getMatches } from '../../services/MatchService';
+import { User } from '../../../../shared/types/User';
+
+export type PendingCardProps = Pick<
+  User,
+  | 'userName'
+  | 'firstName'
+  | 'lastName'
+  | 'phone'
+  | 'avatar'
+  | 'hobbies'
+  | 'cuisines'
+  | 'ethnicity'
+  | 'bio'
+  | 'cover'
+> & {
+  dietary?: string[];
+  additionalNotes?: string;
+  languages?: string[];
+  status: 'pending' | 'approved';
+  time: Date;
+};
+
+type matchGuestInfo = Record<string, PendingCardProps>;
 function HostSidePending() {
   const [listings, setListings] = useState<Listing[] | null>(null);
+  //Mapping is a dictionary map a listingID in line 31 to a List of Matches, get user information in the match using .populate()
+  //OR create another API endpoint to get all user information in each match.
+  const [mapping, setMapping] = useState<R>();
   const { currentUser } = useUser();
   const currUserId = currentUser?._id ?? 'undefined';
-  console.log('CURR USER ID', currUserId.toString());
+
+  //Fetch all listings of the host, displayed as title on the page
   useEffect(() => {
     if (!currentUser) return;
     const fetchUserListing = async () => {
@@ -20,7 +46,23 @@ function HostSidePending() {
     };
     fetchUserListing();
   }, []);
-  console.log('FETCHED LISTINGS', listings);
+
+  //Fetch all listing
+
+  //Get the maatches -> user of each listing
+  const fetchMatches = async (listingId: string) => {
+    const matches = await getMatches(
+      currentUser?._id ?? null,
+      null,
+      listingId ?? null,
+      null,
+    );
+    return matches;
+  };
+  const [currentMatches, setCurrentMatches] = useState<PendingCardProps | null>(
+    null,
+  );
+  // const matches: matchGuestInfo =
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900">
@@ -70,23 +112,11 @@ function HostSidePending() {
               )}
             </div>
             <div className="mb-8">
-              <PendingCard />
+              <PendingCard {...currentMatches} />
             </div>
           </div>
         );
       })}
-
-      {/* <div className="flex flex-row items-center gap-3 mb-2 mt-8">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-          Chicago, IL - July 20: Private Goi Cuon Workshop
-        </h2>
-        <span className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium">
-          Event
-        </span>
-      </div>
-      <div>
-        <EventTable />
-      </div> */}
     </div>
   );
 }

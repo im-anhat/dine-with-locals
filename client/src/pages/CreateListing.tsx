@@ -58,10 +58,7 @@ const CreateListing = () => {
 
     // Send the listing data to the server
     try {
-      const response = await axios.post(
-        `${API_URL}/listings`,
-        finalListingData,
-      );
+      const response = await axios.post(`${API_URL}/listing`, finalListingData);
       console.log('Listing created successfully:', response.data);
     } catch (error) {
       console.error('Error creating listing:', error);

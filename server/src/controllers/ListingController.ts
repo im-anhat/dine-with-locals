@@ -2,6 +2,7 @@ import { Request, Response, RequestHandler } from 'express';
 import Listing, { IListing } from '../models/Listing.js';
 import Location from '../models/Location.js';
 import mongoose from 'mongoose';
+import Match from '../models/Match.js';
 
 /**
  * Get listing by ID
@@ -345,6 +346,21 @@ export const getAllListing = async (req: Request, res: Response) => {
     res.status(200).json(listings);
   } catch (err) {
     console.error('Error fetching all listings: ', err);
+    res.status(400).json(err);
+  }
+};
+
+/**
+ * Fetch matchs from list
+ * @route GET /api/listing/match/:listingId
+ */
+export const getMatchesFromListingID = async (req: Request, res: Response) => {
+  try {
+    const { listingID } = req.params;
+    const matches = await Match.find({ listingId: listingID });
+    res.status(200).json(matches);
+  } catch (err) {
+    console.error('Error', err);
     res.status(400).json(err);
   }
 };

@@ -7,6 +7,7 @@ import {
   updateListing,
   deleteListing,
   getListingsByUserId,
+  getMatchesFromListingID,
 } from '../controllers/ListingController.js';
 
 const router = express.Router();
@@ -22,6 +23,9 @@ router.get('/user/:userId', getListingsByUserId);
 
 // GET listing by ID
 router.get('/:listingId', getListingById);
+
+//GET match by listingID
+router.get('/match/:listingID', getMatchesFromListingID);
 
 // POST create a new listing
 router.post('/', createListing);

@@ -142,7 +142,7 @@ const BasicInfoCard = ({ form, fileInputRef }: BasicInfoCardProps) => {
         <FormField
           control={form.control}
           name="location"
-          render={({field}) => <LocationInput field={field} form={form} />}
+          render={({ field }) => <LocationInput field={field} form={form} />}
         />
 
         {/* Interest Topics */}

@@ -9,12 +9,11 @@ import {
 
 const router = express.Router();
 
-// GET matches by user ID
-router.get('/:userId', getMatchesByUserId);
-
 //GET matches with a combination of criteria: listingId, hostId, guestId
 router.get('/getMatches', getMatches);
 
+// GET matches by user ID
+router.get('/:userId', getMatchesByUserId);
 // POST create new matches
 router.post('/createMatch', createMatchRequest);
 
