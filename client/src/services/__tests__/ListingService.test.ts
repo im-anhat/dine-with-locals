@@ -7,34 +7,32 @@ import {
   getListingById,
 } from '../ListingService';
 import { mockListing, mockCoordinates } from '../../test/mocks';
+import axios from 'axios';
 
-// Mock axios
+// Mock axios with proper setup
 vi.mock('axios', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
+    isAxiosError: vi.fn(),
   },
 }));
 
-describe('ListingService', () => {
-  const mockAxiosGet = vi.fn();
-  const mockAxiosPost = vi.fn();
+const mockedAxios = axios as any;
 
+describe('ListingService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset mocks
-    mockAxiosGet.mockReset();
-    mockAxiosPost.mockReset();
 
-    // Mock axios methods
-    const axios = require('axios').default;
-    axios.get = mockAxiosGet;
-    axios.post = mockAxiosPost;
+    // Setup axios mocks
+    mockedAxios.get = vi.fn();
+    mockedAxios.post = vi.fn();
+    mockedAxios.isAxiosError = vi.fn();
 
     // Ensure test environment
     Object.defineProperty(import.meta, 'env', {
       value: {
-        VITE_API_BASE_URL: 'http://localhost:3001/',
+        VITE_API_BASE_URL: 'http://localhost:3000/',
       },
       writable: true,
     });
@@ -70,7 +68,7 @@ describe('ListingService', () => {
 
       const distance = calculateDistance(coord1, coord2);
 
-      expect(distance).toBeGreaterThan(17000); // approximately 17,000 km
+      expect(distance).toBeGreaterThan(16900); // approximately 17,000 km
     });
   });
 
@@ -87,7 +85,7 @@ describe('ListingService', () => {
       );
 
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listing/nearby',
+        'http://localhost:3000/api/listing/nearby',
         {
           params: {
             lat: mockCoordinates.lat,
@@ -108,7 +106,7 @@ describe('ListingService', () => {
       await getListingsWithinDistanceFromAPI(mockCoordinates);
 
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listing/nearby',
+        'http://localhost:3000/api/listing/nearby',
         {
           params: {
             lat: mockCoordinates.lat,

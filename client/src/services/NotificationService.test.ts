@@ -6,7 +6,7 @@ import { mockUser } from '../test/mocks';
 const mockFetch = vi.fn();
 
 describe('NotificationService', () => {
-  const testApiUrl = 'http://localhost:3001/api';
+  const testApiUrl = 'http://localhost:3000/api';
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -15,7 +15,7 @@ describe('NotificationService', () => {
     // Set test environment
     Object.defineProperty(import.meta, 'env', {
       value: {
-        VITE_API_BASE_URL: 'http://localhost:3001/',
+        VITE_API_BASE_URL: 'http://localhost:3000/',
       },
       writable: true,
     });

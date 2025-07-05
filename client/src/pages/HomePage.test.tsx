@@ -41,12 +41,14 @@ describe('HomePage', () => {
     it('should render main content area', () => {
       render(<HomePage />);
 
-      // Look for main content structure
-      const mainContent =
-        screen.getByRole('main') ||
-        document.querySelector('main') ||
-        document.body;
-      expect(mainContent).toBeInTheDocument();
+      // Look for the hero section which is the main content of HomePage
+      // Use partial match since the text is split across elements
+      const heroSection = screen.getByText(/Make your experience/i);
+      expect(heroSection).toBeInTheDocument();
+
+      // Check for key call-to-action buttons
+      const getStartedButton = screen.getByText('Get Started Free');
+      expect(getStartedButton).toBeInTheDocument();
     });
 
     it('should render navigation elements', () => {

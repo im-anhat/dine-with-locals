@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { UserProvider } from '../contexts/UserContext';
 import { SocketProvider } from '../contexts/SocketContext';
+import { SidebarProvider } from '../components/ui/sidebar';
 
 // Create a custom render function that includes providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -11,7 +12,9 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
     <BrowserRouter>
       <AuthProvider>
         <UserProvider>
-          <SocketProvider>{children}</SocketProvider>
+          <SocketProvider>
+            <SidebarProvider>{children}</SidebarProvider>
+          </SocketProvider>
         </UserProvider>
       </AuthProvider>
     </BrowserRouter>

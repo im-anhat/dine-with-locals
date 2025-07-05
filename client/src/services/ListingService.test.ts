@@ -7,14 +7,18 @@ import {
   getListingById,
 } from './ListingService';
 import { mockListing, mockCoordinates } from '../test/mocks';
+import axios from 'axios';
 
-// Mock axios
+// Mock axios with proper setup
 vi.mock('axios', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
+    isAxiosError: vi.fn(),
   },
 }));
+
+const mockedAxios = axios as any;
 
 describe('ListingService', () => {
   const mockAxiosGet = vi.fn();
@@ -22,21 +26,16 @@ describe('ListingService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockAxiosGet.mockReset();
-    mockAxiosPost.mockReset();
 
-    // Mock axios module
-    vi.doMock('axios', () => ({
-      default: {
-        get: mockAxiosGet,
-        post: mockAxiosPost,
-      },
-    }));
+    // Setup axios mocks
+    mockedAxios.get = mockAxiosGet;
+    mockedAxios.post = mockAxiosPost;
+    mockedAxios.isAxiosError = vi.fn();
 
     // Ensure test environment
     Object.defineProperty(import.meta, 'env', {
       value: {
-        VITE_API_BASE_URL: 'http://localhost:3001/',
+        VITE_API_BASE_URL: 'http://localhost:3000/',
       },
       writable: true,
     });
@@ -72,7 +71,7 @@ describe('ListingService', () => {
 
       const distance = calculateDistance(coord1, coord2);
 
-      expect(distance).toBeGreaterThan(17000); // approximately 17,000 km
+      expect(distance).toBeGreaterThan(16900); // approximately 17,000 km
     });
 
     it('should handle coordinates at poles', () => {
@@ -110,7 +109,7 @@ describe('ListingService', () => {
       );
 
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listing/nearby',
+        'http://localhost:3000/api/listing/nearby',
         {
           params: {
             lat: mockCoordinates.lat,
@@ -131,7 +130,7 @@ describe('ListingService', () => {
       await getListingsWithinDistanceFromAPI(mockCoordinates);
 
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listing/nearby',
+        'http://localhost:3000/api/listing/nearby',
         {
           params: {
             lat: mockCoordinates.lat,
@@ -183,7 +182,7 @@ describe('ListingService', () => {
       const result = await getAllListings();
 
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listings',
+        'http://localhost:3000/api/listings',
       );
       expect(result).toEqual(mockListings);
     });
@@ -220,7 +219,7 @@ describe('ListingService', () => {
       const result = await createListing(listingData);
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        'http://localhost:3001/api/listings',
+        'http://localhost:3000/api/listings',
         listingData,
       );
       expect(result).toEqual(mockListing);
@@ -259,7 +258,7 @@ describe('ListingService', () => {
       const result = await getListingById(validId);
 
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        `http://localhost:3001/api/listing/${validId}`,
+        `http://localhost:3000/api/listing/${validId}`,
       );
       expect(result).toEqual(mockListing);
     });

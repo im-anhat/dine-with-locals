@@ -1,30 +1,43 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-// Mock environment variables for testing - NO PRODUCTION DATA
-Object.defineProperty(import.meta, 'env', {
-  value: {
-    VITE_API_BASE_URL: 'http://localhost:3001/',
-    VITE_GOOGLE_MAPS_API_KEY: 'test_api_key',
-    GOOGLE_AUTH_CLIENT_ID: 'test_client_id',
-    MODE: 'test',
-  },
-  writable: true,
-});
+// Set NODE_ENV for test environment
+process.env.NODE_ENV = 'test';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+  value: vi.fn().mockImplementation((query) => {
+    const mockMql = {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated
+      removeListener: vi.fn(), // deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+    return mockMql;
+  }),
+});
+
+// Mock window.innerWidth
+Object.defineProperty(window, 'innerWidth', {
+  writable: true,
+  configurable: true,
+  value: 1024,
+});
+
+// Mock localStorage
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: vi.fn(() => null),
+    setItem: vi.fn(() => null),
+    removeItem: vi.fn(() => null),
+    clear: vi.fn(() => null),
+  },
+  writable: true,
 });
 
 // Mock ResizeObserver
@@ -123,3 +136,11 @@ vi.stubGlobal('console', {
   ...console,
   error: vi.fn(),
 });
+
+// Mock JWT decode
+vi.mock('jwt-decode', () => ({
+  jwtDecode: vi.fn(() => ({
+    _id: 'test-user-id',
+    exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+  })),
+}));

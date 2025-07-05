@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '../test/test-utils';
+import { render, screen } from '@testing-library/react';
 import { AuthProvider } from './AuthContext';
 
 // Mock UserService to avoid actual API calls
