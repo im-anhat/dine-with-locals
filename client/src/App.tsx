@@ -11,6 +11,7 @@ import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
 import Places from './pages/Places';
 import CreateListing from './pages/CreateListing';
+import PaymentTest from './pages/PaymentTest';
 import { Toaster } from './components/ui/toaster';
 import { ChatPage } from './pages/ChatPage';
 import './styles/main.css';
@@ -99,6 +100,10 @@ const App: React.FC = () => {
           <Route
             path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}
+          />
+          <Route
+            path="/payment"
+            element={isAuthenticated ? <PaymentTest /> : <Home />}
           />
         </Routes>
 
