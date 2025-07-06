@@ -46,6 +46,7 @@ export const mockLocation = {
 export const mockListing: Listing = {
   _id: '64a1b2c3d4e5f6789012345c',
   userId: {
+    _id: mockHost._id,
     userName: mockHost.userName,
     firstName: mockHost.firstName,
     lastName: mockHost.lastName,
