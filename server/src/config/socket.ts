@@ -6,9 +6,8 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
 dotenv.config();
-const JWT_SECRET = process.env.SECRET;
 
-console.log('Socket JWT_SECRET:', JWT_SECRET);
+const JWT_SECRET = process.env.SECRET;
 
 export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
@@ -183,6 +182,27 @@ export const initializeSocket = (server: HTTPServer) => {
       'message_send',
       async (data: { chatId: string; content: string }) => {
         try {
+          // Check if chat exists and get chat info
+          const chat = await Chat.findById(data.chatId);
+          if (!chat) {
+            socket.emit('error', 'Chat not found');
+            return;
+          }
+
+          // Check if it's a group chat and if user is authorized to send messages
+          if (chat.isGroupChat) {
+            if (
+              !chat.groupAdmin ||
+              chat.groupAdmin.toString() !== socket.userId.toString()
+            ) {
+              socket.emit(
+                'error',
+                'Only the host can send messages in this group chat.',
+              );
+              return;
+            }
+          }
+
           // Create new message
           const newMessage = {
             senderId: socket.userId,

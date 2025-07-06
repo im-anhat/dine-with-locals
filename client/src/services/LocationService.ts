@@ -25,10 +25,6 @@ export const getLngLatFromLocationId = async (
   locationId: string,
 ): Promise<LonLat> => {
   try {
-    console.log(
-      'request like this: ',
-      `${API_BASE_URL}/location/${locationId}`,
-    );
     const response = await axios.get(`${API_BASE_URL}/location/${locationId}`);
     if (
       response.data &&

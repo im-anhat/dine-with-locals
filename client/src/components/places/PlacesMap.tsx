@@ -35,8 +35,6 @@ const PlacesMap: React.FC<PlacesMapProps> = ({
     lng: -87.649869,
   }; // Default to Chicago if not provided
 
-  console.log('User coords are: ', userCoordinates);
-
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>(
     userCoordinates ?? defaultCenter,
   );

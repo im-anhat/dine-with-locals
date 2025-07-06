@@ -3,6 +3,8 @@ import { Listing, PopulatedLocation } from '../../../../shared/types/Listing';
 import { Request } from '../../../../shared/types/Request';
 import { getLocationById, Location } from '@/services/LocationService';
 import { useNavigate } from 'react-router-dom';
+import { startOrCreateChat } from '@/services/chat/ChatServices';
+import { useSocket } from '../../contexts/SocketContext';
 
 interface PlaceDetailsProps {
   listing?: Listing;
@@ -20,6 +22,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
 
   const item = listing || request;
   const isListing = !!listing;
+  const { socket } = useSocket();
 
   React.useEffect(() => {
     if (!item) return;
@@ -50,6 +53,22 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
   }, [item]);
 
   if (!item) return null;
+
+  const handleOpenChat = async () => {
+    try {
+      const chat = await startOrCreateChat((item.userId as any)._id, item._id); // Type assertion for userId._id
+
+      // Emit the chat creation event to the socket server
+      if (!socket) return;
+      socket.emit('join_chat', chat._id);
+
+      navigate('/chats', {
+        state: { listingId: item._id, chatId: chat._id },
+      });
+    } catch (error) {
+      console.error('Error starting or creating chat:', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -232,7 +251,7 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
 
               <button
                 className="w-full mt-2 border bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors"
-                onClick={() => navigate('/chats')}
+                onClick={handleOpenChat}
               >
                 {isListing ? 'Contact Host' : 'Contact Guest'}
               </button>

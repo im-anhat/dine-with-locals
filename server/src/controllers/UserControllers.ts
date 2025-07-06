@@ -30,9 +30,7 @@ export const getUserById: RequestHandler = async (
       res.status(400).json({ error: 'Invalid user ID format' });
       return;
     }
-    const user = await User.findById(userId)
-      .select('-password')
-      .populate('locationId', 'coordinates'); // Exclude password field
+    const user = await User.findById(userId).select('-password'); // Exclude password field
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -59,6 +57,7 @@ export const updateUser: RequestHandler = async (
       socialLink,
       role,
       hobbies,
+      cuisines,
       ethnicity,
       bio,
       cover,
@@ -86,6 +85,7 @@ export const updateUser: RequestHandler = async (
     if (socialLink !== undefined) updateData.socialLink = socialLink;
     if (role !== undefined) updateData.role = role;
     if (hobbies !== undefined) updateData.hobbies = hobbies;
+    if (cuisines !== undefined) updateData.cuisines = cuisines;
     if (ethnicity !== undefined) updateData.ethnicity = ethnicity;
     if (bio !== undefined) updateData.bio = bio;
     if (cover !== undefined) updateData.cover = cover;

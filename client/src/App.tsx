@@ -20,6 +20,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
+import { getUserById } from './services/UserService';
+import BookingConfirm from './pages/BookingConfirm';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -27,10 +29,37 @@ const App: React.FC = () => {
 
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
-  const currentPath = location.pathname.split('/').filter(Boolean);
-  if (currentPath.length === 0) {
-    currentPath.push('dashboard'); // Default to "dashboard" if no path is present
-  }
+  const [currentPath, setCurrentPath] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    // if it's a regular path, split it by '/' and filter out empty segments
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+
+    const updatePath = async () => {
+      // if it's the root path, set it to ['dashboard']
+      if (pathSegments.length === 0) {
+        setCurrentPath(['dashboard']);
+      }
+
+      // if it's the profile path, fetch the user name by ID
+      else if (pathSegments[0] === 'profile') {
+        if (pathSegments.length > 1) {
+          const userId = pathSegments[1];
+          const user = await getUserById(userId);
+          const userName = user
+            ? `${user.firstName} ${user.lastName || ''}`.trim()
+            : 'Profile';
+          setCurrentPath(['profile', userName]);
+        } else {
+          setCurrentPath(['profile']);
+        }
+      } else {
+        setCurrentPath(pathSegments);
+      }
+    };
+    updatePath();
+  }, [location.pathname]);
+
   return (
     <SidebarProvider>
       {isAuthenticated && (
@@ -82,10 +111,15 @@ const App: React.FC = () => {
             path="/filter"
             element={isAuthenticated ? <FilterPage /> : <Home />}
           />
-          <Route
-            path="/profile/:userId"
-            element={isAuthenticated ? <ProfilePage /> : <Home />}
-          />
+
+          <Route path="/profile">
+            {/* <Route
+              index
+              element={isAuthenticated ? <ProfilePage /> : <Home />}
+            /> */}
+            <Route path=":userId" element={<ProfilePage />} />
+          </Route>
+
           <Route
             path="/places"
             element={isAuthenticated ? <Places /> : <Home />}
@@ -104,6 +138,10 @@ const App: React.FC = () => {
           <Route
             path="/payment"
             element={isAuthenticated ? <PaymentTest /> : <Home />}
+          />
+          <Route
+            path="/booking/:listingId"
+            element={isAuthenticated ? <BookingConfirm /> : <Home />}
           />
         </Routes>
 

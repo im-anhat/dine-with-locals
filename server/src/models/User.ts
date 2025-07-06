@@ -13,6 +13,7 @@ export interface IUser extends Document {
   socialLink: string;
   role: 'Host' | 'Guest' | 'Both';
   hobbies: string[];
+  cuisines: string[];
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   locationId: mongoose.Types.ObjectId;
@@ -42,7 +43,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     phone: {
       type: String,
       trim: true,
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
@@ -53,7 +54,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
@@ -64,10 +65,8 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     },
     cover: {
       type: String,
-      default: '',
-      required: function () {
-        return this.provider === 'Local';
-      },
+      default:
+        'https://iwritingsolutions.com/wp-content/uploads/2022/05/starry-sky-night-dark-wallpaper-preview-1.jpg',
     },
     socialLink: {
       type: String,
@@ -77,12 +76,16 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     role: {
       type: String,
       enum: ['Host', 'Guest'],
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
       default: 'Guest',
     },
     hobbies: {
+      type: [String],
+      default: [],
+    },
+    cuisines: {
       type: [String],
       default: [],
     },
@@ -99,7 +102,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     locationId: {
       type: Schema.Types.ObjectId,
       ref: 'Location',
-      required: function () {
+      required: function (this: IUser) {
         return this.provider === 'Local';
       },
     },
