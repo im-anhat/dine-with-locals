@@ -1,6 +1,8 @@
 import { Request, Response, RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
+import Match from '../models/Match.js';
+import Listing from '../models/Listing.js';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -311,7 +313,7 @@ export const deletePaymentMethod: RequestHandler = async (
     // Detach payment method from Stripe customer
     await stripe.paymentMethods.detach(paymentMethodId);
 
-    // Remove payment method from user's array
+    // Remove payment method from mongoDB
     const updateData: any = {
       $pull: { paymentMethod: paymentMethodId },
     };
@@ -376,17 +378,6 @@ export const createSetupIntent: RequestHandler = async (
 
     // Ensure user has a Stripe customer ID
     let stripeCustomerId = user.stripeCustomerId;
-    if (!stripeCustomerId) {
-      // Create Stripe customer if doesn't exist
-      const customer = await stripe.customers.create({
-        name: `${user.firstName} ${user.lastName}`,
-        metadata: { userId: user._id.toString() },
-      });
-      stripeCustomerId = customer.id;
-
-      // Update user with stripe customer ID
-      await User.findByIdAndUpdate(user._id, { stripeCustomerId });
-    }
 
     // Create setup intent
     const setupIntent = await stripe.setupIntents.create({
@@ -404,5 +395,155 @@ export const createSetupIntent: RequestHandler = async (
       error: 'Failed to create setup intent',
       details: error.message,
     });
+  }
+};
+
+// Create payment intent for booking
+export const createBookingPaymentIntent: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { userId, listingId, matchId } = req.body;
+
+    // Validate inputs
+    if (!userId || !listingId || !matchId) {
+      res.status(400).json({ error: 'Missing required parameters' });
+      return;
+    }
+
+    // Validate MongoDB ObjectId formats
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(listingId) ||
+      !mongoose.Types.ObjectId.isValid(matchId)
+    ) {
+      res.status(400).json({ error: 'Invalid ID format' });
+      return;
+    }
+
+    // Find user and validate they have payment methods
+    const user = await User.findById(userId);
+    if (!user || !user.stripeCustomerId || !user.paymentMethodDefault) {
+      res
+        .status(400)
+        .json({ error: 'User must have a default payment method' });
+      return;
+    }
+    // Find listing and get fee
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    // Find match and validate
+    const match = await Match.findById(matchId);
+    if (!match || match.guestId.toString() !== userId) {
+      res.status(404).json({ error: 'Match not found or unauthorized' });
+      return;
+    }
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round((listing.fee || 0) * 100), // Convert to cents
+      currency: 'usd',
+      customer: user.stripeCustomerId,
+      payment_method: user.paymentMethodDefault,
+      confirmation_method: 'manual',
+      confirm: false, // Don't charge immediately
+      metadata: {
+        userId: userId,
+        listingId: listingId,
+        matchId: matchId,
+        type: 'booking',
+      },
+    });
+
+    // Update match with payment intent details
+    await Match.findByIdAndUpdate(matchId, {
+      paymentIntentId: paymentIntent.id,
+      paymentStatus: 'requires_payment_method',
+      amount: Math.round((listing.fee || 0) * 100),
+      currency: 'usd',
+    });
+
+    res.status(201).json({
+      message: 'Payment intent created successfully',
+      paymentIntentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
+      amount: paymentIntent.amount,
+      status: paymentIntent.status,
+    });
+  } catch (error: any) {
+    console.error('Error creating booking payment intent:', error);
+    res.status(500).json({
+      error: 'Failed to create payment intent',
+      details: error.message,
+    });
+  }
+};
+
+export const approveMatchWithPayment: RequestHandler = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+
+    const match = await Match.findById(matchId);
+    if (!match) {
+      res.status(404).json({ error: 'Match not found' });
+      return;
+    }
+
+    // Update match status to approved first
+    await Match.findByIdAndUpdate(matchId, { status: 'approved' });
+
+    // Handle payment if there's a payment intent and amount > 0
+    if (match.paymentIntentId && match.amount && match.amount > 0) {
+      try {
+        // Confirm and charge the payment
+        const paymentIntent = await stripe.paymentIntents.confirm(
+          match.paymentIntentId,
+        );
+
+        let paymentStatus = 'pending';
+        if (paymentIntent.status === 'succeeded') {
+          paymentStatus = 'succeeded';
+        } else if (paymentIntent.status === 'requires_action') {
+          paymentStatus = 'requires_confirmation';
+        } else if (paymentIntent.status === 'requires_payment_method') {
+          paymentStatus = 'requires_payment_method';
+        }
+
+        // Update payment status
+        await Match.findByIdAndUpdate(matchId, { paymentStatus });
+
+        // Only update listing if payment succeeds
+        if (paymentStatus === 'succeeded' && match.listingId) {
+          await Listing.findByIdAndUpdate(match.listingId, {
+            status: 'approved',
+          });
+        }
+        res.status(200).json({
+          message: 'Match approved and payment processed',
+        });
+      } catch (paymentError) {
+        console.error('Payment failed during approval:', paymentError);
+        return;
+      }
+    } else {
+      // No payment required, just approve everything
+      if (match.listingId) {
+        await Listing.findByIdAndUpdate(match.listingId, {
+          status: 'approved',
+        });
+      }
+
+      res.status(200).json({
+        message: 'Match approved successfully (no payment required)',
+      });
+    }
+  } catch (error) {
+    console.error('Error approving match:', error);
+    res.status(500).json({ error: 'Failed to approve match' });
   }
 };

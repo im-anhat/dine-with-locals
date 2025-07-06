@@ -6,6 +6,10 @@ export interface IMatch extends Document {
   listingId?: mongoose.Types.ObjectId; // References Listing._id
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
+  paymentIntentId?: string; // Stripe Payment Intent ID
+  paymentStatus?: 'pending' | 'succeeded';
+  amount?: number;
+  currency?: string;
   time: Date;
 }
 
@@ -37,6 +41,23 @@ const MatchSchema: Schema = new Schema(
     time: {
       type: Date,
       required: true,
+    },
+    paymentIntentId: {
+      type: String,
+      default: null,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'succeeded'],
+      default: 'pending',
+    },
+    amount: {
+      type: Number,
+      default: 0,
+    },
+    currency: {
+      type: String,
+      default: 'USD',
     },
   },
   { timestamps: true },
