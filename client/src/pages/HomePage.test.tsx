@@ -50,7 +50,7 @@ describe('HomePage', () => {
       expect(flavorsText).toBeInTheDocument();
 
       // Check for key call-to-action buttons
-      const getStartedButton = screen.getByText('Get sqtarted');
+      const getStartedButton = screen.getByText('Get started');
       expect(getStartedButton).toBeInTheDocument();
     });
 
