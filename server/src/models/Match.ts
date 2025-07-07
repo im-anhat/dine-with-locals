@@ -10,7 +10,8 @@ export interface IMatch extends Document {
   paymentStatus?: 'pending' | 'succeeded';
   amount?: number;
   currency?: string;
-  time: Date;
+  additionalDetails?: string;
+  hostInfo?: string;
 }
 
 const MatchSchema: Schema = new Schema(
@@ -38,9 +39,7 @@ const MatchSchema: Schema = new Schema(
       enum: ['pending', 'approved'],
       default: 'pending',
     },
-    time: {
-      type: Date,
-    },
+
     paymentIntentId: {
       type: String,
       default: null,
@@ -57,6 +56,14 @@ const MatchSchema: Schema = new Schema(
     currency: {
       type: String,
       default: 'USD',
+    },
+    additionalDetails: {
+      type: String,
+      default: '',
+    },
+    hostInfo: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true },
