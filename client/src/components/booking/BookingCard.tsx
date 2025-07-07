@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormField } from '@/components/ui/form';
-import { CreditCard, Plus, Loader2, CheckCircle } from 'lucide-react';
+import { CreditCard, Plus, Loader2, CheckCircle, Star } from 'lucide-react';
 import { BookingFormValues } from '@/components/booking/FormSchema';
 import AddPaymentMethod from '@/components/payment/AddPaymentMethod';
 import {
   getPaymentMethods,
+  setDefaultPaymentMethod,
   type PaymentMethod,
 } from '@/services/PaymentService';
 import { useUser } from '@/contexts/UserContext';
@@ -33,6 +34,9 @@ const BookingCard = ({
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>('');
+  const [settingDefault, setSettingDefault] = useState<string>('');
   const { currentUser } = useUser();
 
   // Fetch payment methods only if payment is required
@@ -46,6 +50,14 @@ const BookingCard = ({
       try {
         const response = await getPaymentMethods(currentUser._id);
         setPaymentMethods(response.paymentMethods);
+
+        // Set the selected payment method to the default one
+        const defaultMethod = response.paymentMethods.find(
+          (pm) => pm.isDefault,
+        );
+        if (defaultMethod) {
+          setSelectedPaymentMethod(defaultMethod.id);
+        }
       } catch (error) {
         console.error('Error fetching payment methods:', error);
       } finally {
@@ -63,9 +75,37 @@ const BookingCard = ({
       try {
         const response = await getPaymentMethods(currentUser._id);
         setPaymentMethods(response.paymentMethods);
+
+        // If this is the first payment method, select it
+        if (response.paymentMethods.length === 1) {
+          setSelectedPaymentMethod(response.paymentMethods[0].id);
+        }
       } catch (error) {
         console.error('Error refreshing payment methods:', error);
       }
+    }
+  };
+
+  const handleSetAsDefault = async (paymentMethodId: string) => {
+    if (!currentUser?._id) return;
+
+    try {
+      setSettingDefault(paymentMethodId);
+      await setDefaultPaymentMethod(currentUser._id, paymentMethodId);
+
+      // Update local state
+      setPaymentMethods((prev) =>
+        prev.map((pm) => ({
+          ...pm,
+          isDefault: pm.id === paymentMethodId,
+        })),
+      );
+
+      setSelectedPaymentMethod(paymentMethodId);
+    } catch (error) {
+      console.error('Error setting default payment method:', error);
+    } finally {
+      setSettingDefault('');
     }
   };
 
@@ -87,8 +127,6 @@ const BookingCard = ({
   const formatCardBrand = (brand: string) => {
     return brand.charAt(0).toUpperCase() + brand.slice(1);
   };
-
-  const defaultPaymentMethod = paymentMethods.find((pm) => pm.isDefault);
 
   return (
     <div className="space-y-6">
@@ -151,28 +189,90 @@ const BookingCard = ({
                     onSuccess={handlePaymentMethodAdded}
                     onCancel={() => setShowAddPayment(false)}
                   />
-                ) : defaultPaymentMethod ? (
+                ) : paymentMethods.length > 0 ? (
                   <>
-                    <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50 border-blue-200">
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p
-                            className={`font-medium ${getCardBrandColor(defaultPaymentMethod.card?.brand || '')}`}
-                          >
-                            {formatCardBrand(
-                              defaultPaymentMethod.card?.brand || '',
+                    <div className="space-y-3">
+                      {paymentMethods.map((paymentMethod) => (
+                        <div
+                          key={paymentMethod.id}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selectedPaymentMethod === paymentMethod.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() =>
+                            setSelectedPaymentMethod(paymentMethod.id)
+                          }
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name="paymentMethod"
+                                  value={paymentMethod.id}
+                                  checked={
+                                    selectedPaymentMethod === paymentMethod.id
+                                  }
+                                  onChange={() =>
+                                    setSelectedPaymentMethod(paymentMethod.id)
+                                  }
+                                  className="mr-3"
+                                />
+                                <CreditCard className="h-5 w-5 text-gray-400" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`font-medium ${getCardBrandColor(
+                                      paymentMethod.card?.brand || '',
+                                    )}`}
+                                  >
+                                    {formatCardBrand(
+                                      paymentMethod.card?.brand || '',
+                                    )}
+                                  </span>
+                                  <span className="text-gray-600">
+                                    •••• {paymentMethod.card?.last4}
+                                  </span>
+                                  {paymentMethod.isDefault && (
+                                    <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                      <Star className="h-3 w-3 fill-current" />
+                                      Default
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  Expires {paymentMethod.card?.exp_month}/
+                                  {paymentMethod.card?.exp_year}
+                                </div>
+                              </div>
+                            </div>
+
+                            {!paymentMethod.isDefault && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSetAsDefault(paymentMethod.id);
+                                }}
+                                disabled={settingDefault === paymentMethod.id}
+                                className="text-xs"
+                              >
+                                {settingDefault === paymentMethod.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  'Set as Default'
+                                )}
+                              </Button>
                             )}
-                          </p>
-                          <p className="text-gray-500">
-                            Ends in {defaultPaymentMethod.card?.last4}
-                          </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                        Default
-                      </div>
+                      ))}
                     </div>
+
                     <Button
                       type="button"
                       variant="outline"
@@ -206,8 +306,8 @@ const BookingCard = ({
                   </>
                 )}
 
-                {!showAddPayment && (
-                  <p className="text-gray-600">
+                {!showAddPayment && paymentMethods.length > 0 && (
+                  <p className="text-gray-600 text-sm">
                     We will not charge until the experience has happened. If the
                     host declines your request, no charge will occur.
                   </p>
@@ -266,7 +366,9 @@ const BookingCard = ({
           <Button
             className="w-full h-12 text-lg"
             disabled={
-              !confirmed || disabled || (requiresPayment && !hasPaymentMethod)
+              !confirmed ||
+              disabled ||
+              (requiresPayment && (!hasPaymentMethod || !selectedPaymentMethod))
             }
             type="submit"
             onClick={() => {
@@ -274,6 +376,8 @@ const BookingCard = ({
                 alert('Please confirm the details before proceeding.');
               } else if (requiresPayment && !hasPaymentMethod) {
                 alert('Please add a payment method before proceeding.');
+              } else if (requiresPayment && !selectedPaymentMethod) {
+                alert('Please select a payment method before proceeding.');
               }
             }}
           >
