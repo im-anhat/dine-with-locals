@@ -1,277 +1,130 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import {
-  ArrowRight,
-  Star,
-  Shield,
-  Zap,
-  Users,
-  CheckCircle,
-  Play,
-} from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import FilterResults from '@/components/filter/FilterResult';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [featuredListings, setFeaturedListings] = useState([]);
 
-  const features = [
-    {
-      icon: <Zap className="h-8 w-8 text-primary" />,
-      title: 'Lightning Fast',
-      description:
-        'Built for speed and performance with modern technology stack',
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-green-500" />,
-      title: 'Secure by Design',
-      description: 'Enterprise-grade security to protect your data and privacy',
-    },
-    {
-      icon: <Users className="h-8 w-8 text-purple-500" />,
-      title: 'Team Collaboration',
-      description: 'Work together seamlessly with powerful collaboration tools',
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: 'Sarah Johnson',
-      role: 'Product Manager',
-      content:
-        'This platform has transformed how our team works together. Absolutely incredible!',
-      rating: 5,
-      avatar: '/api/placeholder/40/40',
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Developer',
-      content:
-        "The best tool I've used in years. Clean, fast, and incredibly intuitive.",
-      rating: 5,
-      avatar: '/api/placeholder/40/40',
-    },
-    {
-      name: 'Emily Davis',
-      role: 'Designer',
-      content:
-        'Beautiful interface and powerful features. Everything I need in one place.',
-      rating: 5,
-      avatar: '/api/placeholder/40/40',
-    },
-  ];
-
-  const stats = [
-    { number: '10K+', label: 'Happy Users' },
-    { number: '50K+', label: 'Projects Created' },
-    { number: '99.9%', label: 'Uptime' },
-    { number: '24/7', label: 'Support' },
-  ];
+  useEffect(() => {
+    const fetchFeaturedListings = async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}api/listing/nearby`,
+        {
+          params: {
+            lat: 41.885202, // ea
+            lng: -87.636092,
+            distance: 80, // Example distance in km
+          },
+        },
+      );
+      setFeaturedListings(res.data.slice(0, 3)); // Limit to 3 featured listings
+    };
+    fetchFeaturedListings();
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center space-x-2 gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg m-4">
-              <img
-                src="/logo.svg"
-                alt="Local Taste Logo"
-                className="h-8 w-8 ml-2"
-              />
-            </div>
-            <span className="text-xl font-bold">Local Taste</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" onClick={() => navigate('/login')}>
-              Login
-            </Button>
-            <Button onClick={() => navigate('/signup')}>Sign up</Button>
-          </div>
+      <nav className="sticky top-0 z-1 w-full h-20 border-b px-4 flex items-center justify-between bg-background">
+        <img src="/logo.svg" alt="Local Taste Logo" className="w-12 h-12" />
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" onClick={() => navigate('/login')}>
+            Login
+          </Button>
+          <Button onClick={() => navigate('/signup')}>Sign up</Button>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-24 text-center">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Make your experience{' '}
-            <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Memorable
-            </span>{' '}
-            Today
-          </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Discover authentic local flavors and create unforgettable dining
-            experiences. Join thousands of food lovers already exploring the
-            best local cuisine.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button
-              size="lg"
-              onClick={() => navigate('/signup')}
-              className="group"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button size="lg" variant="outline" className="group">
-              <Play className="mr-2 h-4 w-4" />
-              Watch Demo
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="border-y bg-muted/50 py-16">
+      <section className="py-8 lg:py-16">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-primary">
-                  {stat.number}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            {/* Image - First on mobile, second on desktop */}
+            <div className=" order-1 lg:order-2">
+              <div className="overflow-hidden rounded-2xl shadow-2xl">
+                <img
+                  src="https://res.cloudinary.com/disvrqxe2/image/upload/v1751821229/cu5n4my0dxkkg5b0ezq4.avif"
+                  alt="People enjoying local dining experience together"
+                  className="w-full h-auto object-cover"
+                />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium">
-            Features
-          </div>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Why Choose Local Taste?
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Powerful features designed to help you discover and enjoy local
-            cuisine
-          </p>
-        </div>
-
-        <div className="mx-auto mt-16 grid max-w-6xl gap-8 md:grid-cols-3">
-          {features.map((feature, index) => (
-            <Card key={index} className="group transition-all hover:shadow-lg">
-              <CardHeader>
-                <div className="mb-2 transition-transform group-hover:scale-110">
-                  {feature.icon}
-                </div>
-                <CardTitle>{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  {feature.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="bg-muted/50 py-24">
-        <div className="container mx-auto px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium">
-              Testimonials
+              {/* Optional decorative elements */}
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"></div>
             </div>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Loved by Food Enthusiasts
+
+            {/* Text content - Second on mobile, first on desktop */}
+            <div className="space-y-6 order-2 lg:order-1">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="text-foreground">Authentic</span>{' '}
+                <span className="text-primary">flavors,</span>
+                <br />
+                <span className="text-foreground">Genuine</span>{' '}
+                <span className="text-primary">connections</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-lg">
+                Connect with locals authentically via cuisine. Discover hidden
+                gems, experience traditional flavors, and create meaningful
+                connections through food in your community.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/signup')}
+                  className="text-lg px-8 py-6"
+                >
+                  Get started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6"
+                >
+                  How does it work?
+                  <Play className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Interested in hosting?{' '}
+                <button className="underline hover:text-foreground transition-colors">
+                  Learn more
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Listings Section */}
+      <section className="lg:p-16 px-8 py-8">
+        <div className="">
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-4xl mb-4">
+              Featured Dining Experiences
             </h2>
             <p className="text-lg text-muted-foreground">
-              See what our community has to say about their local taste
-              experiences
+              Discover authentic local dining experiences hosted by passionate
+              food lovers in your community
             </p>
           </div>
-
-          <div className="mx-auto mt-16 grid max-w-6xl gap-8 md:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="transition-all hover:shadow-lg">
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    <Avatar>
-                      <AvatarImage
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                      />
-                      <AvatarFallback>
-                        {testimonial.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-base">
-                        {testimonial.name}
-                      </CardTitle>
-                      <CardDescription>{testimonial.role}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex space-x-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    "{testimonial.content}"
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+          <FilterResults results={featuredListings} />
+          <div className="mt-8">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate('/signup')}
+              className="text-lg px-8 py-3"
+            >
+              View All Experiences
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-6 py-24">
-        <Card className="mx-auto max-w-4xl bg-gradient-to-r from-primary to-purple-600 text-primary-foreground">
-          <CardContent className="p-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-              Ready to Explore Local Flavors?
-            </h2>
-            <p className="mb-8 text-lg opacity-90">
-              Join thousands of food lovers already discovering amazing local
-              restaurants and hidden gems.
-            </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => navigate('/signup')}
-              >
-                Start Free Trial
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
-              >
-                Contact Us
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </section>
 
       {/* Footer */}

@@ -93,7 +93,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
               )}
               {/* IMAGES */}
               {item.images && item.images.length > 0 && (
-                <div className="relative mb-4">
+                <div className=" mb-4">
                   <div
                     className={`grid ${item.images.length === 1 ? 'grid-cols-1' : item.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-2`}
                   >
@@ -102,7 +102,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
                       .map((photo: string, index: number) => (
                         <div
                           key={index}
-                          className={`relative cursor-pointer ${index === 3 && item.images.length > 4 ? 'relative' : ''} overflow-hidden rounded-md`}
+                          className={` cursor-pointer ${index === 3 && item.images.length > 4 ? 'relative' : ''} overflow-hidden rounded-md`}
                           onClick={() => openPhotoView(index)}
                         >
                           <img
