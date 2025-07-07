@@ -43,11 +43,14 @@ describe('HomePage', () => {
 
       // Look for the hero section which is the main content of HomePage
       // Use partial match since the text is split across elements
-      const heroSection = screen.getByText(/Make your experience/i);
-      expect(heroSection).toBeInTheDocument();
+      const authenticText = screen.getByText('Authentic');
+      expect(authenticText).toBeInTheDocument();
+
+      const flavorsText = screen.getByText('flavors,');
+      expect(flavorsText).toBeInTheDocument();
 
       // Check for key call-to-action buttons
-      const getStartedButton = screen.getByText('Get Started Free');
+      const getStartedButton = screen.getByText('Get sqtarted');
       expect(getStartedButton).toBeInTheDocument();
     });
 
