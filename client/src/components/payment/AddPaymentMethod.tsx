@@ -62,22 +62,32 @@ const PaymentForm = ({ onSuccess, onError, userId }: PaymentFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
       <PaymentElement />
-      <Button type="submit" disabled={!stripe || isLoading} className="w-full">
+      <Button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!stripe || isLoading}
+        className="w-full"
+      >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {isLoading ? 'Adding Payment Method...' : 'Add Payment Method'}
       </Button>
-    </form>
+    </div>
   );
 };
 
 interface AddPaymentMethodProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  isOptional?: boolean; // New prop to indicate if payment method is optional
 }
 
-const AddPaymentMethod = ({ onSuccess, onCancel }: AddPaymentMethodProps) => {
+const AddPaymentMethod = ({
+  onSuccess,
+  onCancel,
+  isOptional = false,
+}: AddPaymentMethodProps) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +96,7 @@ const AddPaymentMethod = ({ onSuccess, onCancel }: AddPaymentMethodProps) => {
   useEffect(() => {
     const initializeSetupIntent = async () => {
       if (!currentUser?._id) {
-        return; // Early return if no user, component will show login message
+        return;
       }
 
       try {
@@ -134,7 +144,14 @@ const AddPaymentMethod = ({ onSuccess, onCancel }: AddPaymentMethodProps) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Add Payment Method</CardTitle>
+        <CardTitle>
+          Add Payment Method
+          {isOptional && (
+            <span className="text-sm text-gray-500 font-normal ml-2">
+              (Optional)
+            </span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -177,7 +194,7 @@ const AddPaymentMethod = ({ onSuccess, onCancel }: AddPaymentMethodProps) => {
             className="w-full mt-4"
             disabled={isLoading}
           >
-            Cancel
+            {isOptional ? 'Skip for now' : 'Cancel'}
           </Button>
         )}
       </CardContent>

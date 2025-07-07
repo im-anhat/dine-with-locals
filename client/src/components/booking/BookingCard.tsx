@@ -1,20 +1,94 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormField } from '@/components/ui/form';
+import { CreditCard, Plus, Loader2, CheckCircle } from 'lucide-react';
 import { BookingFormValues } from '@/components/booking/FormSchema';
+import AddPaymentMethod from '@/components/payment/AddPaymentMethod';
+import {
+  getPaymentMethods,
+  type PaymentMethod,
+} from '@/services/PaymentService';
+import { useUser } from '@/contexts/UserContext';
 
 interface BookingCardProps {
   form: UseFormReturn<BookingFormValues>;
   onSubmitForm: (values: BookingFormValues) => void;
   disabled?: boolean;
+  requiresPayment?: boolean;
+  hasPaymentMethod?: boolean;
 }
 
-const BookingCard = ({ form, onSubmitForm, disabled }: BookingCardProps) => {
+const BookingCard = ({
+  form,
+  onSubmitForm,
+  disabled,
+  requiresPayment = false,
+  hasPaymentMethod = false,
+}: BookingCardProps) => {
   const [confirmed, setConfirmed] = useState(false);
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+  const { currentUser } = useUser();
+
+  // Fetch payment methods only if payment is required
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      if (!currentUser?._id || !requiresPayment) {
+        setIsLoadingPayments(false);
+        return;
+      }
+
+      try {
+        const response = await getPaymentMethods(currentUser._id);
+        setPaymentMethods(response.paymentMethods);
+      } catch (error) {
+        console.error('Error fetching payment methods:', error);
+      } finally {
+        setIsLoadingPayments(false);
+      }
+    };
+
+    fetchPaymentMethods();
+  }, [currentUser?._id, requiresPayment]);
+
+  const handlePaymentMethodAdded = async () => {
+    setShowAddPayment(false);
+    // Refresh payment methods
+    if (currentUser?._id) {
+      try {
+        const response = await getPaymentMethods(currentUser._id);
+        setPaymentMethods(response.paymentMethods);
+      } catch (error) {
+        console.error('Error refreshing payment methods:', error);
+      }
+    }
+  };
+
+  const getCardBrandColor = (brand: string) => {
+    switch (brand.toLowerCase()) {
+      case 'visa':
+        return 'text-blue-600';
+      case 'mastercard':
+        return 'text-red-600';
+      case 'amex':
+        return 'text-green-600';
+      case 'discover':
+        return 'text-orange-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const formatCardBrand = (brand: string) => {
+    return brand.charAt(0).toUpperCase() + brand.slice(1);
+  };
+
+  const defaultPaymentMethod = paymentMethods.find((pm) => pm.isDefault);
 
   return (
     <div className="space-y-6">
@@ -60,30 +134,109 @@ const BookingCard = ({ form, onSubmitForm, disabled }: BookingCardProps) => {
             </CardContent>
           </Card>
 
-          {/* Payment Method Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Method</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-black rounded-full"></div>
+          {/* Payment Method Card - Only show if payment is required */}
+          {requiresPayment && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Method</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isLoadingPayments ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span>Loading payment methods...</span>
+                  </div>
+                ) : showAddPayment ? (
+                  <AddPaymentMethod
+                    onSuccess={handlePaymentMethodAdded}
+                    onCancel={() => setShowAddPayment(false)}
+                  />
+                ) : defaultPaymentMethod ? (
+                  <>
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50 border-blue-200">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p
+                            className={`font-medium ${getCardBrandColor(defaultPaymentMethod.card?.brand || '')}`}
+                          >
+                            {formatCardBrand(
+                              defaultPaymentMethod.card?.brand || '',
+                            )}
+                          </p>
+                          <p className="text-gray-500">
+                            Ends in {defaultPaymentMethod.card?.last4}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                        Default
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowAddPayment(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add new card
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center py-4">
+                      <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                      <p className="text-gray-500 mb-2">
+                        No payment methods found
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Add a payment method to continue
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="default"
+                      className="w-full"
+                      onClick={() => setShowAddPayment(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add payment method
+                    </Button>
+                  </>
+                )}
+
+                {!showAddPayment && (
+                  <p className="text-gray-600">
+                    We will not charge until the experience has happened. If the
+                    host declines your request, no charge will occur.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Free Experience Notice */}
+          {!requiresPayment && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-green-50 border-green-200">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
                   <div>
-                    <p className="font-medium">American Express</p>
-                    <p className="text-gray-500">Ends in 6677</p>
+                    <p className="font-medium text-green-800">
+                      Free Experience
+                    </p>
+                    <p className="text-green-700 text-sm">
+                      No payment required for this experience
+                    </p>
                   </div>
                 </div>
-              </div>
-              <Button type="button" variant="outline" className="w-full">
-                + Add new card
-              </Button>
-              <p className="text-gray-600">
-                We will not charge until the experience has happened. If the
-                host declines your request, no charge will occur.
-              </p>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Notice Card */}
           <Card>
@@ -112,11 +265,15 @@ const BookingCard = ({ form, onSubmitForm, disabled }: BookingCardProps) => {
           {/* Request Button */}
           <Button
             className="w-full h-12 text-lg"
-            disabled={!confirmed || disabled}
+            disabled={
+              !confirmed || disabled || (requiresPayment && !hasPaymentMethod)
+            }
             type="submit"
             onClick={() => {
               if (!confirmed) {
                 alert('Please confirm the details before proceeding.');
+              } else if (requiresPayment && !hasPaymentMethod) {
+                alert('Please add a payment method before proceeding.');
               }
             }}
           >
