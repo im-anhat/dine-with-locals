@@ -8,20 +8,25 @@ import FilterResults from '@/components/filter/FilterResult';
 export default function HomePage() {
   const navigate = useNavigate();
   const [featuredListings, setFeaturedListings] = useState([]);
+  console.log(JSON.stringify(featuredListings, null, 2));
 
   useEffect(() => {
     const fetchFeaturedListings = async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}api/listing/nearby`,
-        {
-          params: {
-            lat: 41.885202, // ea
-            lng: -87.636092,
-            distance: 80, // Example distance in km
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}api/listing/nearby`,
+          {
+            params: {
+              lat: 41.885202, // example chicago latitude
+              lng: -87.636092, // example chicago longitude
+              distance: 80, // Example distance in km
+            },
           },
-        },
-      );
-      setFeaturedListings(res.data.slice(0, 3)); // Limit to 3 featured listings
+        );
+        setFeaturedListings(res.data.slice(0, 3)); // Limit to 3 featured listings
+      } catch (error) {
+        console.error('Failed to fetch featured listings:', error);
+      }
     };
     fetchFeaturedListings();
   }, []);
