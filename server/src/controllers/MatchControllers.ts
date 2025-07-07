@@ -64,7 +64,14 @@ export const checkUserMatchForListing: RequestHandler = async (req, res) => {
 export const createMatchRequest: RequestHandler = async (req, res) => {
   console.log(req.body);
   try {
-    const { hostId, guestId, requestId, listingId, additionalInfo, hostInfo } = req.body;
+    const {
+      hostId,
+      guestId,
+      requestId,
+      listingId,
+      additionalDetails,
+      hostInfo,
+    } = req.body;
     //Verification
     if (!mongoose.Types.ObjectId.isValid(guestId)) {
       res.status(400).json({ error: 'Invalid guest ID format' });
@@ -97,7 +104,7 @@ export const createMatchRequest: RequestHandler = async (req, res) => {
       requestId: requestId,
     });
 
-    if (existingGuestRequest.length > 0 ) {
+    if (existingGuestRequest.length > 0) {
       res.status(400).json('Matching already created');
       return;
     }
@@ -107,11 +114,11 @@ export const createMatchRequest: RequestHandler = async (req, res) => {
       guestId: guestId,
       requestId: requestId,
       listingId: listingId,
-      additionalInfo: additionalInfo,
+      additionalDetails: additionalDetails,
       hostInfo: hostInfo,
       status: 'pending',
     });
-    
+
     res.status(200).json({ message: 'Match successful' });
   } catch (err) {
     console.error(err);
