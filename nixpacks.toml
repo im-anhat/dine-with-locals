@@ -1,0 +1,12 @@
+# Simple Railway deployment configuration
+[phases.setup]
+nixPkgs = ['nodejs_18']
+
+[phases.install]
+cmd = 'cd server && npm install'
+
+[phases.build]
+cmd = 'cd server && npm run build'
+
+[start]
+cmd = 'cd server && node dist/app.js'
