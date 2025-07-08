@@ -182,7 +182,7 @@ describe('ListingService', () => {
       const result = await getAllListings();
 
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:3000/api/listings',
+        'http://localhost:3000/api/listing',
       );
       expect(result).toEqual(mockListings);
     });
@@ -219,7 +219,7 @@ describe('ListingService', () => {
       const result = await createListing(listingData);
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        'http://localhost:3000/api/listings',
+        'http://localhost:3000/api/listing',
         listingData,
       );
       expect(result).toEqual(mockListing);

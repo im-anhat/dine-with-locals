@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IListing extends Document {
   userId: mongoose.Types.ObjectId; // now using ObjectId
   title: string;
+  matchingId: mongoose.Types.ObjectId[];
   description: string;
   images?: string[]; //urls of images
   category: 'dining' | 'travel' | 'event';
@@ -13,9 +14,6 @@ export interface IListing extends Document {
   duration?: number;
   interestTopic?: string[];
   numGuests?: number;
-  // Dining specific properties
-  cuisine?: string[];
-  dietary?: string[];
 }
 
 const ListingSchema: Schema = new Schema(
@@ -29,6 +27,11 @@ const ListingSchema: Schema = new Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    matchingId: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Match',
+      default: [],
     },
     description: {
       type: String,

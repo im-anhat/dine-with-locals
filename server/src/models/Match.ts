@@ -6,7 +6,8 @@ export interface IMatch extends Document {
   listingId?: mongoose.Types.ObjectId; // References Listing._id
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
-  time?: Date;
+  additionalDetails: String;
+  hostInfo: String;
 }
 
 const MatchSchema: Schema = new Schema(
@@ -27,15 +28,22 @@ const MatchSchema: Schema = new Schema(
     },
     requestId: {
       type: Schema.Types.ObjectId,
-      ref: 'Request',
+      ref: 'RequestModels',
     },
     status: {
       type: String,
       enum: ['pending', 'approved'],
       default: 'pending',
     },
-    time: {
-      type: Date,
+    additionalDetails: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    hostInfo: {
+      type: String,
+      default: '',
+      trim: true,
     },
   },
   { timestamps: true },

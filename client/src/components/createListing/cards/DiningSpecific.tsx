@@ -10,15 +10,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardContent
- } from '@/components/ui/card';
+  CardContent,
+} from '@/components/ui/card';
 import formSchema from '@/components/createListing/formSchema';
-import CategoryBadge from '../ui/CategoryBadge';  
+import CategoryBadge from '../ui/CategoryBadge';
 
 interface DiningSpecificCardProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -30,12 +30,12 @@ const DiningSpecificCard = ({ form }: DiningSpecificCardProps) => {
 
   const handleCategoryRemove = (
     index: number,
-    fieldName: "cuisine" | "dietary"
+    fieldName: 'cuisine' | 'dietary',
   ) => {
     const updated = [...(form.watch(fieldName) ?? [])];
     updated.splice(index, 1);
     form.setValue(fieldName, updated);
-  }
+  };
 
   return (
     <Card className="shadow-sm">
@@ -45,9 +45,9 @@ const DiningSpecificCard = ({ form }: DiningSpecificCardProps) => {
           Please provide details about the dining experience you are offering.
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
-      {/* Cuisine */}
+        {/* Cuisine */}
         <FormField
           control={form.control}
           name="cuisine"

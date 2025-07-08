@@ -1,11 +1,28 @@
 import axios from 'axios';
 import { Listing } from '../../../shared/types/Listing';
-
+import { ListingDetails } from '../../../shared/types/ListingDetails';
+import { User } from '../../../shared/types/User';
 export interface Coordinates {
   lat: number;
   lng: number;
 }
+export interface Match {
+  hostId: string;
+  guestId: string;
+  listingId?: string; // References Listing._id
+  requestId?: string; // References Request._id
+  status: 'pending' | 'approved';
+  time: Date;
+}
 
+export interface PendingCardProps {
+  hostId: string;
+  guestId: Omit<User, 'password' | 'provider'>;
+  listingId?: Listing;
+  requestId?: string;
+  status: 'pending' | 'approved';
+  time: Date;
+}
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
@@ -101,7 +118,7 @@ export const getListingsWithinDistanceFromAPI = async (
  */
 export const getAllListings = async (): Promise<Listing[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/listings`);
+    const response = await axios.get(`${API_BASE_URL}/listing`);
     return response.data;
   } catch (error) {
     console.error('Error fetching all listings from API:', error);
@@ -118,7 +135,7 @@ export const createListing = async (
   listingData: Partial<Listing>,
 ): Promise<Listing> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/listings`, listingData);
+    const response = await axios.post(`${API_BASE_URL}/listing`, listingData);
     return response.data.listing;
   } catch (error) {
     console.error('Error creating listing:', error);
@@ -163,15 +180,34 @@ export const getListingById = async (listingId: string): Promise<Listing> => {
 };
 
 /**
+ * Get a list of Match document from listingID
+ * @param listingId ID of the listing to fetch
+ * @returns Promise<Listing> Listing data
+ */
+export const getMatchesFromListingId = async (
+  listingId: string,
+): Promise<PendingCardProps[]> => {
+  try {
+    const result = await axios.get(
+      `${API_BASE_URL}/listing/match/${listingId}`,
+    );
+    return result.data;
+  } catch (err) {
+    console.error('Error fetching matching by listing ID:', err);
+    throw err;
+  }
+};
+
+/**
  * Get listings by user ID
  * @param userId ID of the user
  * @returns Promise<Listing[]> Array of user's listings
  */
 export const getListingsByUserId = async (
   userId: string,
-): Promise<Listing[]> => {
+): Promise<ListingDetails[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/listings/user/${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/listing/user/${userId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching listings by user ID:', error);
@@ -191,7 +227,7 @@ export const updateListing = async (
 ): Promise<Listing> => {
   try {
     const response = await axios.put(
-      `${API_BASE_URL}/listings/${listingId}`,
+      `${API_BASE_URL}/listing/${listingId}`,
       listingData,
     );
     return response.data.listing;
@@ -208,7 +244,7 @@ export const updateListing = async (
  */
 export const deleteListing = async (listingId: string): Promise<void> => {
   try {
-    await axios.delete(`${API_BASE_URL}/listings/${listingId}`);
+    await axios.delete(`${API_BASE_URL}/listing/${listingId}`);
   } catch (error) {
     console.error('Error deleting listing:', error);
     throw error;
