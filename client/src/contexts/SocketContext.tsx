@@ -44,11 +44,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log('Initializing socket connection for user:', currentUser._id);
 
     // Initialize socket connection
-    const socketInstance = io('http://localhost:3000', {
-      query: { userId: currentUser._id, token: localStorage.getItem('token') }, // this sends the userId as param for auth in BE
-      withCredentials: true,
-      forceNew: true, // Force a new connection
-    });
+    const socketInstance = io(
+      import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/',
+      {
+        query: {
+          userId: currentUser._id,
+          token: localStorage.getItem('token'),
+        }, // this sends the userId as param for auth in BE
+        withCredentials: true,
+        forceNew: true, // Force a new connection
+      },
+    );
 
     setSocket(socketInstance);
 
