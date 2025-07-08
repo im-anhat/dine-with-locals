@@ -29,7 +29,6 @@ const App: React.FC = () => {
   // useLocation for dynamic path in the TopNavbar
   const location = useLocation();
   const [currentPath, setCurrentPath] = React.useState<string[]>([]);
-  hahaa;
 
   React.useEffect(() => {
     // if it's a regular path, split it by '/' and filter out empty segments
