@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
 import { getUserById } from './services/UserService';
 import ListingDashboard from './pages/pending/ListingDashboard';
+import BookingConfirm from './pages/BookingConfirm';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -153,6 +154,10 @@ const App: React.FC = () => {
                 <Home />
               )
             }
+          />
+          <Route
+            path="/booking/:listingId"
+            element={isAuthenticated ? <BookingConfirm /> : <Home />}
           />
         </Routes>
 

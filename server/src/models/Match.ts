@@ -6,8 +6,7 @@ export interface IMatch extends Document {
   listingId?: mongoose.Types.ObjectId; // References Listing._id
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
-  time: Date;
-  additionalInfo: String;
+  additionalDetails: String;
   hostInfo: String;
 }
 
@@ -36,11 +35,7 @@ const MatchSchema: Schema = new Schema(
       enum: ['pending', 'approved'],
       default: 'pending',
     },
-    time: {
-      type: Date,
-      required: true,
-    },
-    additionalInfo: {
+    additionalDetails: {
       type: String,
       default: '',
       trim: true,
@@ -55,6 +50,6 @@ const MatchSchema: Schema = new Schema(
 );
 
 // Update composite index to use ObjectId fields
-MatchSchema.index({ hostId: 1, guestId: 1, time: 1 }, { unique: true });
+MatchSchema.index({ hostId: 1, guestId: 1, listingId: 1 }, { unique: true });
 
 export default mongoose.model<IMatch>('Match', MatchSchema);

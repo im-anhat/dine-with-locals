@@ -52,7 +52,7 @@ app.use(express.json());
 //Only receive request from some specific routes.
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: true, // Accept all origins temporarily
     credentials: true,
   }),
 );

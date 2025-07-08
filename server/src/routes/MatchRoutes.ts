@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getMatchesByUserId,
+  checkUserMatchForListing,
   createMatchRequest,
   updateMatchRequest,
   deleteMatchRequest,
@@ -13,10 +14,13 @@ const router = express.Router();
 router.get('/getMatches', getMatches);
 // GET matches by user ID
 router.get('/:userId', getMatchesByUserId);
-// POST create new matches
-router.post('/createMatch', createMatchRequest);
 // UPDATE match to 'approved' match
 router.put('/:matchId', updateMatchRequest);
 // DELETE match
 router.delete('/:matchId', deleteMatchRequest);
+// GET check user match for listing
+router.get('/', checkUserMatchForListing);
+// POST create a new match
+router.post('/', createMatchRequest);
+
 export default router;

@@ -60,6 +60,7 @@ export const getMatchesByUserId: RequestHandler = async (req, res) => {
     // (2) status = 'approved'
     const matches = await Match.find({
       $or: [{ hostId: userId }, { guestId: userId }],
+      status: 'approved',
     });
 
     res.status(200).json(matches);
@@ -139,53 +140,81 @@ export const createMatchRequest: RequestHandler = async (req, res) => {
   }
 };
 
+export const checkUserMatchForListing: RequestHandler = async (req, res) => {
+  try {
+    const { userId, listingId } = req.query;
+
+    if (!userId || !listingId) {
+      res.status(400).json({ error: 'userId and listingId are required' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
+      res.status(400).json({ error: 'Invalid user ID format' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(listingId as string)) {
+      res.status(400).json({ error: 'Invalid listing ID format' });
+      return;
+    }
+
+    const match = await Match.findOne({
+      $or: [{ hostId: userId }, { guestId: userId }],
+      listingId: listingId,
+      status: { $in: ['pending', 'approved'] },
+    });
+
+    res.status(200).json({ hasMatch: !!match, match });
+  } catch (error) {
+    console.error('Error checking user match for listing:', error);
+    res.status(500).json({ error: 'Failed to check match' });
+  }
+};
+
 //Accept match
 export const updateMatchRequest: RequestHandler = async (req, res) => {
   const { matchId } = req.params;
-  console.log('Match ID', matchId);
+  //Check if the match is already created in Match schema
+  const result = await Match.find({ matchId });
 
-  // Validate MongoDB's ObjectID format
+  if (!result) {
+    res.status(400).json('Match does not exist');
+    return;
+  }
+  //Validate MongoDB's ObjectID format
   if (!mongoose.Types.ObjectId.isValid(matchId)) {
     res.status(400).json({ err: 'Object ID is not valid' });
     return;
   }
-
-  // Check if the match exists
-  const result = await Match.findById(matchId);
-  if (!result) {
-    res.status(400).json({ err: 'Match does not exist' });
-    throw new Error('Match does not exist');
-  }
-
   try {
-    const updatedResult = await Match.findByIdAndUpdate(
+    const result = await Match.findByIdAndUpdate(
       matchId,
       { status: 'approved' },
       { new: true, runValidators: true },
     )
       .populate('hostId', 'userName firstName lastName avatar')
       .populate('guestId', 'userName firstName lastName avatar');
-    if (updatedResult) {
-      if (updatedResult.requestId) {
+    if (result) {
+      if (result.requestId) {
         //update the Request document's status to approved
         await RequestModel.findOneAndUpdate(
-          updatedResult.requestId,
+          result.requestId,
           { status: 'approved' },
           { new: true, runValidators: true },
         );
-        await updatedResult.populate('requestId');
+        await result.populate('requestId');
       }
-      if (updatedResult.listingId) {
-        console.log('Listing ID', updatedResult.listingId);
+      if (result.listingId) {
         await Listing.findOneAndUpdate(
-          updatedResult.listingId,
+          result.requestId,
           { status: 'approved' },
           { new: true, runValidators: true },
         );
-        await updatedResult.populate('listingId');
+        await result.populate('listingId');
       }
     }
-    res.status(200).json(updatedResult);
+    res.status(200).json(result);
   } catch (err) {
     console.error(err);
     res.status(400).json({ err: 'Error occured', message: err });

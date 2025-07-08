@@ -5,7 +5,8 @@ import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useToast } from '../../hooks/use-toast';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
 interface ProfileBlogsProps {
   blogs: BlogWithUser[];
@@ -45,7 +46,7 @@ const ProfileBlogs: React.FC<ProfileBlogsProps> = ({
         return;
       }
 
-      await axios.delete(`${API_URL}/blogs/${blogId}`);
+      await axios.delete(`${API_BASE_URL}/blogs/${blogId}`);
 
       // Update the blogs list by removing the deleted blog
       if (onUpdateBlogs) {
