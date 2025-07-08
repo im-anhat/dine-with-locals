@@ -2,7 +2,7 @@
 nixPkgs = ['nodejs_18']
 
 [phases.install]
-cmd = 'cd server && npm install --include=dev'
+cmd = 'cd server && npm ci --include=dev && npm install typescript --save'
 
 [phases.build]
 cmd = 'cd server && node ./node_modules/typescript/bin/tsc'
