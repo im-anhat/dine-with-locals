@@ -14,7 +14,8 @@ import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { uploadImages } from '@/services/uploadImages';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
 const CreateListing = () => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,7 +59,10 @@ const CreateListing = () => {
 
     // Send the listing data to the server
     try {
-      const response = await axios.post(`${API_URL}/listing`, finalListingData);
+      const response = await axios.post(
+        `${API_BASE_URL}/listing`,
+        finalListingData,
+      );
       console.log('Listing created successfully:', response.data);
     } catch (error) {
       console.error('Error creating listing:', error);

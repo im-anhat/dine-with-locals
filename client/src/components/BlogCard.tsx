@@ -34,7 +34,8 @@ import {
 } from './ui/dialog';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
 interface Comment {
   _id: string;
@@ -123,7 +124,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
   const checkLikeStatus = async () => {
     try {
-      const response = await axios.get(`${API_URL}/likes/check`, {
+      const response = await axios.get(`${API_BASE_URL}/likes/check`, {
         params: {
           userId: currentUserId,
           blogId: blog._id,
@@ -140,7 +141,9 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
     try {
       setLoadingComments(true);
-      const response = await axios.get(`${API_URL}/comments/blog/${blog._id}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/comments/blog/${blog._id}`,
+      );
       setComments(response.data);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -158,7 +161,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
     try {
       if (isLiked) {
         // Unlike the post
-        await axios.delete(`${API_URL}/likes`, {
+        await axios.delete(`${API_BASE_URL}/likes`, {
           data: {
             userId: currentUserId,
             blogId: blog._id,
@@ -168,7 +171,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         setLikesCount((prev) => Math.max(0, prev - 1));
       } else {
         // Like the post
-        await axios.post(`${API_URL}/likes`, {
+        await axios.post(`${API_BASE_URL}/likes`, {
           userId: currentUserId,
           blogId: blog._id,
         });
@@ -187,7 +190,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
     try {
       setIsSubmittingComment(true);
-      const response = await axios.post(`${API_URL}/comments`, {
+      const response = await axios.post(`${API_BASE_URL}/comments`, {
         blogId: blog._id,
         userId: currentUserId,
         content: newComment.trim(),

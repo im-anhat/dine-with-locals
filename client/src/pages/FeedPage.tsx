@@ -15,7 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useUserContext } from '../hooks/useUserContext';
 import { uploadFiles } from '../../../server/src/services/UploadService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
 const FeedPage: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -34,8 +35,8 @@ const FeedPage: React.FC = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      console.log('Fetching blogs from:', `${API_URL}/blogs`);
-      const response = await axios.get(`${API_URL}/blogs`);
+      console.log('Fetching blogs from:', `${API_BASE_URL}/blogs`);
+      const response = await axios.get(`${API_BASE_URL}/blogs`);
       console.log('Blogs response:', response.data);
       setBlogs(response.data);
       console.log('Blogs set to state:', response.data);
@@ -105,7 +106,7 @@ const FeedPage: React.FC = () => {
         });
 
         const response = await axios.put(
-          `${API_URL}/blogs/${currentBlog._id}`,
+          `${API_BASE_URL}/blogs/${currentBlog._id}`,
           {
             blogTitle: data.title,
             blogContent: data.content,
@@ -138,7 +139,7 @@ const FeedPage: React.FC = () => {
         });
 
         // Make API call to create blog post
-        const response = await axios.post(`${API_URL}/blogs`, {
+        const response = await axios.post(`${API_BASE_URL}/blogs`, {
           userId: currentUser._id,
           blogTitle: data.title,
           blogContent: data.content,
@@ -179,7 +180,7 @@ const FeedPage: React.FC = () => {
       }
 
       console.log('Deleting blog with ID:', blogId);
-      await axios.delete(`${API_URL}/blogs/${blogId}`);
+      await axios.delete(`${API_BASE_URL}/blogs/${blogId}`);
 
       // Remove the deleted blog from the state
       setBlogs(blogs.filter((blog) => blog._id !== blogId));
