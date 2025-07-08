@@ -13,7 +13,7 @@ export const initializeSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
     pingTimeout: 60000,
     cors: {
-      origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+      origin: true, // Accept all origins temporarily
       methods: ['GET', 'POST'],
       credentials: true,
     },
