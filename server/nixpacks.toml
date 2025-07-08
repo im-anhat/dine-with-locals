@@ -1,9 +1,6 @@
-# Nixpacks configuration for Railway deployment
+# Nixpacks configuration for Railway deployment - Build and start only
+[build]
+cmd = "npm install && npm run build"
+
 [start]
 cmd = "npm start"
-
-[build]
-cmd = "npm ci && npm run build"
-
-[env]
-NODE_ENV = "production"
