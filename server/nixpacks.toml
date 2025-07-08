@@ -1,9 +1,9 @@
 # Nixpacks configuration for Railway deployment
-[phases.build]
-cmds = ["npm ci", "npm run build"]
-
-[phases.start]
+[start]
 cmd = "npm start"
 
-[variables]
+[build]
+cmd = "npm ci && npm run build"
+
+[env]
 NODE_ENV = "production"
