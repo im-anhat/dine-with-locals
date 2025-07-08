@@ -6,9 +6,14 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  NODE_VERSION: '18'
+
 jobs:
   test:
+    name: Test & Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -17,14 +22,33 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
 
       - name: Install dependencies
         run: npm run setup
+
+      - name: Lint code
+        run: |
+          cd server && npm run lint
+          cd ../client && npm run lint
+
+      - name: Type check
+        run: |
+          cd server && npm run type-check
+          cd ../client && npx tsc -b --noEmit
 
       - name: Run tests
         run: npm run test:ci
 
       - name: Build application
         run: npm run build
+
+      - name: Check build artifacts
+        run: |
+          echo "✅ Backend build size: $(du -sh server/dist/ | cut -f1)"
+          echo "✅ Frontend build size: $(du -sh client/dist/ | cut -f1)"
