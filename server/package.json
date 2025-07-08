@@ -11,11 +11,11 @@
     "test:integration": "jest src/test/integration",
     "test:controllers": "jest src/test/controllers",
     "dev": "NODE_NO_WARNINGS=1 nodemon --watch src --exec \"node --loader ts-node/esm\" src/app.ts",
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "node dist/app.js",
     "seed": "NODE_NO_WARNINGS=1 node --loader ts-node/esm src/seeds/seed.ts",
     "lint": "eslint src/**/*.ts --fix || echo 'ESLint not configured yet'",
-    "type-check": "tsc --noEmit",
+    "type-check": "npx tsc --noEmit",
     "clean": "rm -rf dist",
     "db:reset": "echo 'Database reset - use with caution in development only'"
   },
@@ -40,6 +40,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.9",
     "socket.io": "^4.8.1",
+    "typescript": "^5.7.3",
     "stripe": "^18.2.1",
     "validator": "^13.15.0",
     "zod": "^3.24.2"
