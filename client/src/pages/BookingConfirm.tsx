@@ -26,7 +26,10 @@ import {
 import BookingCard from '@/components/booking/BookingCard';
 import DetailCard from '@/components/booking/DetailCard';
 import AddPaymentMethod from '@/components/payment/AddPaymentMethod';
-import { getPaymentMethods } from '@/services/PaymentService';
+import {
+  getPaymentMethods,
+  createBookingPaymentIntent,
+} from '@/services/PaymentService';
 const BookingConfirm = () => {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(false);
@@ -128,11 +131,34 @@ const BookingConfirm = () => {
     };
 
     try {
+      setLoading(true);
+
+      // Create the booking/match first
       const response = await createBookingRequest(bookingData);
       console.log('Booking confirmed:', response);
+
+      // If this is a paid listing, create a payment intent and attach it to the match
+      if (requiresPayment && response.match?._id) {
+        try {
+          const paymentIntentResponse = await createBookingPaymentIntent(
+            currentUser._id,
+            listingId,
+            response.match._id,
+          );
+          console.log(
+            'Payment intent created and attached to match:',
+            paymentIntentResponse,
+          );
+        } catch (paymentError) {
+          console.error('Error creating payment intent:', paymentError);
+        }
+      }
+
       setBookingSuccess(true);
     } catch (error) {
       console.error('Error confirming booking:', error);
+    } finally {
+      setLoading(false);
     }
 
     form.reset({

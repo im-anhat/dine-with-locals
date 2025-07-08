@@ -136,3 +136,28 @@ export const createSetupIntent = async (
     );
   }
 };
+
+// Create payment intent for booking
+export const createBookingPaymentIntent = async (
+  userId: string,
+  listingId: string,
+  matchId: string,
+): Promise<{
+  message: string;
+  paymentIntentId: string;
+  clientSecret: string;
+  amount: number;
+  status: string;
+}> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/payment/booking-payment-intent`,
+      { userId, listingId, matchId },
+    );
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error || 'Failed to create payment intent',
+    );
+  }
+};
