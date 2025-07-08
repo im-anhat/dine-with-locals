@@ -108,12 +108,14 @@ export const addPaymentMethod: RequestHandler = async (
     const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
 
     // Add payment method ID to user's payment methods array
+    const isFirstPaymentMethod =
+      !user.paymentMethod || user.paymentMethod.length === 0;
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       {
         $addToSet: { paymentMethod: paymentMethodId },
         // Set as default if it's the first payment method
-        ...(user.paymentMethod.length === 0 && {
+        ...(isFirstPaymentMethod && {
           paymentMethodDefault: paymentMethodId,
         }),
       },
@@ -408,7 +410,9 @@ export const createBookingPaymentIntent: RequestHandler = async (
 
     // Validate inputs
     if (!userId || !listingId || !matchId) {
-      res.status(400).json({ error: 'Missing required parameters' });
+      res
+        .status(400)
+        .json({ error: 'Missing required parameters: userId, listingId, and matchId' });
       return;
     }
 
@@ -430,6 +434,7 @@ export const createBookingPaymentIntent: RequestHandler = async (
         .json({ error: 'User must have a default payment method' });
       return;
     }
+
     // Find listing and get fee
     const listing = await Listing.findById(listingId);
     if (!listing) {
@@ -437,16 +442,31 @@ export const createBookingPaymentIntent: RequestHandler = async (
       return;
     }
 
-    // Find match and validate
-    const match = await Match.findById(matchId);
-    if (!match || match.guestId.toString() !== userId) {
-      res.status(404).json({ error: 'Match not found or unauthorized' });
+    // Validate listing requires payment
+    if (!listing.fee || listing.fee <= 0) {
+      res.status(400).json({ error: 'Listing does not require payment' });
+      return;
+    }
+
+    // Find the existing match
+    const existingMatch = await Match.findById(matchId);
+    if (!existingMatch) {
+      res.status(404).json({ error: 'Match not found' });
+      return;
+    }
+
+    // Check if match already has a payment intent
+    if (existingMatch.paymentIntentId) {
+      res.status(400).json({ 
+        error: 'Payment intent already exists for this match',
+        paymentIntentId: existingMatch.paymentIntentId 
+      });
       return;
     }
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round((listing.fee || 0) * 100), // Convert to cents
+      amount: Math.round(listing.fee * 100), // Convert to cents
       currency: 'usd',
       customer: user.stripeCustomerId,
       payment_method: user.paymentMethodDefault,
@@ -463,13 +483,14 @@ export const createBookingPaymentIntent: RequestHandler = async (
     // Update match with payment intent details
     await Match.findByIdAndUpdate(matchId, {
       paymentIntentId: paymentIntent.id,
-      paymentStatus: 'requires_payment_method',
-      amount: Math.round((listing.fee || 0) * 100),
-      currency: 'usd',
+      paymentStatus: 'pending',
+      amount: Math.round(listing.fee * 100),
+      currency: 'USD',
     });
 
     res.status(201).json({
       message: 'Payment intent created successfully',
+      matchId: matchId,
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret,
       amount: paymentIntent.amount,

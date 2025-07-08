@@ -119,7 +119,7 @@ export const createMatchRequest: RequestHandler = async (req, res) => {
       status: 'pending',
     });
 
-    res.status(200).json({ message: 'Match successful' });
+    res.status(200).json({ message: 'Match successful', match });
   } catch (err) {
     console.error(err);
     res.status(400).json({ error: err });

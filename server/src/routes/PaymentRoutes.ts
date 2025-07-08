@@ -6,6 +6,7 @@ import {
   setDefaultPaymentMethod,
   deletePaymentMethod,
   createSetupIntent,
+  createBookingPaymentIntent,
 } from '../controllers/PaymentController.js';
 
 const router = express.Router();
@@ -27,5 +28,8 @@ router.patch('/payment-methods/default', setDefaultPaymentMethod);
 
 // Delete a payment method
 router.delete('/payment-methods/:paymentMethodId', deletePaymentMethod);
+
+// Create payment intent for booking
+router.post('/booking-payment-intent', createBookingPaymentIntent);
 
 export default router;
