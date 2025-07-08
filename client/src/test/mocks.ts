@@ -19,6 +19,7 @@ export const mockUser: User = {
   bio: 'Test user bio',
   cover: 'https://example.com/cover.jpg',
   locationId: 'location123',
+  languages: ['English', 'Spanish'],
 };
 
 export const mockHost: User = {
