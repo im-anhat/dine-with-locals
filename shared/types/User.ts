@@ -14,6 +14,7 @@ export interface User {
   bio: string;
   cover: string;
   locationId: string;
+  languages: string[];
 }
 
 export type UserSignUp = Pick<

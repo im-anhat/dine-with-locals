@@ -4,7 +4,7 @@ import { UserSignUp } from '../../../../shared/types/User';
 // import BASE_URL from '../../../../shared/constants/constants';
 
 export const useSignUp = () => {
-  // console.log(`${import.meta.env.VITE_API_BASE_URL}}api/auth/signup`);
+  // console.log(`${import.meta.env.VITE_API_BASE_URL}api/auth/signup`);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 

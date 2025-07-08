@@ -1,8 +1,49 @@
 import Match from '../models/Match.js';
 import RequestModel from '../models/Request.js';
 import Listing from '../models/Listing.js';
+
 import { RequestHandler } from 'express';
 import mongoose from 'mongoose';
+import { request } from 'http';
+
+export const getMatches: RequestHandler = async (req, res) => {
+  try {
+    const { hostId, guestId, listingId, requestId } = req.query;
+
+    const query: any = {};
+    if (hostId) {
+      if (!mongoose.Types.ObjectId.isValid(String(hostId))) {
+        res.status(400).json({ error: 'Invalid HOST ID format' });
+      }
+      query.hostId = hostId;
+    }
+    if (guestId) {
+      if (!mongoose.Types.ObjectId.isValid(String(guestId))) {
+        res.status(400).json({ error: 'Invalid GUEST ID format' });
+      }
+      query.guestId = guestId;
+    }
+    if (listingId) {
+      if (!mongoose.Types.ObjectId.isValid(String(listingId))) {
+        res.status(400).json({ error: 'Invalid LISTING ID format' });
+      }
+      query.listingId = listingId;
+    }
+    if (requestId) {
+      if (!mongoose.Types.ObjectId.isValid(String(requestId))) {
+        res.status(400).json({ error: 'Invalid REQUEST ID format' });
+      }
+      query.requestId = requestId;
+    }
+
+    const matches = await Match.find(query);
+
+    res.status(200).json(matches);
+  } catch (err) {
+    console.log('ERROR WHILE GETTING MATCHES', err);
+    res.status(500).json({ error: 'Failed to fetch match data' });
+  }
+};
 
 export const getMatchesByUserId: RequestHandler = async (req, res) => {
   try {

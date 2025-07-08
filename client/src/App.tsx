@@ -11,6 +11,7 @@ import CardDetails from './components/dashboard/CardDetails';
 import ProfilePage from './pages/Profile';
 import Places from './pages/Places';
 import CreateListing from './pages/CreateListing';
+import PendingPage from './pages/pending/PendingPage';
 import PaymentTest from './pages/PaymentTest';
 import { Toaster } from './components/ui/toaster';
 import { ChatPage } from './pages/ChatPage';
@@ -21,6 +22,7 @@ import { TopNavbar } from '@/components/TopNavbar';
 import { Separator } from '@/components/ui/separator';
 import { useUserContext } from './hooks/useUserContext';
 import { getUserById } from './services/UserService';
+import ListingDashboard from './pages/pending/ListingDashboard';
 import BookingConfirm from './pages/BookingConfirm';
 
 const App: React.FC = () => {
@@ -134,6 +136,25 @@ const App: React.FC = () => {
           <Route
             path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}
+          />
+          <Route
+            path="/approvals"
+            element={isAuthenticated ? <PendingPage /> : <Home />}
+          />
+          <Route
+            path="/listingdashboard"
+            element={
+              isAuthenticated ? (
+                currentUser?.role == 'Host' ? (
+                  <ListingDashboard />
+                ) : (
+                  //Add Request Dashboard here
+                  <Home />
+                )
+              ) : (
+                <Home />
+              )
+            }
           />
           <Route
             path="/payment"
