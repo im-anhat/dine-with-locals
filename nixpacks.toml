@@ -2,10 +2,10 @@
 nixPkgs = ['nodejs_18']
 
 [phases.install]
-cmd = 'npm install && cd server && npm install --include=dev'
+cmd = 'cd server && npm install'
 
 [phases.build]
-cmd = 'cd server && node ./node_modules/typescript/bin/tsc'
+cmd = 'cd server && npx tsc'
 
 [start]
 cmd = 'cd server && node dist/app.js'
