@@ -140,7 +140,7 @@ const App: React.FC = () => {
             element={isAuthenticated ? <PendingPage /> : <Home />}
           />
           <Route
-            path="/listingdashboard/"
+            path="/listingdashboard"
             element={
               isAuthenticated ? (
                 currentUser?.role == 'Host' ? (
