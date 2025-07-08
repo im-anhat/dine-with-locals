@@ -14,9 +14,6 @@ export interface IListing extends Document {
   duration?: number;
   interestTopic?: string[];
   numGuests?: number;
-  // Dining specific properties
-  cuisine?: string[];
-  dietary?: string[];
 }
 
 const ListingSchema: Schema = new Schema(
@@ -32,7 +29,7 @@ const ListingSchema: Schema = new Schema(
       trim: true,
     },
     matchingId: {
-      type: mongoose.Types.ObjectId,
+      type: [Schema.Types.ObjectId],
       ref: 'Match',
       default: [],
     },

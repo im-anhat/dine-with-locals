@@ -93,3 +93,24 @@ export const getMatches = async (
     throw error;
   }
 };
+
+export const approveMatch = async (matchId: string): Promise<Match> => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/matches/${matchId}`, {
+      status: 'approved',
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error approving match:', error);
+    throw error;
+  }
+};
+
+export const deleteMatch = async (matchId: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_BASE_URL}/matches/${matchId}`);
+  } catch (error) {
+    console.error('Error deleting match:', error);
+    throw error;
+  }
+};

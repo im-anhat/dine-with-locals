@@ -3,7 +3,7 @@ import Listing, { IListing } from '../models/Listing.js';
 import Location from '../models/Location.js';
 import mongoose from 'mongoose';
 import Match from '../models/Match.js';
-
+import User from '../models/User.js';
 /**
  * Get listing by ID
  * @route GET /api/listings/:listingId
@@ -357,7 +357,13 @@ export const getAllListing = async (req: Request, res: Response) => {
 export const getMatchesFromListingID = async (req: Request, res: Response) => {
   try {
     const { listingID } = req.params;
-    const matches = await Match.find({ listingId: listingID });
+    const matches = await Match.find({ listingId: listingID })
+      .populate(
+        'guestId',
+        '_id userName firstName lastName phone avatar cover socialLink role hobbies cuisines ethnicity bio locationId',
+      )
+      .populate('listingId');
+    console.log(matches);
     res.status(200).json(matches);
   } catch (err) {
     console.error('Error', err);

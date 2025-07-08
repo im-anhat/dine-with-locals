@@ -7,6 +7,8 @@ export interface IMatch extends Document {
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
   time: Date;
+  additionalInfo: String;
+  hostInfo: String;
 }
 
 const MatchSchema: Schema = new Schema(
@@ -37,6 +39,16 @@ const MatchSchema: Schema = new Schema(
     time: {
       type: Date,
       required: true,
+    },
+    additionalInfo: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    hostInfo: {
+      type: String,
+      default: '',
+      trim: true,
     },
   },
   { timestamps: true },

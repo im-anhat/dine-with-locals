@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { Listing } from '../../../shared/types/Listing';
+import { ListingDetails } from '../../../shared/types/ListingDetails';
+import { User } from '../../../shared/types/User';
 export interface Coordinates {
   lat: number;
   lng: number;
@@ -9,6 +11,15 @@ export interface Match {
   guestId: string;
   listingId?: string; // References Listing._id
   requestId?: string; // References Request._id
+  status: 'pending' | 'approved';
+  time: Date;
+}
+
+export interface PendingCardProps {
+  hostId: string;
+  guestId: Omit<User, 'password' | 'provider'>;
+  listingId?: Listing;
+  requestId?: string;
   status: 'pending' | 'approved';
   time: Date;
 }
@@ -173,10 +184,9 @@ export const getListingById = async (listingId: string): Promise<Listing> => {
  * @param listingId ID of the listing to fetch
  * @returns Promise<Listing> Listing data
  */
-
 export const getMatchesFromListingId = async (
   listingId: string,
-): Promise<Match[]> => {
+): Promise<PendingCardProps[]> => {
   try {
     const result = await axios.get(
       `${API_BASE_URL}/listing/match/${listingId}`,
@@ -195,7 +205,7 @@ export const getMatchesFromListingId = async (
  */
 export const getListingsByUserId = async (
   userId: string,
-): Promise<Listing[]> => {
+): Promise<ListingDetails[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/listing/user/${userId}`);
     return response.data;

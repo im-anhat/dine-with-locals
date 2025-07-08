@@ -17,6 +17,7 @@ export interface IUser extends Document {
   ethnicity?: 'Asian' | 'Black' | 'Hispanic' | 'White' | 'Other';
   bio: string;
   locationId: mongoose.Types.ObjectId;
+  languages: string[];
 }
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
@@ -104,6 +105,10 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
       required: function (this: IUser) {
         return this.provider === 'Local';
       },
+    },
+    languages: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },

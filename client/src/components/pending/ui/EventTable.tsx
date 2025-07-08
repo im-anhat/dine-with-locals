@@ -8,23 +8,32 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PendingCardProps } from '../HostSidePending';
+import { approveMatch, deleteMatch } from '@/services/MatchService';
 
-const guests = [
-  {
-    firstname: 'Jamie',
-    lastname: 'Oliver',
-    phone: '123456789',
-    _id: '1',
-  },
-  {
-    firstname: 'Success',
-    lastname: 'abe45@example.com',
-    phone: '123456789',
-    _id: '2',
-  },
-];
+function EventTable({
+  guests,
+}: {
+  guests: PendingCardProps[];
+}): React.ReactElement {
+  const handleApprove = async (matchingId: string) => {
+    try {
+      const updatedMatch = await approveMatch(matchingId);
+      console.log('Match approved:', updatedMatch);
+    } catch (error) {
+      console.error('Error approving match:', error);
+    }
+  };
 
-function EventTable() {
+  // Function to handle the rejection of a match
+  const handleReject = async (matchingId: string) => {
+    try {
+      await deleteMatch(matchingId);
+      console.log('Match rejected:', matchingId);
+    } catch (error) {
+      console.error('Error rejecting match:', error);
+    }
+  };
   return (
     <div className="rounded-xl border bg-white text-gray-900 shadow p-6 mb-4 w-full max-w-5xl mx-auto">
       <Table>
@@ -43,14 +52,22 @@ function EventTable() {
                 <Checkbox />
               </TableCell>
               <TableCell className="font-medium">
-                {guest.firstname} {guest.lastname}
+                {guest.guestId.firstName} {guest.guestId.lastName}
               </TableCell>
-              <TableCell className="font-medium">{guest.phone}</TableCell>
-
+              <TableCell className="font-medium">
+                {guest.guestId.phone}
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex flex-row gap-2 justify-end">
-                  <Button>Approve</Button>
-                  <Button className="bg-gray-200 text-gray-900">Reject</Button>
+                  <Button onClick={() => handleApprove(guest._id)}>
+                    Approve
+                  </Button>
+                  <Button
+                    className="bg-gray-200 text-gray-900"
+                    onClick={() => handleReject(guest._id)}
+                  >
+                    Reject
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>

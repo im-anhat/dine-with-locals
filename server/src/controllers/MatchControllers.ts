@@ -142,46 +142,50 @@ export const createMatchRequest: RequestHandler = async (req, res) => {
 //Accept match
 export const updateMatchRequest: RequestHandler = async (req, res) => {
   const { matchId } = req.params;
-  //Check if the match is already created in Match schema
-  const result = await Match.find({ matchId });
+  console.log('Match ID', matchId);
 
-  if (!result) {
-    res.status(400).json('Match does not exist');
-    return;
-  }
-  //Validate MongoDB's ObjectID format
+  // Validate MongoDB's ObjectID format
   if (!mongoose.Types.ObjectId.isValid(matchId)) {
     res.status(400).json({ err: 'Object ID is not valid' });
     return;
   }
+
+  // Check if the match exists
+  const result = await Match.findById(matchId);
+  if (!result) {
+    res.status(400).json({ err: 'Match does not exist' });
+    throw new Error('Match does not exist');
+  }
+
   try {
-    const result = await Match.findByIdAndUpdate(
+    const updatedResult = await Match.findByIdAndUpdate(
       matchId,
       { status: 'approved' },
       { new: true, runValidators: true },
     )
       .populate('hostId', 'userName firstName lastName avatar')
       .populate('guestId', 'userName firstName lastName avatar');
-    if (result) {
-      if (result.requestId) {
+    if (updatedResult) {
+      if (updatedResult.requestId) {
         //update the Request document's status to approved
         await RequestModel.findOneAndUpdate(
-          result.requestId,
+          updatedResult.requestId,
           { status: 'approved' },
           { new: true, runValidators: true },
         );
-        await result.populate('requestId');
+        await updatedResult.populate('requestId');
       }
-      if (result.listingId) {
+      if (updatedResult.listingId) {
+        console.log('Listing ID', updatedResult.listingId);
         await Listing.findOneAndUpdate(
-          result.requestId,
+          updatedResult.listingId,
           { status: 'approved' },
           { new: true, runValidators: true },
         );
-        await result.populate('listingId');
+        await updatedResult.populate('listingId');
       }
     }
-    res.status(200).json(result);
+    res.status(200).json(updatedResult);
   } catch (err) {
     console.error(err);
     res.status(400).json({ err: 'Error occured', message: err });
