@@ -20,6 +20,7 @@ export interface PendingCardProps {
   time: Date;
   additionalInfo: string;
   hostInfo: string;
+  paymentStatus?: 'pending' | 'succeeded';
 }
 interface GuestDetailsCardProps {
   data: PendingCardProps[];
@@ -32,11 +33,8 @@ function GuestDetailsCard({ data }: GuestDetailsCardProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              {/* <TableHead>Received Date</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Status</TableHead> */}
-
-              {/* DISPLAY PAYMENT */}
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -45,17 +43,30 @@ function GuestDetailsCard({ data }: GuestDetailsCardProps) {
                 <TableCell>
                   {prop.guestId.firstName} {prop.guestId.lastName}
                 </TableCell>
-                {/* <TableCell>{prop.guestId.phone}</TableCell>
-
                 <TableCell>
-                  {new Date(prop.time).toLocaleString(undefined, {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  })}
-                </TableCell> */}
-                {/* ADD FEE HERE */}
-                {/* <TableCell></TableCell>
-                <TableCell>{prop.status}</TableCell> */}
+                  {prop.listingId?.fee
+                    ? `$${prop.listingId.fee.toFixed(2)}`
+                    : 'Free'}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      prop.paymentStatus === 'succeeded'
+                        ? 'bg-green-100 text-green-800'
+                        : prop.paymentStatus === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {prop.paymentStatus === 'succeeded'
+                      ? 'Paid'
+                      : prop.paymentStatus === 'pending'
+                        ? 'Payment Pending'
+                        : prop.listingId?.fee && prop.listingId.fee > 0
+                          ? 'Payment Required'
+                          : 'No Payment Required'}
+                  </span>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
