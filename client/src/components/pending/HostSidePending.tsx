@@ -55,8 +55,6 @@ function HostSidePending() {
   const currUserId = currentUser?._id ?? 'undefined';
   const navigate = useNavigate();
 
-  console.log('MAPPING', mapping);
-
   //Fetch all listings of the host, displayed as title on the page
   useEffect(() => {
     if (!currentUser) return;
@@ -139,7 +137,6 @@ function HostSidePending() {
               </TableHeader>
               <TableBody>
                 {listings?.map((listing) => {
-                  console.log('STATUS', listing.status);
                   return (
                     <>
                       {listing.category === type && (

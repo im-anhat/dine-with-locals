@@ -5,51 +5,53 @@ import { useNavigate } from 'react-router';
 import { getListingById } from '@/services/BookingService';
 import { approveMatchWithPayment } from '@/services/PaymentService';
 import { useState } from 'react';
-
-function listingRequiresPayment(listing: any): boolean {
-  return !!listing && (listing.fee > 0 || listing.price > 0);
-}
+import { ListingDetails } from '../../../../../shared/types/ListingDetails';
 
 function PendingCard({
-  ...props
-}: PendingCardProps): React.ReactElement<PendingCardProps> {
+  props,
+}: {
+  props: PendingCardProps;
+}): React.ReactElement<PendingCardProps> {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const listingRequiresPayment = (listing: ListingDetails): boolean => {
+    return (listing.fee && listing.fee > 0) || false;
+  };
 
   // Function to handle the approval of a match
-  const handleApprove = async (matchingId: string, listingIdRaw?: string) => {
+  const handleApprove = async (matchingId: string, listingId: string) => {
     setLoading(true);
     try {
       // Get the listing (if fee required, payment must be captured BEFORE approving match)
-      let listingId: string | undefined;
-      if (typeof listingIdRaw === 'string') {
-        listingId = listingIdRaw;
-      } else if (
-        listingIdRaw &&
-        typeof listingIdRaw === 'object' &&
-        '_id' in listingIdRaw
-      ) {
-        listingId = (listingIdRaw as any)._id;
-      }
-      let listing: any | undefined;
-      if (listingId) {
-        listing = await getListingById(listingId);
+      console.log('listingId', listingId);
+      if (listingId !== '') {
+        const result = await getListingById(listingId);
+        console.log(
+          'BEFORE::::::: listingRequiresPayment(result)',
+          listingRequiresPayment(result),
+        );
+        if (result && listingRequiresPayment(result)) {
+          console.log(
+            'AFTER::::::: listingRequiresPayment(result)',
+            listingRequiresPayment(result),
+          );
+          try {
+            await approveMatchWithPayment(matchingId);
+            console.log(
+              'Match approved and payment captured for paid listing.',
+            );
+          } catch (paymentError) {
+            console.error('Error capturing payment intent:', paymentError);
+            setLoading(false);
+            return; // Do not proceed if payment fails
+          }
+        } else {
+          // Approve the match (no payment required)
+          const updatedMatch = await approveMatch(matchingId);
+          console.log('Match approved:', updatedMatch);
+        }
       }
       // If listing requires payment, approve match and capture payment intent via approveMatchWithPayment
-      if (listing && listingRequiresPayment(listing)) {
-        try {
-          await approveMatchWithPayment(matchingId);
-          console.log('Match approved and payment captured for paid listing.');
-        } catch (paymentError) {
-          console.error('Error capturing payment intent:', paymentError);
-          setLoading(false);
-          return; // Do not proceed if payment fails
-        }
-      } else {
-        // Approve the match (no payment required)
-        const updatedMatch = await approveMatch(matchingId);
-        console.log('Match approved:', updatedMatch);
-      }
     } catch (error) {
       console.error('Error approving match:', error);
     } finally {
@@ -168,12 +170,7 @@ function PendingCard({
           <Button
             onClick={() => {
               console.log('clicked');
-              handleApprove(
-                props._id,
-                props.listingId && '_id' in props.listingId
-                  ? props.listingId._id
-                  : undefined,
-              );
+              handleApprove(props._id, props.listingId?._id.toString() ?? '');
             }}
             className="flex-1 bg-gray-900 text-white hover:bg-gray-800"
             disabled={loading}
