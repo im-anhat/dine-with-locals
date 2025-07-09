@@ -12,10 +12,12 @@ const formSchema = z.object({
     state: z.string().optional(),
     country: z.string().optional(),
     zipCode: z.string().optional(),
-    coordinates: z.object({
-      lat: z.number().optional(),
-      lng: z.number().optional(),
-    }).optional(),
+    coordinates: z
+      .object({
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+      })
+      .optional(),
   }),
   interestTopic: z.array(z.string()).optional(),
   time: z.date().optional(),
@@ -23,6 +25,7 @@ const formSchema = z.object({
   numGuests: z.number().positive().optional(),
   additionalInfo: z.string().optional(),
   status: z.enum(['pending', 'waiting', 'approved']),
+  fee: z.number().min(0).optional(),
 
   // Category-specific fields
   category: z.enum(['dining', 'travel', 'event']),

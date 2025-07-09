@@ -1,20 +1,9 @@
 import axios from 'axios';
 import { Listing } from '../../../shared/types/Listing';
+import { Match } from '../../../shared/types/Match';
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
-
-export interface Match {
-  _id: string;
-  hostId: string;
-  guestId: string;
-  listingId?: string;
-  requestId?: string;
-  status: 'pending' | 'approved';
-  time: Date;
-  createdAt: string;
-  updatedAt: string;
-}
 
 //Get all matches for user by user ID
 export const getMatchesByUserId = async (userId: string): Promise<Match[]> => {

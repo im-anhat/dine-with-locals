@@ -1,10 +1,10 @@
 import EventCard from './EventCard';
-import { Match } from '../../../../shared/types/Match';
+import { PopulatedMatch } from '../../../../shared/types/Match';
 
 import { PopulatedUser } from '../../../../shared/types/Match';
 interface DesktopGridViewProps {
   weekDates: Date[];
-  getEventsForDate: (date: Date) => Match[];
+  getEventsForDate: (date: Date) => PopulatedMatch[];
   dayNames: string[];
   isToday: (date: Date) => boolean;
   isPast: (date: Date) => boolean;

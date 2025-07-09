@@ -33,6 +33,7 @@ export interface ListingDetails {
   numGuests: number;
   cuisine: string[];
   dietary: string[];
+  fee?: number;
   createdAt: string;
   updatedAt: string;
   __v: number;

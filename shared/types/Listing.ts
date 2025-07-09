@@ -32,4 +32,9 @@ export interface Listing {
   duration?: number;
   interestTopic?: string[];
   numGuests?: number;
+  fee?: number; // Added price field
+}
+
+export function listingRequiresPayment(listing: Listing): boolean {
+  return listing.fee != null && listing.fee > 0;
 }

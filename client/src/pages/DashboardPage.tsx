@@ -9,7 +9,7 @@ import WeeklyCalendar from '../components/calendarView/WeeklyCalendar';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { getLngLatFromLocationId } from '@/services/LocationService';
-import { Match } from '../../../shared/types/Match';
+import { PopulatedMatch } from '../../../shared/types/Match';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const DashboardPage = () => {
   //dan/match-guest-host-frontend
 
   // state for MatchCalendar
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [matches, setMatches] = useState<PopulatedMatch[]>([]);
 
   useEffect(() => {
     if (!currentUser) return;

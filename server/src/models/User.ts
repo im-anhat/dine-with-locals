@@ -18,6 +18,9 @@ export interface IUser extends Document {
   bio: string;
   locationId: mongoose.Types.ObjectId;
   languages: string[];
+  stripeCustomerId: string;
+  paymentMethodDefault: string;
+  paymentMethod: string[];
 }
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
@@ -105,6 +108,21 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
       },
     },
     languages: {
+      type: [String],
+      default: [],
+    },
+    stripeCustomerId: {
+      type: String,
+      default: '',
+      trim: true,
+      sparse: true,
+    },
+    paymentMethodDefault: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    paymentMethod: {
       type: [String],
       default: [],
     },

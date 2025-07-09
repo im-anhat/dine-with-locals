@@ -16,6 +16,7 @@ export interface PendingCardProps {
   time: Date;
   additionalInfo: string;
   hostInfo: string;
+  paymentStatus?: 'pending' | 'succeeded';
 }
 function ListingDashboard() {
   const location = useLocation();

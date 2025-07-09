@@ -1,12 +1,12 @@
 import { Card } from '@/components/ui/card';
 import EventCard from './EventCard';
-import { Match } from '../../../../shared/types/Match';
+import { PopulatedMatch } from '../../../../shared/types/Match';
 
 import { PopulatedUser } from '../../../../shared/types/Match';
 interface MobileDayCardProps {
   day: {
     date: Date;
-    events: Match[];
+    events: PopulatedMatch[];
     dayName: string;
     isToday: boolean;
     isPast: boolean;
@@ -61,7 +61,7 @@ const MobileDayCard = ({
 
       <div className="p-4">
         {day.events.length > 0 ? (
-          day.events.map((event: Match) => (
+          day.events.map((event: PopulatedMatch) => (
             <EventCard
               key={event._id}
               event={event}
