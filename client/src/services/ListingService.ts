@@ -148,7 +148,9 @@ export const createListing = async (
  * @param listingId ID of the listing to fetch
  * @returns Promise<Listing> Listing data
  */
-export const getListingById = async (listingId: string): Promise<Listing> => {
+export const getListingById = async (
+  listingId: string,
+): Promise<ListingDetails> => {
   // Validate listingId before making the request
   if (!listingId || typeof listingId !== 'string') {
     throw new Error(`Missing or invalid listing ID: ${listingId}`);
