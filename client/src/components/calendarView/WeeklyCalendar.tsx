@@ -5,7 +5,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
-import { Match } from '../../../../shared/types/Match';
+import { PopulatedMatch } from '../../../../shared/types/Match';
 import { useMediaQuery } from '@custom-react-hooks/use-media-query';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
@@ -15,12 +15,12 @@ import MobileListView from './MobileListView';
 import DesktopGridView from './DesktopGridView';
 
 interface WeeklyCalendarProps {
-  matches: Match[];
+  matches: PopulatedMatch[];
 }
 
 interface DayData {
   date: Date;
-  events: Match[];
+  events: PopulatedMatch[];
   dayName: string;
   isToday: boolean;
   isPast: boolean;

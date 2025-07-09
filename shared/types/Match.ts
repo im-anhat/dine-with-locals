@@ -42,20 +42,34 @@ export interface Match {
   updatedAt?: string;
 }
 
-// Populated version when user details are included
-export interface PopulatedMatch extends Omit<Match, 'hostId' | 'guestId'> {
-  hostId: {
-    _id: string;
-    userName: string;
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-  };
-  guestId: {
-    _id: string;
-    userName: string;
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-  };
+export interface PopulatedMatch {
+  _id: string;
+  hostId: PopulatedUser;
+  guestId: PopulatedUser;
+  listingId?: PopulatedListing;
+  requestId?: PopulatedRequest;
+  status: 'pending' | 'approved';
+  additionalDetails: string;
+  hostInfo: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
+
+// Populated version when user details are included
+// export interface PopulatedMatch extends Omit<Match, 'hostId' | 'guestId'> {
+//   hostId: {
+//     _id: string;
+//     userName: string;
+//     firstName: string;
+//     lastName: string;
+//     avatar?: string;
+//   };
+//   guestId: {
+//     _id: string;
+//     userName: string;
+//     firstName: string;
+//     lastName: string;
+//     avatar?: string;
+//   };
+// }
