@@ -362,7 +362,12 @@ export const getMatchesFromListingID = async (req: Request, res: Response) => {
         'guestId',
         '_id userName firstName lastName phone avatar cover socialLink role hobbies cuisines ethnicity bio locationId',
       )
-      .populate('listingId');
+      .populate({
+        path: 'listingId',
+        populate: {
+          path: 'locationId',
+        },
+      });
     console.log(matches);
     res.status(200).json(matches);
   } catch (err) {
