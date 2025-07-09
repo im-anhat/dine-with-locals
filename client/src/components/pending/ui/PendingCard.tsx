@@ -1,16 +1,57 @@
 import { Button } from '@/components/ui/button';
 import { PendingCardProps } from '../HostSidePending';
 import { approveMatch, deleteMatch } from '@/services/MatchService';
+import { getListingById } from '@/services/BookingService';
+import { approveMatchWithPayment } from '@/services/PaymentService';
+import { useState } from 'react';
+
+function listingRequiresPayment(listing: any): boolean {
+  return !!listing && (listing.fee > 0 || listing.price > 0);
+}
+
 function PendingCard({
   ...props
 }: PendingCardProps): React.ReactElement<PendingCardProps> {
+  const [loading, setLoading] = useState(false);
+
   // Function to handle the approval of a match
-  const handleApprove = async (matchingId: string) => {
+  const handleApprove = async (matchingId: string, listingIdRaw?: string) => {
+    setLoading(true);
     try {
-      const updatedMatch = await approveMatch(matchingId);
-      console.log('Match approved:', updatedMatch);
+      // Get the listing (if fee required, payment must be captured BEFORE approving match)
+      let listingId: string | undefined;
+      if (typeof listingIdRaw === 'string') {
+        listingId = listingIdRaw;
+      } else if (
+        listingIdRaw &&
+        typeof listingIdRaw === 'object' &&
+        '_id' in listingIdRaw
+      ) {
+        listingId = (listingIdRaw as any)._id;
+      }
+      let listing: any | undefined;
+      if (listingId) {
+        listing = await getListingById(listingId);
+      }
+      // If listing requires payment, approve match and capture payment intent via approveMatchWithPayment
+      if (listing && listingRequiresPayment(listing)) {
+        try {
+          await approveMatchWithPayment(matchingId);
+          console.log('Match approved and payment captured for paid listing.');
+        } catch (paymentError) {
+          console.error('Error capturing payment intent:', paymentError);
+          setLoading(false);
+          return; // Do not proceed if payment fails
+        }
+      } else {
+        // Approve the match (no payment required)
+        const updatedMatch = await approveMatch(matchingId);
+        console.log('Match approved:', updatedMatch);
+      }
     } catch (error) {
       console.error('Error approving match:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,10 +137,16 @@ function PendingCard({
             <Button
               onClick={() => {
                 console.log('clicked');
-                handleApprove(props._id);
+                handleApprove(
+                  props._id,
+                  props.listingId && '_id' in props.listingId
+                    ? props.listingId._id
+                    : undefined,
+                );
               }}
+              disabled={loading}
             >
-              Approve
+              {loading ? 'Approving...' : 'Approve'}
             </Button>
             <Button
               onClick={() => {

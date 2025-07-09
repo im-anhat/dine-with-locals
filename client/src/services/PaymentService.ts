@@ -161,3 +161,20 @@ export const createBookingPaymentIntent = async (
     );
   }
 };
+
+// Approve match and capture payment intent if required
+export const approveMatchWithPayment = async (
+  matchId: string,
+): Promise<{ message: string }> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/payment/approve-match-with-payment/${matchId}`,
+    );
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error ||
+        'Failed to approve match and capture payment',
+    );
+  }
+};

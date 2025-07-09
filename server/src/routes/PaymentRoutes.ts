@@ -7,6 +7,7 @@ import {
   deletePaymentMethod,
   createSetupIntent,
   createBookingPaymentIntent,
+  approveMatchWithPayment,
 } from '../controllers/PaymentController.js';
 
 const router = express.Router();
@@ -31,5 +32,8 @@ router.delete('/payment-methods/:paymentMethodId', deletePaymentMethod);
 
 // Create payment intent for booking
 router.post('/booking-payment-intent', createBookingPaymentIntent);
+
+//Aprove match with payment
+router.post('/approve-match-with-payment/:matchId', approveMatchWithPayment);
 
 export default router;

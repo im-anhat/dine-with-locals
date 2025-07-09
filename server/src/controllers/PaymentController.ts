@@ -422,11 +422,9 @@ export const createBookingPaymentIntent: RequestHandler = async (
 
     // Validate inputs
     if (!userId || !listingId || !matchId) {
-      res
-        .status(400)
-        .json({
-          error: 'Missing required parameters: userId, listingId, and matchId',
-        });
+      res.status(400).json({
+        error: 'Missing required parameters: userId, listingId, and matchId',
+      });
       return;
     }
 
@@ -483,9 +481,10 @@ export const createBookingPaymentIntent: RequestHandler = async (
       amount: Math.round(listing.fee * 100), // Convert to cents
       currency: 'usd',
       customer: user.stripeCustomerId,
-      payment_method: user.paymentMethodDefault,
-      confirmation_method: 'automatic',
-      confirm: false, // Don't charge immediately
+      payment_method: user.paymentMethodDefault, // Attach default payment method
+      confirm: true, // Confirm immediately to authorize
+      capture_method: 'manual', // Authorize now, capture later
+      automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
       metadata: {
         userId: userId,
         listingId: listingId,
@@ -536,7 +535,7 @@ export const approveMatchWithPayment: RequestHandler = async (req, res) => {
     if (match.paymentIntentId && match.amount && match.amount > 0) {
       try {
         // Confirm and charge the payment
-        const paymentIntent = await stripe.paymentIntents.confirm(
+        const paymentIntent = await stripe.paymentIntents.capture(
           match.paymentIntentId,
         );
 
