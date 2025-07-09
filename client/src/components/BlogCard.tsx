@@ -77,9 +77,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
-  const [attachedListing, setAttachedListing] = useState<ListingDetails | null>(
-    null,
-  );
+  const [attachedListing, setAttachedListing] = useState<Listing | null>(null);
   const [isLoadingListing, setIsLoadingListing] = useState(false);
 
   // Check like status when component mounts

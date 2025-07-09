@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import PendingCard from './ui/PendingCard';
-import EventTable from './ui/EventTable';
+// import EventTable from './ui/EventTable';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUser } from '../../contexts/UserContext';
 import { ListingDetails } from '../../../../shared/types/ListingDetails';
