@@ -1,53 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Clock, Tag } from 'lucide-react';
+import { ListingDetails } from '../../../../../shared/types/ListingDetails';
+function ListingHeaderCard({ ...props }: ListingDetails) {
+  console.log('PROPS', props);
 
-interface ListingHeaderCardProps {
-  imageUrl?: string;
-  title?: string;
-  location?: string;
-  dateTime?: string;
-  guests?: number;
-  tags?: string[];
-}
-
-function ListingHeaderCard({
-  imageUrl = '',
-  title = 'Pho with Locals',
-  location = '60 W Adams St, Chicago, IL 60603',
-  dateTime = '12:00 PM · July 20, 2025',
-  guests = 3,
-  tags = ['Vietnamese', 'Vegan-friendly'],
-}: ListingHeaderCardProps) {
   return (
     <Card className="w-full rounded-xl border border-gray-200 shadow-none">
       <CardContent className="flex flex-row gap-8 p-6">
         {/* Image placeholder */}
-        <div className="flex-shrink-0 w-[340px] h-[180px] bg-gray-200 rounded-lg" />
+        {props.images.length === 0 ? (
+          <div className="flex-shrink-0 w-[340px] h-[180px] bg-gray-200 rounded-lg flex items-center justify-center">
+            <span className="text-gray-500">No Image Available</span>
+          </div>
+        ) : (
+          // Display the first image if available
+          <img
+            src={props.images[0]}
+            className="flex-shrink-0 w-[340px] h-[180px] rounded-lg"
+          />
+        )}
         {/* Details */}
         <div className="flex flex-col justify-center flex-1 gap-2">
-          <div className="font-semibold text-lg mb-2">{title}</div>
+          <div className="font-semibold text-lg mb-2">{props.title}</div>
           <div className="flex flex-row flex-wrap gap-x-8 gap-y-2">
             <div className="flex items-start gap-2 min-w-[180px]">
               <MapPin className="w-5 h-5 mt-0.5 text-gray-600" />
               <div>
                 <div className="font-medium text-sm">Location</div>
-                <div className="text-sm text-gray-700">{location}</div>
+
+                <div className="text-sm text-gray-700">
+                  {props.locationId.address}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-2 min-w-[180px]">
               <Clock className="w-5 h-5 mt-0.5 text-gray-600" />
               <div>
                 <div className="font-medium text-sm">Date & Time</div>
-                <div className="text-sm text-gray-700">{dateTime}</div>
+                <div className="text-sm text-gray-700">
+                  {props.time
+                    ? new Date(props.time).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })
+                    : 'N/A'}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-2 min-w-[120px]">
               <Users className="w-5 h-5 mt-0.5 text-gray-600" />
               <div>
                 <div className="font-medium text-sm">Guest</div>
-                <div className="text-sm text-gray-700">{guests} guests</div>
+                <div className="text-sm text-gray-700">
+                  {props.numGuests} guests
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-2 min-w-[160px]">
@@ -55,7 +63,7 @@ function ListingHeaderCard({
               <div>
                 <div className="font-medium text-sm">Tags</div>
                 <div className="flex flex-row gap-2 mt-1">
-                  {tags.map((tag, idx) => (
+                  {props.cuisine.map((tag, idx) => (
                     <Badge
                       key={tag + idx}
                       variant="outline"

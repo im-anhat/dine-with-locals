@@ -8,7 +8,7 @@ import {
 import { useUser } from '../../contexts/UserContext';
 import { ListingDetails } from '../../../../shared/types/ListingDetails';
 import { User } from '../../../../shared/types/User';
-
+import { useNavigate } from 'react-router-dom';
 export interface PendingCardProps {
   _id: string;
   hostId: string;
@@ -29,6 +29,9 @@ function HostSidePending() {
   );
   const { currentUser } = useUser();
   const currUserId = currentUser?._id ?? 'undefined';
+  const navigate = useNavigate();
+
+  console.log('MAPPING', mapping);
 
   //Fetch all listings of the host, displayed as title on the page
   useEffect(() => {
@@ -75,15 +78,24 @@ function HostSidePending() {
           <div key={listing._id}>
             {/* Listing portion of the code */}
             <div className="flex flex-row items-center gap-3 mb-2">
-              <h2
-                className={
-                  isPast
-                    ? 'text-lg md:text-xl font-semibold text-gray-400'
-                    : 'text-lg md:text-xl font-semibold text-gray-800'
+              <div
+                onClick={() =>
+                  navigate(`/approvals/${listing._id}`, {
+                    state: { guests: mapping[listing._id] || [] },
+                  })
                 }
               >
-                {listing.title}
-              </h2>
+                <h2
+                  className={
+                    isPast
+                      ? 'text-lg md:text-xl font-semibold text-gray-400'
+                      : 'text-lg md:text-xl font-semibold text-gray-800'
+                  }
+                >
+                  {listing.title}
+                </h2>
+              </div>
+
               {listing.category == 'event' ? (
                 <span
                   className={
