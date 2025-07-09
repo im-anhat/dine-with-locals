@@ -61,7 +61,34 @@ export const getMatchesByUserId: RequestHandler = async (req, res) => {
     const matches = await Match.find({
       $or: [{ hostId: userId }, { guestId: userId }],
       status: 'approved',
-    });
+    }).populate([
+      {
+        path: 'listingId',
+        select: '_id title category time',
+        populate: {
+          path: 'locationId',
+          model: 'Location',
+          select: 'address city state country',
+        },
+      },
+      {
+        path: 'requestId',
+        select: '_id title category time',
+        populate: {
+          path: 'locationId',
+          model: 'Location',
+          select: 'address city state country',
+        },
+      },
+      {
+        path: 'hostId',
+        select: 'userName firstName lastName',
+      },
+      {
+        path: 'guestId',
+        select: 'userName firstName lastName',
+      },
+    ]);
 
     res.status(200).json(matches);
   } catch (error) {
