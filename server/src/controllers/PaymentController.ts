@@ -18,6 +18,7 @@ export const createStripeCustomer: RequestHandler = async (
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       res.status(400).json({ error: 'Invalid user ID format' });
+      return;
     }
 
     // Find the user by ID
@@ -380,6 +381,17 @@ export const createSetupIntent: RequestHandler = async (
 
     // Ensure user has a Stripe customer ID
     let stripeCustomerId = user.stripeCustomerId;
+    if (!stripeCustomerId) {
+      // Create Stripe customer if doesn't exist
+      const customer = await stripe.customers.create({
+        name: `${user.firstName} ${user.lastName}`,
+        metadata: { userId: user._id.toString() },
+      });
+      stripeCustomerId = customer.id;
+
+      // Update user with stripe customer ID
+      await User.findByIdAndUpdate(user._id, { stripeCustomerId });
+    }
 
     // Create setup intent
     const setupIntent = await stripe.setupIntents.create({
@@ -412,7 +424,9 @@ export const createBookingPaymentIntent: RequestHandler = async (
     if (!userId || !listingId || !matchId) {
       res
         .status(400)
-        .json({ error: 'Missing required parameters: userId, listingId, and matchId' });
+        .json({
+          error: 'Missing required parameters: userId, listingId, and matchId',
+        });
       return;
     }
 
@@ -457,9 +471,9 @@ export const createBookingPaymentIntent: RequestHandler = async (
 
     // Check if match already has a payment intent
     if (existingMatch.paymentIntentId) {
-      res.status(400).json({ 
+      res.status(400).json({
         error: 'Payment intent already exists for this match',
-        paymentIntentId: existingMatch.paymentIntentId 
+        paymentIntentId: existingMatch.paymentIntentId,
       });
       return;
     }
@@ -470,7 +484,7 @@ export const createBookingPaymentIntent: RequestHandler = async (
       currency: 'usd',
       customer: user.stripeCustomerId,
       payment_method: user.paymentMethodDefault,
-      confirmation_method: 'manual',
+      confirmation_method: 'automatic',
       confirm: false, // Don't charge immediately
       metadata: {
         userId: userId,
