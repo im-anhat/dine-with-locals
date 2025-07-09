@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import FilterResults from '../components/filter/FilterResult';
+import WeeklyCalendar from '../components/calendarView/WeeklyCalendar';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { getLngLatFromLocationId } from '@/services/LocationService';
+import { Match } from '../../../shared/types/Match';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ const DashboardPage = () => {
   const [results, setResults] = useState<any[]>();
   const { currentUser } = useUser();
   //dan/match-guest-host-frontend
+
+  // state for MatchCalendar
+  const [matches, setMatches] = useState<Match[]>([]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -49,6 +53,26 @@ const DashboardPage = () => {
       }
     };
     fetchAllData();
+  }, [currentUser]);
+
+  console.log('CurrentUser', currentUser);
+
+  // Fetch all matches for current user
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchMatches = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}api/matches/${currentUser._id}`,
+        );
+        console.log('Fetched matches:', response.data);
+        setMatches(response.data);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+      }
+    };
+
+    fetchMatches();
   }, [currentUser]);
 
   if (!currentUser) {
@@ -113,11 +137,15 @@ const DashboardPage = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="listing" className="w-full">
+        <Tabs defaultValue="calendar" className="w-full">
           <TabsList className="grid w-fit grid-cols-2">
-            <TabsTrigger value="listing">List View</TabsTrigger>
             <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+            <TabsTrigger value="listing">List View</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="calendar" className="mt-6">
+            <WeeklyCalendar matches={matches} />
+          </TabsContent>
 
           <TabsContent value="listing" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
@@ -125,17 +153,6 @@ const DashboardPage = () => {
                 <MeetupCard key={index} {...meetup} />
               ))} */}
             </div>
-          </TabsContent>
-
-          <TabsContent value="calendar" className="mt-6">
-            <Card>
-              <CardContent className="flex items-center justify-center h-64">
-                <div className="text-center space-y-2">
-                  <Calendar className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <p className="text-muted-foreground">Not finalized</p>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </section>

@@ -2,57 +2,84 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
-
+import { getReviewsByUserId } from '../../../services/ReviewService';
+import { useEffect } from 'react';
+import { Review } from '../../../services/ReviewService';
+import { useNavigate } from 'react-router-dom';
 interface GuestReviewCardProps {
-  reviewerName?: string;
-  reviewerAvatar?: string;
-  rating?: number;
-  reviewText?: string;
-  reviewDate?: string;
+  hostId: string;
 }
 
-function GuestReviewCard({
-  reviewerName = 'John Smith',
-  reviewerAvatar = '',
-  rating = 5,
-  reviewText = 'Wonderful guest! Very polite and respectful.',
-  reviewDate = 'March 12, 2025',
-}: GuestReviewCardProps) {
+function GuestReviewCard({ hostId }: GuestReviewCardProps) {
+  const [reviews, setReviews] = React.useState<Review[]>([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const reviews = await getReviewsByUserId(hostId);
+        // Process reviews as needed
+        setReviews(reviews);
+        console.log('Fetched reviews:', reviews);
+      } catch (error) {
+        console.error('Failed to fetch reviews:', error);
+      }
+    };
+    fetchReviews();
+  }, [hostId]);
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Guest Review</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4 mb-2">
-          <Avatar>
-            <AvatarImage src={reviewerAvatar} alt={reviewerName} />
-            <AvatarFallback>
-              {reviewerName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium">{reviewerName}</div>
-            <div className="flex items-center gap-1">
-              {[...Array(rating)].map((_, idx) => (
-                <Star
-                  key={idx}
-                  size={16}
-                  className="text-yellow-400 fill-yellow-400"
+    <Card className="w-full">
+      <CardHeader></CardHeader>
+      {reviews.length === 0 ? (
+        <CardContent className="text-center text-gray-500">
+          No reviews yet.
+        </CardContent>
+      ) : (
+        reviews.map((review) => (
+          <CardContent key={review._id}>
+            <div className="flex items-center gap-4 mb-2">
+              <Avatar
+                onClick={() => navigate(`/profile/${review.reviewerId._id}`)}
+              >
+                <AvatarImage
+                  src={review.reviewerId.avatar}
+                  alt={
+                    review.reviewerId.firstName +
+                    ' ' +
+                    review.reviewerId.lastName
+                  }
                 />
-              ))}
-              {[...Array(5 - rating)].map((_, idx) => (
-                <Star key={idx} size={16} className="text-gray-300" />
-              ))}
+                <AvatarFallback>
+                  {review.reviewerId.firstName} {review.reviewerId.lastName}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div
+                  className="font-medium"
+                  onClick={() => navigate(`/profile/${review.reviewerId._id}`)}
+                >
+                  {review.reviewerId.firstName} {review.reviewerId.lastName}
+                </div>
+                <div className="flex items-center gap-1">
+                  {[...Array(review.rating)].map((_, idx) => (
+                    <Star
+                      key={idx}
+                      size={16}
+                      className="text-yellow-400 fill-yellow-400"
+                    />
+                  ))}
+                  {[...Array(5 - review.rating)].map((_, idx) => (
+                    <Star key={idx} size={16} className="text-gray-300" />
+                  ))}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-gray-500">{reviewDate}</div>
-          </div>
-        </div>
-        <div className="text-sm text-gray-800">{reviewText}</div>
-      </CardContent>
+            <div className="text-sm text-gray-800">{review.content}</div>
+          </CardContent>
+        ))
+      )}
     </Card>
   );
 }

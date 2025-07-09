@@ -24,6 +24,7 @@ export interface Review {
 export const getReviewsByUserId = async (userId: string): Promise<Review[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/reviews/user/${userId}`);
+    console.log('LINK:', `${API_BASE_URL}/reviews/user/${userId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch reviews');
     }
