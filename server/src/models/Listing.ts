@@ -14,6 +14,10 @@ export interface IListing extends Document {
   duration?: number;
   interestTopic?: string[];
   numGuests?: number;
+  // Dining specific properties
+  cuisine?: string[];
+  dietary?: string[];
+  fee?: number;
 }
 
 const ListingSchema: Schema = new Schema(
@@ -84,6 +88,10 @@ const ListingSchema: Schema = new Schema(
     dietary: {
       type: [String],
       default: [],
+    },
+    fee: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },

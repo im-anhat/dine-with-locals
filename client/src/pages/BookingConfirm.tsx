@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useUser } from '@/contexts/UserContext';
-import { Listing } from '../../../shared/types/Listing';
+import { Listing, listingRequiresPayment } from '../../../shared/types/Listing';
 import {
   checkExistingBooking,
   getListingById,
@@ -25,15 +25,44 @@ import {
 } from '@/components/booking/FormSchema';
 import BookingCard from '@/components/booking/BookingCard';
 import DetailCard from '@/components/booking/DetailCard';
-
+import AddPaymentMethod from '@/components/payment/AddPaymentMethod';
+import {
+  getPaymentMethods,
+  createBookingPaymentIntent,
+} from '@/services/PaymentService';
 const BookingConfirm = () => {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingExists, setBookingExists] = useState(false);
+  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
   const { currentUser } = useUser();
-  const { listingId } = useParams(); // because assumption is route is /booking/:listingId
+  const { listingId } = useParams();
   const navigate = useNavigate();
+
+  // Determine if this listing requires payment
+  const requiresPayment = listing ? listingRequiresPayment(listing) : false;
+
+  // Check if user has payment methods only if listing requires payment
+  useEffect(() => {
+    const checkPaymentMethods = async () => {
+      if (!currentUser?._id || !requiresPayment) {
+        setHasPaymentMethod(true); // Allow booking for free listings
+        return;
+      }
+
+      try {
+        const { paymentMethods } = await getPaymentMethods(currentUser._id);
+        setHasPaymentMethod(paymentMethods && paymentMethods.length > 0);
+      } catch (error) {
+        console.error('Error checking payment methods:', error);
+        setHasPaymentMethod(false);
+      }
+    };
+
+    checkPaymentMethods();
+  }, [currentUser?._id, requiresPayment]);
 
   useEffect(() => {
     const checkBookingStatus = async () => {
@@ -81,6 +110,12 @@ const BookingConfirm = () => {
   });
 
   const handleBookingConfirm = async (values: BookingFormValues) => {
+    // Check if user has payment method before proceeding (only for paid listings)
+    if (requiresPayment && !hasPaymentMethod) {
+      setShowPaymentSetup(true);
+      return;
+    }
+
     if (!listing?.userId._id || !currentUser?._id || !listingId) {
       console.error('Missing required booking information');
       return;
@@ -94,13 +129,36 @@ const BookingConfirm = () => {
       additionalDetails: values.additionalDetails,
       hostInfo: values.hostInfo,
     };
-    
+
     try {
+      setLoading(true);
+
+      // Create the booking/match first
       const response = await createBookingRequest(bookingData);
       console.log('Booking confirmed:', response);
+
+      // If this is a paid listing, create a payment intent and attach it to the match
+      if (requiresPayment && response.match?._id) {
+        try {
+          const paymentIntentResponse = await createBookingPaymentIntent(
+            currentUser._id,
+            listingId,
+            response.match._id,
+          );
+          console.log(
+            'Payment intent created and attached to match:',
+            paymentIntentResponse,
+          );
+        } catch (paymentError) {
+          console.error('Error creating payment intent:', paymentError);
+        }
+      }
+
       setBookingSuccess(true);
     } catch (error) {
       console.error('Error confirming booking:', error);
+    } finally {
+      setLoading(false);
     }
 
     form.reset({
@@ -111,6 +169,11 @@ const BookingConfirm = () => {
       additionalDetails: '',
       hostInfo: '',
     });
+  };
+
+  const handlePaymentMethodAdded = () => {
+    setHasPaymentMethod(true);
+    setShowPaymentSetup(false);
   };
 
   return (
@@ -129,13 +192,34 @@ const BookingConfirm = () => {
           <BookingCard
             form={form}
             onSubmitForm={handleBookingConfirm}
-            disabled={loading}
+            disabled={loading || (requiresPayment && !hasPaymentMethod)}
+            requiresPayment={requiresPayment}
+            hasPaymentMethod={hasPaymentMethod}
           />
 
           {/* Right Column */}
           <DetailCard listing={listing} loading={loading} />
         </div>
       </div>
+
+      {/* Payment Setup Dialog - Only show for paid listings */}
+      {requiresPayment && (
+        <Dialog open={showPaymentSetup} onOpenChange={setShowPaymentSetup}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Payment Method</DialogTitle>
+              <DialogDescription>
+                This experience requires payment. Please add a payment method to
+                continue with your booking.
+              </DialogDescription>
+            </DialogHeader>
+            <AddPaymentMethod
+              onSuccess={handlePaymentMethodAdded}
+              onCancel={() => setShowPaymentSetup(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Success Dialog */}
       <Dialog

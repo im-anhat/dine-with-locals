@@ -32,6 +32,7 @@ const CreateListing = () => {
       numGuests: undefined,
       additionalInfo: '',
       status: 'waiting',
+      fee: undefined,
     },
   });
 
@@ -83,6 +84,7 @@ const CreateListing = () => {
       numGuests: undefined,
       additionalInfo: '',
       status: 'waiting',
+      fee: undefined,
     });
 
     // Reset file input if any

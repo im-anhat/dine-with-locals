@@ -1,12 +1,12 @@
 import { User, MapPin, Clock } from 'lucide-react';
-import { Match, PopulatedUser } from '../../../../shared/types/Match';
+import { PopulatedUser, PopulatedMatch } from '../../../../shared/types/Match';
 
 const EventCard = ({
   event,
   compact = false,
   formatTime,
 }: {
-  event: Match;
+  event: PopulatedMatch;
   compact?: boolean;
   currentUserId: string;
   formatTime: (date: Date) => string;

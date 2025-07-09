@@ -51,7 +51,9 @@ const EventDetailsCard = ({ form }: EventDetailsCardProps) => {
                   }}
                 />
               </FormControl>
-              <FormDescription>When will this event take place?</FormDescription>
+              <FormDescription>
+                When will this event take place?
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -106,9 +108,36 @@ const EventDetailsCard = ({ form }: EventDetailsCardProps) => {
             </FormItem>
           )}
         />
-      </CardContent>
 
-      
+        {/* Fee */}
+        <FormField
+          control={form.control}
+          name="fee"
+          render={({ field }) => (
+            <FormItem className="mb-4">
+              <FormLabel>Compensation</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
+                />
+              </FormControl>
+              <FormDescription>
+                Total compensation to the host (leave empty or 0 for free
+                experience).
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </CardContent>
     </Card>
   );
 };

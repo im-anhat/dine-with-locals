@@ -6,8 +6,12 @@ export interface IMatch extends Document {
   listingId?: mongoose.Types.ObjectId; // References Listing._id
   requestId?: mongoose.Types.ObjectId; // References Request._id
   status: 'pending' | 'approved';
-  additionalDetails: String;
-  hostInfo: String;
+  paymentIntentId?: string; // Stripe Payment Intent ID
+  paymentStatus?: 'pending' | 'succeeded';
+  amount?: number;
+  currency?: string;
+  additionalDetails?: string;
+  hostInfo?: string;
 }
 
 const MatchSchema: Schema = new Schema(
@@ -35,15 +39,31 @@ const MatchSchema: Schema = new Schema(
       enum: ['pending', 'approved'],
       default: 'pending',
     },
+
+    paymentIntentId: {
+      type: String,
+      default: null,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'succeeded'],
+      default: 'pending',
+    },
+    amount: {
+      type: Number,
+      default: 0,
+    },
+    currency: {
+      type: String,
+      default: 'USD',
+    },
     additionalDetails: {
       type: String,
       default: '',
-      trim: true,
     },
     hostInfo: {
       type: String,
       default: '',
-      trim: true,
     },
   },
   { timestamps: true },

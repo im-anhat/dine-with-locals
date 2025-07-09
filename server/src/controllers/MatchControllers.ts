@@ -97,76 +97,6 @@ export const getMatchesByUserId: RequestHandler = async (req, res) => {
   }
 };
 
-/**
- * Create new match request that handles both request from Guest and listing from User
- * @param req
- * @param res
- * @returns
- */
-export const createMatchRequest: RequestHandler = async (req, res) => {
-  console.log(req.body);
-  try {
-    const { hostId, guestId, requestId, listingId, time } = req.body;
-    //Verification
-    if (!mongoose.Types.ObjectId.isValid(guestId)) {
-      res.status(400).json({ error: 'Invalid guest ID format' });
-      return;
-    }
-    if (!mongoose.Types.ObjectId.isValid(hostId)) {
-      res.status(400).json({ error: 'Invalid host ID format' });
-      return;
-    }
-    //Check if this is Matched with request of listing
-    if (requestId != null && !mongoose.Types.ObjectId.isValid(requestId)) {
-      res.status(400).json({ error: 'Invalid request ID format' });
-      return;
-    }
-    if (listingId != null && !mongoose.Types.ObjectId.isValid(listingId)) {
-      res.status(400).json({ error: 'Invalid listing ID format' });
-      return;
-    }
-
-    //Check if the match is already created in Match schema
-    const result = await Match.find({
-      hostId: hostId,
-      guestId: guestId,
-      time: time,
-    });
-
-    if (result.length > 0) {
-      res.status(400).json('Matching already created');
-      return;
-    }
-
-    const match = await Match.create({
-      hostId: hostId,
-      guestId: guestId,
-      requestId: requestId,
-      listingId: listingId,
-      time: time,
-    });
-
-    if (match.requestId) {
-      await RequestModel.findOneAndUpdate(
-        match.requestId,
-        { status: 'pending' },
-        { new: true, runValidators: true },
-      );
-    }
-    if (match.listingId) {
-      await RequestModel.findOneAndUpdate(
-        match.listingId,
-        { status: 'pending' },
-        { new: true, runValidators: true },
-      );
-    }
-    res.status(200).json({ message: 'Match successful' });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: err });
-  }
-};
-
 export const checkUserMatchForListing: RequestHandler = async (req, res) => {
   try {
     const { userId, listingId } = req.query;
@@ -196,6 +126,71 @@ export const checkUserMatchForListing: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error('Error checking user match for listing:', error);
     res.status(500).json({ error: 'Failed to check match' });
+  }
+};
+
+export const createMatchRequest: RequestHandler = async (req, res) => {
+  console.log(req.body);
+  try {
+    const {
+      hostId,
+      guestId,
+      requestId,
+      listingId,
+      additionalDetails,
+      hostInfo,
+    } = req.body;
+    //Verification
+    if (!mongoose.Types.ObjectId.isValid(guestId)) {
+      res.status(400).json({ error: 'Invalid guest ID format' });
+      return;
+    }
+    if (!mongoose.Types.ObjectId.isValid(hostId)) {
+      res.status(400).json({ error: 'Invalid host ID format' });
+      return;
+    }
+    //Check if this is Matched with request of listing
+    if (requestId != null && !mongoose.Types.ObjectId.isValid(requestId)) {
+      res.status(400).json({ error: 'Invalid request ID format' });
+      return;
+    }
+    if (listingId != null && !mongoose.Types.ObjectId.isValid(listingId)) {
+      res.status(400).json({ error: 'Invalid listing ID format' });
+      return;
+    }
+
+    //Check if the match is already created in Match schema
+    const existingGuestRequest = await Match.find({
+      hostId: hostId,
+      guestId: guestId,
+      listingId: listingId,
+    });
+
+    const existingHostRequest = await Match.find({
+      hostId: hostId,
+      guestId: guestId,
+      requestId: requestId,
+    });
+
+    if (existingGuestRequest.length > 0) {
+      res.status(400).json('Matching already created');
+      return;
+    }
+
+    const match = await Match.create({
+      hostId: hostId,
+      guestId: guestId,
+      requestId: requestId,
+      listingId: listingId,
+      additionalDetails: additionalDetails,
+      hostInfo: hostInfo,
+      status: 'pending',
+    });
+
+    res.status(200).json({ message: 'Match successful', match });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err });
   }
 };
 

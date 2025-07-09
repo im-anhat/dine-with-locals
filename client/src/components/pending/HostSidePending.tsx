@@ -41,6 +41,7 @@ export interface PendingCardProps {
   time: Date;
   additionalInfo: string;
   hostInfo: string;
+  paymentStatus?: 'pending' | 'succeeded';
 }
 function HostSidePending() {
   const [type, setType] = useState<String>('dining');

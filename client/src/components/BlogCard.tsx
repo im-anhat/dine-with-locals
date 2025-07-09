@@ -33,6 +33,7 @@ import {
   DialogDescription,
 } from './ui/dialog';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
@@ -263,12 +264,16 @@ const BlogCard: React.FC<BlogCardProps> = ({
     <Card className="mb-6 overflow-hidden max-h-[650px] flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between p-4 flex-shrink-0">
         <div className="flex items-center gap-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user.avatar} alt={displayName} />
-            <AvatarFallback>{userInitials.toUpperCase()}</AvatarFallback>
-          </Avatar>
+          <Link to={`/profile/${user._id}`}>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user.avatar} alt={displayName} />
+              <AvatarFallback>{userInitials.toUpperCase()}</AvatarFallback>
+            </Avatar>
+          </Link>
           <div className="flex flex-col">
-            <p className="font-semibold">{displayName}</p>
+            <Link to={`/profile/${user._id}`}>
+              <p className="font-semibold">{displayName}</p>
+            </Link>
             <p className="text-sm text-muted-foreground">
               @{user.userName} • {formattedDate}
             </p>
