@@ -44,7 +44,7 @@ export interface PendingCardProps {
   paymentStatus?: 'pending' | 'succeeded';
 }
 function HostSidePending() {
-  const [type, setType] = useState<String>('dining');
+  const [type, setType] = useState<string>('dining');
   const [listings, setListings] = useState<ListingDetails[] | null>(null);
   //Mapping is a dictionary map a listingID in line 31 to a List of Matches, get user information in the match using .populate()
   //OR create another API endpoint to get all user information in each match.
