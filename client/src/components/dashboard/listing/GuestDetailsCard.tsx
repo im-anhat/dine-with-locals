@@ -32,10 +32,11 @@ function GuestDetailsCard({ data }: GuestDetailsCardProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Received Date</TableHead>
+              {/* <TableHead>Received Date</TableHead>
               <TableHead>Payment</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Status</TableHead> */}
+
+              {/* DISPLAY PAYMENT */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -44,17 +45,17 @@ function GuestDetailsCard({ data }: GuestDetailsCardProps) {
                 <TableCell>
                   {prop.guestId.firstName} {prop.guestId.lastName}
                 </TableCell>
-                <TableCell>{prop.guestId.phone}</TableCell>
+                {/* <TableCell>{prop.guestId.phone}</TableCell>
 
                 <TableCell>
                   {new Date(prop.time).toLocaleString(undefined, {
                     dateStyle: 'medium',
                     timeStyle: 'short',
                   })}
-                </TableCell>
+                </TableCell> */}
                 {/* ADD FEE HERE */}
-                <TableCell></TableCell>
-                <TableCell>{prop.status}</TableCell>
+                {/* <TableCell></TableCell>
+                <TableCell>{prop.status}</TableCell> */}
               </TableRow>
             ))}
           </TableBody>
