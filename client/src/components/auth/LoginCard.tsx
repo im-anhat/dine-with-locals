@@ -49,7 +49,7 @@ function LoginCard({
             <Input
               type="username"
               id="username"
-              placeholder="johnsmith10"
+              placeholder="Enter your username"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               required
@@ -63,6 +63,7 @@ function LoginCard({
               type="password"
               id="password"
               value={password}
+              placeholder="*********"
               onChange={(e) => setPassword(e.target.value)}
               required
             />
