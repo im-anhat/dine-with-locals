@@ -61,6 +61,7 @@ const PostInput: React.FC<PostInputProps> = ({
         setMatchedListings(listings);
       } catch (error) {
         console.error('Failed to fetch matched listings:', error);
+        setMatchedListings([]); // Set empty array on error
       } finally {
         setIsLoadingListings(false);
       }
