@@ -8,7 +8,7 @@ export const createNewLocation: RequestHandler = async (
   res: Response,
 ) => {
   const { address, city, state, country, zipCode } = req.body;
-  const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const googleMapsApiKey = process.env.VITE_GOOGLE_MAPS_API_KEY;
   const addressString = `${address}, ${city}, ${state || ''}, ${country}, ${zipCode || ''}`;
   const response = await axios.get(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressString)}&key=${googleMapsApiKey}`,
@@ -231,5 +231,19 @@ export const createLocation: RequestHandler = async (
   } catch (error) {
     console.error('Error creating location:', error);
     res.status(500).json({ error: 'Failed to create location' });
+  }
+};
+
+export const getAllCities: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const cities = await Location.distinct('city');
+    const sortedCities = cities.sort((a, b) => a.localeCompare(b));
+    res.status(200).json(sortedCities);
+  } catch (error) {
+    console.error('Error fetching cities:', error);
+    res.status(500).json({ error: 'Failed to fetch cities' });
   }
 };
