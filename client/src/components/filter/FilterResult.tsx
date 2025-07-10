@@ -95,7 +95,17 @@ const FilterResults = ({ results }: { results: any[] }) => {
                   {item.description}
                 </p>
               ) : (
-                <></>
+                <>
+                  {item.additionalInfo ? (
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      {item.additionalInfo}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      No information provided.
+                    </p>
+                  )}
+                </>
               )}
               {/* IMAGES */}
               {item.images && item.images.length > 0 && (
