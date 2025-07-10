@@ -37,7 +37,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
   const openPhotoView = (index: number) => {
     setSelectedPhotoIndex(index);
   };
-  console.log('user filter result', results);
+  console.log('THERE SHOULD BE AN AVATAR IMAGE HERE', results);
 
   const handleNavigateBooking = (id: string) => {
     navigate(`/booking/${id}`, { state: { listingId: id } });
