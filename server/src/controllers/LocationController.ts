@@ -233,3 +233,17 @@ export const createLocation: RequestHandler = async (
     res.status(500).json({ error: 'Failed to create location' });
   }
 };
+
+export const getAllCities: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const cities = await Location.distinct('city');
+    const sortedCities = cities.sort((a, b) => a.localeCompare(b));
+    res.status(200).json(sortedCities);
+  } catch (error) {
+    console.error('Error fetching cities:', error);
+    res.status(500).json({ error: 'Failed to fetch cities' });
+  }
+};

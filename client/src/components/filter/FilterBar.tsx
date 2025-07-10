@@ -22,7 +22,8 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { Slider } from '@/components/ui/slider';
-
+import { getAllCities } from '../../services/LocationService';
+import { useEffect, useState } from 'react';
 type FilterBarProps = {
   dateRange: DateRange | undefined;
   setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
@@ -65,6 +66,7 @@ const FilterBar = ({
     'Kosher',
   ];
   const dietaryCount = dietaryRestrictions?.length || 0;
+  const [cities, setCities] = useState<string[]>([]);
 
   const handleDietaryRestrictionToggle = (restriction: string) => {
     const currentRestrictions = dietaryRestrictions || [];
@@ -78,6 +80,19 @@ const FilterBar = ({
       setDietaryRestrictions([...currentRestrictions, restriction]);
     }
   };
+  useEffect(() => {
+    const fetchAllCities = async () => {
+      try {
+        const result = await getAllCities();
+        setCities(result);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    };
+    fetchAllCities();
+  }, []);
+
+  console.log('CITIES:', cities);
 
   return (
     <div className="pt-6 w-full">
@@ -90,7 +105,6 @@ const FilterBar = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="dining">Dining</SelectItem>
-              <SelectItem value="travel">Travel</SelectItem>
               <SelectItem value="event">Event</SelectItem>
             </SelectContent>
           </Select>
@@ -101,9 +115,12 @@ const FilterBar = ({
             <SelectTrigger>
               <SelectValue placeholder="City" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Chicago">Chicago</SelectItem>
-              <SelectItem value="New York">New York</SelectItem>
+            <SelectContent className="max-h-60 overflow-y-auto">
+              {cities.map((city) => (
+                <SelectItem key={city} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
