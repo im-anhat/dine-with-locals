@@ -52,6 +52,13 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
     }
   }, [item]);
 
+  const handleOpenBooking = () => {
+    if (!item) return;
+    navigate(`/booking/${item._id}`, {
+      state: { listingId: item._id, isListing },
+    });
+  }
+
   if (!item) return null;
 
   const handleOpenChat = async () => {
@@ -245,7 +252,10 @@ const PlaceDetails: React.FC<PlaceDetailsProps> = ({
                 )}
               </div>
 
-              <button className="w-full bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors">
+              <button
+                className="w-full bg-brand-coral-300 text-white py-3 px-4 rounded-lg font-medium hover:bg-brand-coral-500 transition-colors"
+                onClick={handleOpenBooking}
+              >
                 {isListing ? 'Book This Experience' : 'Offer to Host'}
               </button>
 
