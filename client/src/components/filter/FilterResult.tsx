@@ -137,7 +137,9 @@ const FilterResults = ({ results }: { results: any[] }) => {
                   className=""
                   onClick={() => handleNavigateBooking(item._id)}
                 >
-                  Book now
+                  {item.userId.role === 'Guest'
+                    ? 'Book This Experience'
+                    : 'Offer to Host'}
                 </Button>
               </div>
             </CardContent>

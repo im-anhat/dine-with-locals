@@ -11,6 +11,8 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { startOrCreateChat } from '@/services/chat/ChatServices';
+import { useSocket } from '@/contexts/SocketContext';
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -28,6 +30,29 @@ const CardDetails = () => {
 
   const handleBack = () => {
     navigate(-1); // Go back to previous page
+  };
+  const { socket } = useSocket();
+  const handleOpenChat = async () => {
+    try {
+      const chat = await startOrCreateChat(
+        (content.userId as any)._id,
+        content._id,
+      ); // Type assertion for userId._id
+
+      // Emit the chat creation event to the socket server
+      if (!socket) return;
+      socket.emit('join_chat', chat._id);
+
+      navigate('/chats', {
+        state: { listingId: content._id, chatId: chat._id },
+      });
+    } catch (error) {
+      console.error('Error starting or creating chat:', error);
+    }
+  };
+
+  const handleNavigateBooking = (id: string) => {
+    navigate(`/booking/${id}`, { state: { listingId: id } });
   };
 
   return (
@@ -210,22 +235,21 @@ const CardDetails = () => {
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <Button
                   className="w-full bg-red-400 hover:bg-red-500 text-white py-3"
-                  onClick={() => {
-                    // Handle offer to host action
-                    console.log('Offer to host clicked');
-                  }}
+                  onClick={() => handleNavigateBooking(content._id)}
                 >
-                  Offer to Host
+                  {content.userId.role === 'Guest'
+                    ? 'Book This Experience'
+                    : 'Offer to Host'}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full border-red-400 text-red-400 hover:bg-red-50 py-3"
-                  onClick={() => {
-                    // Handle contact guest action
-                    console.log('Contact guest clicked');
-                  }}
+                  // Handle contact guest action
+                  onClick={handleOpenChat}
                 >
-                  Contact Guest
+                  {content.userId.role === 'Guest'
+                    ? 'Contact Host'
+                    : 'Contact Guest'}
                 </Button>
               </div>
             </div>
