@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { startOrCreateChat } from '@/services/chat/ChatServices';
 import { useSocket } from '@/contexts/SocketContext';
-
+import { useUser } from '@/contexts/UserContext';
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
@@ -27,6 +27,7 @@ const CardDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const content = location.state?.content || {};
+  const { currentUser } = useUser();
 
   const handleBack = () => {
     navigate(-1); // Go back to previous page
@@ -237,7 +238,7 @@ const CardDetails = () => {
                   className="w-full bg-red-400 hover:bg-red-500 text-white py-3"
                   onClick={() => handleNavigateBooking(content._id)}
                 >
-                  {content.userId.role === 'Guest'
+                  {currentUser?.role === 'Guest'
                     ? 'Book This Experience'
                     : 'Offer to Host'}
                 </Button>
@@ -247,7 +248,7 @@ const CardDetails = () => {
                   // Handle contact guest action
                   onClick={handleOpenChat}
                 >
-                  {content.userId.role === 'Guest'
+                  {currentUser?.role === 'Guest'
                     ? 'Contact Host'
                     : 'Contact Guest'}
                 </Button>

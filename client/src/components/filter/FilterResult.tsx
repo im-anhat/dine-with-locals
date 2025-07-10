@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-
+import { useUser } from '@/contexts/UserContext';
 const FilterResults = ({ results }: { results: any[] }) => {
   const navigate = useNavigate();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
+  const { currentUser } = useUser();
   if (!results || results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center bg-gray-100 p-8 rounded-md">
@@ -137,8 +138,8 @@ const FilterResults = ({ results }: { results: any[] }) => {
                   className=""
                   onClick={() => handleNavigateBooking(item._id)}
                 >
-                  {item.userId.role === 'Guest'
-                    ? 'Book This Experience'
+                  {currentUser?.role === 'Guest'
+                    ? 'Book experience'
                     : 'Offer to Host'}
                 </Button>
               </div>
