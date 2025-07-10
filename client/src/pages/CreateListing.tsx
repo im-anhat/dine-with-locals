@@ -13,11 +13,13 @@ import AdditionalInfoCard from '@/components/createListing/cards/AdditionalInfo'
 import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import { uploadImages } from '@/services/uploadImages';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
 
 const CreateListing = () => {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -91,6 +93,7 @@ const CreateListing = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    navigate('/dashboard');
   };
 
   const category = form.watch('category');

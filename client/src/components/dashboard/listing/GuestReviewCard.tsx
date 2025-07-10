@@ -28,15 +28,14 @@ function GuestReviewCard({ hostId }: GuestReviewCardProps) {
   }, [hostId]);
   return (
     <Card className="w-full">
-      <CardHeader></CardHeader>
       {reviews.length === 0 ? (
-        <CardContent className="text-center text-gray-500">
+        <CardContent className="text-center text-gray-500 pt-4">
           No reviews yet.
         </CardContent>
       ) : (
         reviews.map((review) => (
           <CardContent key={review._id}>
-            <div className="flex items-center gap-4 mb-2">
+            <div className="flex items-center gap-4 mb-2 pt-4">
               <Avatar
                 onClick={() => navigate(`/profile/${review.reviewerId._id}`)}
               >
