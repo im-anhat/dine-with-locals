@@ -171,9 +171,19 @@ const BookingConfirm = () => {
     });
   };
 
-  const handlePaymentMethodAdded = () => {
+  const handlePaymentMethodAdded = async () => {
     setHasPaymentMethod(true);
     setShowPaymentSetup(false);
+
+    // Refresh payment methods to ensure the latest state
+    if (currentUser?._id && requiresPayment) {
+      try {
+        const { paymentMethods } = await getPaymentMethods(currentUser._id);
+        setHasPaymentMethod(paymentMethods && paymentMethods.length > 0);
+      } catch (error) {
+        console.error('Error refreshing payment methods:', error);
+      }
+    }
   };
 
   return (
@@ -195,6 +205,7 @@ const BookingConfirm = () => {
             disabled={loading || (requiresPayment && !hasPaymentMethod)}
             requiresPayment={requiresPayment}
             hasPaymentMethod={hasPaymentMethod}
+            onPaymentMethodAdded={handlePaymentMethodAdded}
           />
 
           {/* Right Column */}
