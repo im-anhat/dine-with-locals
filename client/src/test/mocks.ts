@@ -64,6 +64,9 @@ export const mockListing: Listing = {
   duration: 120,
   interestTopic: ['pasta', 'wine'],
   numGuests: 4,
+  cuisine: ['Italian'],
+  dietary: [],
+  fee: 50, // Added price field
 };
 
 export const mockRequest: Request = {
