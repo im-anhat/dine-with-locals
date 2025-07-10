@@ -16,12 +16,15 @@ export interface Match {
 }
 
 export interface PendingCardProps {
+  _id: string;
   hostId: string;
   guestId: Omit<User, 'password' | 'provider'>;
-  listingId?: Listing;
+  listingId?: ListingDetails;
   requestId?: string;
   status: 'pending' | 'approved';
   time: Date;
+  additionalInfo: string;
+  hostInfo: string;
   paymentStatus?: 'pending' | 'succeeded';
 }
 const API_BASE_URL =
