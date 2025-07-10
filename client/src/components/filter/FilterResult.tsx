@@ -42,6 +42,7 @@ const FilterResults = ({ results }: { results: any[] }) => {
   const handleNavigateBooking = (id: string) => {
     navigate(`/booking/${id}`, { state: { listingId: id } });
   };
+
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">
@@ -59,7 +60,11 @@ const FilterResults = ({ results }: { results: any[] }) => {
                 <Avatar className="w-12 h-12">
                   <Link to={`/profile/${item.userId._id}`}>
                     <AvatarImage
-                      src={item.userId.avatar}
+                      src={
+                        item.userId.avatar ||
+                        item.userInfo?.avatar ||
+                        'https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/male/512/14.jpg'
+                      }
                       alt={item.userId.firstName}
                     />
                   </Link>
@@ -85,9 +90,9 @@ const FilterResults = ({ results }: { results: any[] }) => {
                 </h3>
               </div>
               {/* Additional Information about Listing */}
-              {item.additionalInfo ? (
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {item.additionalInfo}
+              {item.description ? (
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                  {item.description}
                 </p>
               ) : (
                 <></>
