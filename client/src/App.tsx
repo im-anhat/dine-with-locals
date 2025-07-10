@@ -24,6 +24,7 @@ import { useUserContext } from './hooks/useUserContext';
 import { getUserById } from './services/UserService';
 import ListingDashboard from './pages/pending/ListingDashboard';
 import BookingConfirm from './pages/BookingConfirm';
+import { PendingMappingProvider } from './contexts/PendingMappingContext';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -146,7 +147,9 @@ const App: React.FC = () => {
             element={
               isAuthenticated ? (
                 currentUser?.role == 'Host' ? (
-                  <ListingDashboard />
+                  <PendingMappingProvider>
+                    <ListingDashboard />
+                  </PendingMappingProvider>
                 ) : (
                   //Add Request Dashboard here
                   <Home />

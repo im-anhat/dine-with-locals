@@ -2,24 +2,23 @@ import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Clock, Tag } from 'lucide-react';
-import { ListingDetails } from '../../../../../shared/types/ListingDetails';
-function ListingHeaderCard({ ...props }: ListingDetails) {
-  console.log('PROPS', props);
-
+import { Listing } from '../../../../../shared/types/Listing';
+function ListingHeaderCard({ ...props }: Listing) {
+  console.log('PROPSS IJ LISTING IMAGE', props.images?.[0]);
   return (
     <Card className="w-full rounded-xl border border-gray-200 shadow-none">
       <CardContent className="flex flex-row gap-8 p-6">
         {/* Image placeholder */}
-        {props.images.length === 0 ? (
+        {props.images && props.images[0] ? (
+          <img
+            src={props.images[0]}
+            alt={props.title}
+            className="flex-shrink-0 w-[340px] h-[180px] rounded-lg object-cover"
+          />
+        ) : (
           <div className="flex-shrink-0 w-[340px] h-[180px] bg-gray-200 rounded-lg flex items-center justify-center">
             <span className="text-gray-500">No Image Available</span>
           </div>
-        ) : (
-          // Display the first image if available
-          <img
-            src={props.images[0]}
-            className="flex-shrink-0 w-[340px] h-[180px] rounded-lg"
-          />
         )}
         {/* Details */}
         <div className="flex flex-col justify-center flex-1 gap-2">
@@ -31,7 +30,11 @@ function ListingHeaderCard({ ...props }: ListingDetails) {
                 <div className="font-medium text-sm">Location</div>
 
                 <div className="text-sm text-gray-700">
-                  {props.locationId.address}
+                  {typeof props.locationId === 'string'
+                    ? props.locationId // fallback: show the ID if not populated
+                    : props.locationId?.address // show address if populated
+                      ? props.locationId.address
+                      : 'Unknown Location'}
                 </div>
               </div>
             </div>

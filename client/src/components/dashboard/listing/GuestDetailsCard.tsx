@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/table';
 import { User } from '../../../../../shared/types/User';
 import { ListingDetails } from '../../../../../shared/types/ListingDetails';
+import { useState, useEffect } from 'react';
+import { usePendingMapping } from '../../../contexts/PendingMappingContext';
 export interface PendingCardProps {
   _id: string;
   hostId: string;
@@ -25,7 +27,19 @@ export interface PendingCardProps {
 interface GuestDetailsCardProps {
   data: PendingCardProps[];
 }
-function GuestDetailsCard({ data }: GuestDetailsCardProps) {
+function GuestDetailsCard({ listingId }: { listingId: string }) {
+  const [matchesData, setMatchesData] = useState<PendingCardProps[]>();
+  const { mapping, setMapping } = usePendingMapping();
+  useEffect(() => {
+    const getValueFromMapping = async (listingId: string | undefined) => {
+      if (!listingId) return;
+      const data = mapping[listingId];
+      setMatchesData(data);
+    };
+    getValueFromMapping(listingId);
+  }, [listingId, mapping]);
+  console.log('GUEST DETAILS CARD ', matchesData);
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -38,37 +52,38 @@ function GuestDetailsCard({ data }: GuestDetailsCardProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((prop) => (
-              <TableRow key={prop._id}>
-                <TableCell>
-                  {prop.guestId.firstName} {prop.guestId.lastName}
-                </TableCell>
-                <TableCell>
-                  {prop.listingId?.fee
-                    ? `$${prop.listingId.fee.toFixed(2)}`
-                    : 'Free'}
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      prop.paymentStatus === 'succeeded'
-                        ? 'bg-green-100 text-green-800'
+            {matchesData &&
+              matchesData.map((prop) => (
+                <TableRow key={prop._id}>
+                  <TableCell>
+                    {prop.guestId.firstName} {prop.guestId.lastName}
+                  </TableCell>
+                  <TableCell>
+                    {prop.listingId?.fee
+                      ? `$${prop.listingId.fee.toFixed(2)}`
+                      : 'Free'}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        prop.paymentStatus === 'succeeded'
+                          ? 'bg-green-100 text-green-800'
+                          : prop.paymentStatus === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {prop.paymentStatus === 'succeeded'
+                        ? 'Paid'
                         : prop.paymentStatus === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {prop.paymentStatus === 'succeeded'
-                      ? 'Paid'
-                      : prop.paymentStatus === 'pending'
-                        ? 'Payment Pending'
-                        : prop.listingId?.fee && prop.listingId.fee > 0
-                          ? 'Payment Required'
-                          : 'No Payment Required'}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
+                          ? 'Payment Pending'
+                          : prop.listingId?.fee && prop.listingId.fee > 0
+                            ? 'Payment Required'
+                            : 'No Payment Required'}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </CardContent>

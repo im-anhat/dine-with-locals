@@ -33,6 +33,8 @@ export interface Listing {
   interestTopic?: string[];
   numGuests?: number;
   fee?: number; // Added price field
+  cuisine: string[];
+  dietary: string[];
 }
 
 export function listingRequiresPayment(listing: Listing): boolean {
