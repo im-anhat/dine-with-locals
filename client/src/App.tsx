@@ -133,7 +133,7 @@ const App: React.FC = () => {
           />
           <Route path="/filter/:id" element={<CardDetails />} />
 
-          <Route path="/host/create-listing" element={<CreateListing />} />
+          <Route path="/create-listing" element={<CreateListing />} />
           <Route
             path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}

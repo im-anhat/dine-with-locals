@@ -6,11 +6,11 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 const FilterResults = ({ results }: { results: any[] }) => {
+  const { currentUser } = useUser();
   const navigate = useNavigate();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
-  const { currentUser } = useUser();
   if (!results || results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center bg-gray-100 p-8 rounded-md">
@@ -40,7 +40,9 @@ const FilterResults = ({ results }: { results: any[] }) => {
   console.log('THERE SHOULD BE AN AVATAR IMAGE HERE', results);
 
   const handleNavigateBooking = (id: string) => {
-    navigate(`/booking/${id}`, { state: { listingId: id } });
+    navigate(`/booking/${id}`, {
+      state: { listingId: id, isListing: currentUser?.role === 'Guest' },
+    });
   };
 
   return (

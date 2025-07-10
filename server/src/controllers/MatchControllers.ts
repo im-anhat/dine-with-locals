@@ -287,3 +287,46 @@ export const deleteMatchRequest: RequestHandler = async (req, res) => {
     res.status(400).json({ message: 'Delete match failed', err: err });
   }
 };
+
+// Get matched listings for a guest by their user ID
+export const getMatchedListingsByUserId: RequestHandler = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate MongoDB ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ error: 'Invalid user ID format' });
+      return;
+    }
+
+    // Find matches where user is a guest (to get listings they can post about)
+    const matches = await Match.find({
+      guestId: userId,
+      status: 'approved',
+      listingId: { $exists: true, $ne: null },
+    }).populate([
+      {
+        path: 'listingId',
+        select: '_id title category time',
+        populate: {
+          path: 'locationId',
+          model: 'Location',
+          select: 'address city state country',
+        },
+      },
+      {
+        path: 'hostId',
+        select: 'userName firstName lastName',
+      },
+      {
+        path: 'guestId',
+        select: 'userName firstName lastName',
+      },
+    ]);
+
+    res.status(200).json(matches);
+  } catch (error) {
+    console.error('Error fetching match:', error);
+    res.status(500).json({ error: 'Failed to fetch match data' });
+  }
+};
