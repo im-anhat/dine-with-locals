@@ -12,7 +12,7 @@ import { ListingDetails } from '../../../../../shared/types/ListingDetails';
 import { getListingById } from '@/services/BookingService';
 import { useState, useEffect } from 'react';
 import { usePendingMapping } from '../../../contexts/PendingMappingContext';
-
+import { getMatchesFromListingId } from '../../../services/ListingService';
 function GuestCard({
   listingId,
 }: {
@@ -69,7 +69,13 @@ function GuestCard({
           console.log('Match approved:', updatedMatch);
         }
       }
-      // If listing requires payment, approve match and capture payment intent via approveMatchWithPayment
+
+      //Update matches after successfully updated status field in Match and Listing
+      const updatedMatches = await getMatchesFromListingId(listingId);
+      setMapping((prev) => ({
+        ...prev,
+        [listingId]: updatedMatches,
+      }));
     } catch (error) {
       console.error('Error approving match:', error);
     } finally {
