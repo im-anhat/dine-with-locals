@@ -52,7 +52,7 @@ function ListingDashboard() {
         Guest Review
       </h2>
       {matchesData && matchesData[0] ? (
-        <GuestReviewCard hostId={matchesData[0].hostId} />
+        <GuestReviewCard guestId={matchesData[0].guestId._id} />
       ) : (
         <div>No Review</div>
       )}
