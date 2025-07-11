@@ -13,6 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  User,
+  MapPin,
+  Calendar,
 } from 'lucide-react';
 import { Blog } from '../../../shared/types/Blog';
 import { BlogWithUser } from '../services/BlogService';
@@ -34,7 +37,6 @@ import {
 } from './ui/dialog';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { ListingDetails } from '../../../shared/types/ListingDetails';
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/') + 'api';
@@ -377,31 +379,55 @@ const BlogCard: React.FC<BlogCardProps> = ({
                     <p className="text-lg font-semibold">
                       {attachedListing.title}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {typeof attachedListing.locationId === 'object' &&
-                      attachedListing.locationId
-                        ? attachedListing.locationId.address +
-                          ', ' +
-                          attachedListing.locationId.city +
-                          ', ' +
-                          attachedListing.locationId.state +
-                          ', ' +
-                          attachedListing.locationId.zipCode
-                        : typeof attachedListing.locationId === 'string'
-                          ? attachedListing.locationId
+                    <div className="flex items-center gap-2 mt-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        Hosted by:{' '}
+                        {typeof attachedListing.userId === 'object' &&
+                        attachedListing.userId
+                          ? `${attachedListing.userId.firstName} ${attachedListing.userId.lastName}`
+                          : 'Host information not available'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        {typeof attachedListing.locationId === 'object' &&
+                        attachedListing.locationId
+                          ? attachedListing.locationId.address +
+                            ', ' +
+                            attachedListing.locationId.city +
+                            ', ' +
+                            attachedListing.locationId.state +
+                            ', ' +
+                            attachedListing.locationId.zipCode
                           : 'Location not available'}
-                    </p>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        {attachedListing.time
+                          ? new Date(attachedListing.time).toLocaleDateString()
+                          : 'Date not available'}
+                      </p>
+                    </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                       <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
                         {attachedListing.category}
                       </span>
+                      {attachedListing.numGuests && (
+                        <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
+                          {attachedListing.numGuests} Guest(s)
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-4">
+                <div className="flex justify-center mt-4">
                   <Button
                     variant="default"
-                    className="flex-1"
+                    className="px-4 py-2 rounded-full"
                     onClick={() => setShowListingModal(true)}
                   >
                     View Experience
@@ -571,12 +597,12 @@ const BlogCard: React.FC<BlogCardProps> = ({
         <Dialog open={showListingModal} onOpenChange={setShowListingModal}>
           <DialogContent className="max-w-3xl p-4">
             <DialogHeader>
-              <DialogTitle className="text-lg font-semibold">
-                Listing Details
+              <DialogTitle className="text-lg text-brand-coral-400 font-semibold">
+                More About The Experience
               </DialogTitle>
             </DialogHeader>
 
-            <div className="mt-4">
+            <div className="mt-2">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-shrink-0">
                   {attachedListing.images &&
@@ -592,23 +618,41 @@ const BlogCard: React.FC<BlogCardProps> = ({
                   <p className="text-xl font-semibold">
                     {attachedListing.title}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {typeof attachedListing.locationId === 'object' &&
-                    attachedListing.locationId
-                      ? attachedListing.locationId.address +
-                        ', ' +
-                        attachedListing.locationId.city +
-                        ', ' +
-                        attachedListing.locationId.state +
-                        ', ' +
-                        attachedListing.locationId.zipCode
-                      : 'Location not available'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {attachedListing.time
-                      ? new Date(attachedListing.time).toLocaleDateString()
-                      : 'Date not available'}
-                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <User className="h-4 w-4" />
+                    <p className="text-sm text-muted-foreground">
+                      Hosted by:{' '}
+                      <Link to={`/profile/${attachedListing.userId._id}`}>
+                        {typeof attachedListing.userId === 'object' &&
+                        attachedListing.userId
+                          ? `${attachedListing.userId.firstName} ${attachedListing.userId.lastName}`
+                          : 'Host information not available'}
+                      </Link>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <MapPin className="h-4 w-4" />
+                    <p className="text-sm text-muted-foreground">
+                      {typeof attachedListing.locationId === 'object' &&
+                      attachedListing.locationId
+                        ? attachedListing.locationId.address +
+                          ', ' +
+                          attachedListing.locationId.city +
+                          ', ' +
+                          attachedListing.locationId.state +
+                          ', ' +
+                          attachedListing.locationId.zipCode
+                        : 'Location not available'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Calendar className="h-4 w-4" />
+                    <p className="text-sm text-muted-foreground">
+                      {attachedListing.time
+                        ? new Date(attachedListing.time).toLocaleDateString()
+                        : 'Date not available'}
+                    </p>
+                  </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="text-xs rounded-full bg-brand-coral-100 text-brand-coral-700 px-3 py-1">
                       {attachedListing.category}
@@ -627,7 +671,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
                     </p>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-4 mb-8">
                     <p className="font-medium">Additional Information</p>
                     <p className="text-sm text-muted-foreground">
                       {attachedListing.additionalInfo ||
@@ -636,16 +680,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onClick={() => setShowListingModal(false)}
-              >
-                Close
-              </Button>
             </div>
           </DialogContent>
         </Dialog>

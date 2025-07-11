@@ -8,7 +8,9 @@ const API_BASE_URL =
 //Get all matches for user by user ID
 export const getMatchesByUserId = async (userId: string): Promise<Match[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/matches/${userId}`);
+    const response = await axios.get(
+      `${API_BASE_URL}/getMatchesListingByUserId/${userId}`,
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching matches by user ID:', error);
@@ -21,40 +23,15 @@ export const getMatchedListingsByUserId = async (
   userId: string,
 ): Promise<Listing[]> => {
   try {
-    const matches = await getMatchesByUserId(userId);
+    const response = await axios.get(`${API_BASE_URL}/matches/${userId}`);
 
-    const listingIds = matches
-      .filter((match) => match.listingId)
-      .map((match) => match.listingId as string);
+    const matches: Match[] = response.data;
+    // Extract listings from populated matches
+    const listings = matches
+      .filter((match) => match.listingId && typeof match.listingId === 'object')
+      .map((match) => match.listingId as any) // The listingId is already populated
+      .filter((listing) => listing && listing._id);
 
-    if (listingIds.length === 0) {
-      return [];
-    }
-
-    // Fetch details of each listing, but filter out invalid IDs first
-    const validListingIds = listingIds.filter((id) =>
-      /^[0-9a-fA-F]{24}$/.test(id),
-    );
-
-    if (validListingIds.length === 0) {
-      return [];
-    }
-
-    // Use Promise.allSettled to handle individual listing fetch failures
-    const listingsPromises = validListingIds.map((id) =>
-      axios
-        .get(`${API_BASE_URL}/listings/${id}`)
-        .then((res) => res.data)
-        .catch((err) => {
-          console.error(`Failed to fetch listing ${id}:`, err);
-          return null; // Return null for failed requests
-        }),
-    );
-
-    const results = await Promise.all(listingsPromises);
-
-    // Filter out null results (failed requests)
-    const listings = results.filter((listing) => listing !== null);
     return listings;
   } catch (error) {
     console.error('Error fetching matched listings by user ID:', error);

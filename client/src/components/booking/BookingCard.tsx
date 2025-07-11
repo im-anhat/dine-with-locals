@@ -21,6 +21,7 @@ interface BookingCardProps {
   disabled?: boolean;
   requiresPayment?: boolean;
   hasPaymentMethod?: boolean;
+  onPaymentMethodAdded?: () => void;
 }
 
 const BookingCard = ({
@@ -29,6 +30,7 @@ const BookingCard = ({
   disabled,
   requiresPayment = false,
   hasPaymentMethod = false,
+  onPaymentMethodAdded,
 }: BookingCardProps) => {
   const [confirmed, setConfirmed] = useState(false);
   const [showAddPayment, setShowAddPayment] = useState(false);
@@ -80,6 +82,9 @@ const BookingCard = ({
         if (response.paymentMethods.length === 1) {
           setSelectedPaymentMethod(response.paymentMethods[0].id);
         }
+
+        // Notify parent component that a payment method was added
+        onPaymentMethodAdded?.();
       } catch (error) {
         console.error('Error refreshing payment methods:', error);
       }
