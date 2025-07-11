@@ -115,12 +115,7 @@ const WeeklyCalendar = ({ matches }: WeeklyCalendarProps) => {
       `}
       >
         <div className="flex items-center space-x-4 justify-between w-full">
-          <h1
-            className={`
-            font-bold text-gray-900
-            ${isMobile ? 'text-xl' : 'text-2xl'}
-          `}
-          >
+          <h1 className="font-bold text-gray-900 text-xl">
             {formatDate(weekDates[0])} - {formatDate(weekDates[6])}
             {isCurrentWeek() && (
               <span className="ml-2 text-primary font-medium">
