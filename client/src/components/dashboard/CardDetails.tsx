@@ -81,7 +81,9 @@ const CardDetails = () => {
             <div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                  About This Request
+                  {currentUser?.role === 'Guest'
+                    ? 'About This Listing'
+                    : 'About This Request'}
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
                   {content.description ||
@@ -194,9 +196,16 @@ const CardDetails = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-1">Requested Time</p>
+                <p className="text-sm text-gray-500 mb-1">Time</p>
                 <p className="text-base font-medium text-orange-600">
                   {formatDate(content.time)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Fee</p>
+                <p className="text-base font-medium text-orange-600">
+                  {content.fee ? `$${content.fee}` : 'Free Experience'}
                 </p>
               </div>
 
@@ -207,11 +216,23 @@ const CardDetails = () => {
                   {(content.numGuests || 1) === 1 ? 'person' : 'people'}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Duration</p>
+                <p className="text-base font-medium text-gray-900">
+                  {content.duration || 1}{' '}
+                  {(content.duration || 1) === 1 ? 'hour' : 'hours'}
+                </p>
+              </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-2">Requested by</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {currentUser?.role === 'Guest' ? 'Posted by' : 'Requested by'}
+                </p>
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-8 h-8">
+                  <Avatar
+                    className="w-8 h-8"
+                    onClick={() => navigate(`/profile/${content.userId?._id}`)}
+                  >
                     <AvatarImage
                       src={content.userId?.avatar}
                       alt={content.userId?.firstName}
