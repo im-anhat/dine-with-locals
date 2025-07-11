@@ -142,7 +142,7 @@ function HostSidePending() {
                           </Avatar>
                           <div>
                             <p
-                              className="font-medium text-gray-900 line-clamp-1"
+                              className="font-medium text-gray-900 line-clamp-1 cursor-pointer hover:text-brand-coral-500 hover:underline transition-colors duration-200"
                               onClick={() =>
                                 navigate(`/approvals/${listing._id}`, {
                                   state: {

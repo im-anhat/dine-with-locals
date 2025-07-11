@@ -30,31 +30,6 @@ function ListingDashboard() {
     getValueFromMapping(listingId);
   }, [listingId, mapping]);
 
-  // const location = useLocation();
-  // const props: PendingCardProps[] = location.state?.guests || [];
-  // const [listing, setListing] = useState<ListingDetails>();
-  // console.log('PROPS in LISTING DASHBOARD', props);
-
-  // useEffect(() => {
-  //   console.log('DEBUG guests:', props);
-  //   console.log('DEBUG listingId:', props[0]?.listingId?._id);
-  //   const fetchListing = async (listingId: string) => {
-  //     try {
-  //       const result = await getListingById(listingId);
-  //       console.log('DEBUG fetched listing:', result);
-  //       setListing(result);
-  //     } catch (err) {
-  //       console.error('Failed fetching listing', err);
-  //     }
-  //   };
-
-  //   if (props[0]?.listingId?._id) {
-  //     fetchListing(props[0].listingId._id);
-  //   }
-  // }, [props]);
-
-  // console.log('CURR LISTING', listing);
-
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900">
