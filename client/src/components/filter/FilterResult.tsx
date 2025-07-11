@@ -60,21 +60,26 @@ const FilterResults = ({ results }: { results: any[] }) => {
               {/* Header: Avatar + Name + Time */}
               <div className="flex items-start gap-3">
                 <Avatar className="w-12 h-12">
-                  <Link to={`/profile/${item.userId._id}`}>
+                  <Link
+                    to={`/profile/${item.userId._id || item.userInfo?._id}`}
+                  >
                     <AvatarImage
                       src={
                         item.userId.avatar ||
                         item.userInfo?.avatar ||
                         'https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/male/512/14.jpg'
                       }
-                      alt={item.userId.firstName}
+                      alt={item.userId.firstName || item.userInfo?.firstName}
                     />
                   </Link>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/profile/${item.userId._id}`}>
+                  <Link
+                    to={`/profile/${item.userId._id || item.userInfo?._id}`}
+                  >
                     <CardTitle className="text-lg truncate">
-                      {item.userId.firstName} {item.userId.lastName}
+                      {item.userId.firstName || item.userInfo?.firstName}{' '}
+                      {item.userId.lastName || item.userInfo?.lastName}
                     </CardTitle>
                   </Link>
 

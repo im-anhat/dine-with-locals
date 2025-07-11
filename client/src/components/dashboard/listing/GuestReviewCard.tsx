@@ -7,16 +7,16 @@ import { useEffect } from 'react';
 import { Review } from '../../../services/ReviewService';
 import { useNavigate } from 'react-router-dom';
 interface GuestReviewCardProps {
-  hostId: string;
+  guestId: string;
 }
 
-function GuestReviewCard({ hostId }: GuestReviewCardProps) {
+function GuestReviewCard({ guestId }: GuestReviewCardProps) {
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const navigate = useNavigate();
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviews = await getReviewsByUserId(hostId);
+        const reviews = await getReviewsByUserId(guestId);
         // Process reviews as needed
         setReviews(reviews);
         console.log('Fetched reviews:', reviews);
@@ -25,7 +25,7 @@ function GuestReviewCard({ hostId }: GuestReviewCardProps) {
       }
     };
     fetchReviews();
-  }, [hostId]);
+  }, [guestId]);
   return (
     <Card className="w-full">
       {reviews.length === 0 ? (
