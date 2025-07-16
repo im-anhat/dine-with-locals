@@ -25,6 +25,7 @@ import { getUserById } from './services/UserService';
 import ListingDashboard from './pages/pending/ListingDashboard';
 import BookingConfirm from './pages/BookingConfirm';
 import { PendingMappingProvider } from './contexts/PendingMappingContext';
+import CreateRequest from './pages/CreateRequest';
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
@@ -133,7 +134,14 @@ const App: React.FC = () => {
           />
           <Route path="/filter/:id" element={<CardDetails />} />
 
-          <Route path="/host/create-listing" element={<CreateListing />} />
+          <Route
+            path="/create-listing"
+            element={isAuthenticated ? <CreateListing /> : <DashboardPage />}
+          />
+          <Route
+            path="/create-request"
+            element={isAuthenticated ? <CreateRequest /> : <DashboardPage />}
+          />
           <Route
             path="/chats"
             element={isAuthenticated ? <ChatPage /> : <Home />}

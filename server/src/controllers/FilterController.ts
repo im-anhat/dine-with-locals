@@ -15,8 +15,6 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
   } = req.body;
   let page = parseInt((req.query.p as string) || '1');
   let cardPerPage = 10;
-  console.log('THIS IS THE PLACE WHERE FILTER REQUEST GO IN');
-
   // Manually building matching condition for $match state in the aggregation pipeline below
   const matchConditions: Record<string, any> = {};
   //Validation
@@ -37,7 +35,6 @@ export const fetchRequestDocuments = async (req: Request, res: Response) => {
       ],
     };
   }
-  console.log(matchConditions);
   //Create pipeline for aggregation process
   const pipeline: mongoose.PipelineStage[] = [
     {

@@ -80,7 +80,7 @@ function PersonalInformationInput({
               </label>
               <input
                 type="text"
-                placeholder="Dan"
+                placeholder="First Name"
                 name="firstName"
                 value={user.firstName}
                 onChange={(e) => {
@@ -98,7 +98,7 @@ function PersonalInformationInput({
               <input
                 type="text"
                 name="lastName"
-                placeholder="Nguyen"
+                placeholder="Last Name"
                 value={user.lastName}
                 onChange={(e) => {
                   setLastName(e.target.value);
@@ -117,7 +117,7 @@ function PersonalInformationInput({
             <input
               type="text"
               name="phone"
-              placeholder="Phone Number"
+              placeholder="e.g., (123) 456-7890"
               value={user.phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
@@ -130,7 +130,7 @@ function PersonalInformationInput({
             <input
               type="text"
               name="address"
-              placeholder="8841 Main Street"
+              placeholder="Street Address"
               value={location.address}
               onChange={(e) => setStreetAddress(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
@@ -143,7 +143,7 @@ function PersonalInformationInput({
             <input
               type="text"
               name="city"
-              placeholder="8841 Main Street"
+              placeholder="City"
               value={location.city}
               onChange={(e) => setCity(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
@@ -156,7 +156,7 @@ function PersonalInformationInput({
             <input
               type="text"
               name="state"
-              placeholder="Virginia"
+              placeholder="State/Province"
               value={location.state}
               onChange={(e) => setState(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
@@ -170,7 +170,7 @@ function PersonalInformationInput({
               <input
                 type="text"
                 name="zipcode"
-                placeholder="22003"
+                placeholder="ZIP/Postal Code"
                 value={location.zipCode}
                 onChange={(e) => setZipNumber(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"
@@ -183,8 +183,8 @@ function PersonalInformationInput({
               </label>
               <input
                 type="text"
-                name="state"
-                placeholder="United States"
+                name="country"
+                placeholder="Country"
                 value={location.country}
                 onChange={(e) => setCountry(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-700"

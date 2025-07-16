@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import type Chat from '../../../../../shared/types/Chat.js';
 import { Badge } from '@/components/ui/badge';
+import { useUser } from '@/contexts/UserContext.js';
 
 interface ChatHeaderProps {
   isGroupChat?: boolean;
@@ -30,11 +31,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   isGroupChat,
   hasListing,
 }) => {
+  const { currentUser } = useUser();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
-  const otherUsers = chatInfo?.users.filter(
-    (user) => user._id !== chatInfo?.groupAdmin,
-  );
+  const otherUsers = chatInfo?.isGroupChat
+    ? chatInfo?.users.filter((user) => user._id !== chatInfo?.groupAdmin)
+    : chatInfo?.users.filter((user) => user._id !== currentUser?._id);
 
   const handleProfileClick = () => {
     if (otherUsers && otherUsers[0]?._id) {
@@ -86,9 +88,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               <div className="flex items-center gap-3 cursor-pointer hover:opacity-80">
                 <Megaphone />
                 <h1 className="font-semibold text-lg leading-tight min-w-16">
-                    <span className="sm:max-w-32 md:max-w-64 truncate inline-block align-bottom" title={chatInfo?.chatName}>
+                  <span
+                    className="sm:max-w-32 md:max-w-64 truncate inline-block align-bottom"
+                    title={chatInfo?.chatName}
+                  >
                     {chatInfo?.chatName}
-                    </span>
+                  </span>
                 </h1>
               </div>
             </DialogTrigger>

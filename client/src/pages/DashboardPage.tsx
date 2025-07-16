@@ -128,13 +128,17 @@ const DashboardPage = () => {
       <section className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Upcoming Meetups</h2>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/host/create-listing')}
-          >
-            <Calendar className="mr-2 w-4 h-4" />
-            Create New Listing
-          </Button>
+          {currentUser?.role === 'Host' ? (
+            <Button onClick={() => navigate('/create-listing')}>
+              <Calendar className="mr-2 w-4 h-4" />
+              Create New Listing
+            </Button>
+          ) : (
+            <Button onClick={() => navigate('/create-request')}>
+              <Calendar className="mr-2 w-4 h-4" />
+              Create New Request
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="calendar" className="w-full">

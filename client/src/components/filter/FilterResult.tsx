@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-
+import { useUser } from '@/contexts/UserContext';
 const FilterResults = ({ results }: { results: any[] }) => {
+  const { currentUser } = useUser();
   const navigate = useNavigate();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
@@ -36,11 +37,14 @@ const FilterResults = ({ results }: { results: any[] }) => {
   const openPhotoView = (index: number) => {
     setSelectedPhotoIndex(index);
   };
-  console.log('user filter result', results);
+  console.log('THERE SHOULD BE AN AVATAR IMAGE HERE', results);
 
   const handleNavigateBooking = (id: string) => {
-    navigate(`/booking/${id}`, { state: { listingId: id } });
+    navigate(`/booking/${id}`, {
+      state: { listingId: id, isListing: currentUser?.role === 'Guest' },
+    });
   };
+
   return (
     <div className="">
       <div className="text-sm text-gray-600 mb-4">
@@ -56,17 +60,26 @@ const FilterResults = ({ results }: { results: any[] }) => {
               {/* Header: Avatar + Name + Time */}
               <div className="flex items-start gap-3">
                 <Avatar className="w-12 h-12">
-                  <Link to={`/profile/${item.userId._id}`}>
+                  <Link
+                    to={`/profile/${item.userId._id || item.userInfo?._id}`}
+                  >
                     <AvatarImage
-                      src={item.userId.avatar}
-                      alt={item.userId.firstName}
+                      src={
+                        item.userId.avatar ||
+                        item.userInfo?.avatar ||
+                        'https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/male/512/14.jpg'
+                      }
+                      alt={item.userId.firstName || item.userInfo?.firstName}
                     />
                   </Link>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/profile/${item.userId._id}`}>
+                  <Link
+                    to={`/profile/${item.userId._id || item.userInfo?._id}`}
+                  >
                     <CardTitle className="text-lg truncate">
-                      {item.userId.firstName} {item.userId.lastName}
+                      {item.userId.firstName || item.userInfo?.firstName}{' '}
+                      {item.userId.lastName || item.userInfo?.lastName}
                     </CardTitle>
                   </Link>
 
@@ -84,12 +97,22 @@ const FilterResults = ({ results }: { results: any[] }) => {
                 </h3>
               </div>
               {/* Additional Information about Listing */}
-              {item.additionalInfo ? (
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {item.additionalInfo}
+              {item.description ? (
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                  {item.description}
                 </p>
               ) : (
-                <></>
+                <>
+                  {item.additionalInfo ? (
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      {item.additionalInfo}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      No information provided.
+                    </p>
+                  )}
+                </>
               )}
               {/* IMAGES */}
               {item.images && item.images.length > 0 && (
@@ -137,7 +160,9 @@ const FilterResults = ({ results }: { results: any[] }) => {
                   className=""
                   onClick={() => handleNavigateBooking(item._id)}
                 >
-                  Book now
+                  {currentUser?.role === 'Guest'
+                    ? 'Book experience'
+                    : 'Offer to Host'}
                 </Button>
               </div>
             </CardContent>

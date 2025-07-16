@@ -5,9 +5,13 @@ import {
   updateLocationCoordinates,
   getNearbyLocations,
   getAllLocations,
+  getAllCities,
 } from '../controllers/LocationController.js';
 
 const router = express.Router();
+
+// Get all cities
+router.get('/cities', getAllCities);
 
 // Get all locations
 router.get('/', getAllLocations);

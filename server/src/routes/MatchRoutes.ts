@@ -6,6 +6,7 @@ import {
   updateMatchRequest,
   deleteMatchRequest,
   getMatches,
+  getMatchedListingsByUserId,
 } from '../controllers/MatchControllers.js';
 
 const router = express.Router();
@@ -22,5 +23,7 @@ router.delete('/:matchId', deleteMatchRequest);
 router.get('/', checkUserMatchForListing);
 // POST create a new match
 router.post('/', createMatchRequest);
+//GET matched listings for a guest by their user ID
+router.get('/getMatchesListingByUserId/:userId', getMatchedListingsByUserId);
 
 export default router;
