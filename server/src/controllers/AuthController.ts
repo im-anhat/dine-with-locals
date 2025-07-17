@@ -70,26 +70,26 @@ export const googleAuthenticate = async (req: Request, res: Response) => {
  * @returns A JSON response containing the JWT token or an error message
  */
 export const loginUser = async (req: Request, res: Response) => {
-  const { userName, password } = req.body;
-  //Input validation
-  if (!userName || !password) {
-    throw new Error('All fields must be filled');
-  }
-  // Check if the userName is already in use
-  const returnUser = await UserModel.findOne({ userName });
-  // This has error
-  if (!returnUser) {
-    throw new Error('Username not found');
-  }
-  // Check if the password is correct
-  const match = await bcrypt.compare(password, returnUser.password);
-  if (!match) {
-    throw Error('Incorrect password');
-  }
-
   try {
-    // Generate a token with userName and _id
-    const token = createToken(returnUser._id.toString());
+    const { userName, password } = req.body;
+    if (!userName || !password) {
+      return res.status(400).json({ error: 'All fields must be filled' });
+    }
+
+    // Find user
+    const existingUser = await UserModel.findOne({ userName });
+    if (!existingUser) {
+      return res.status(404).json({ error: 'Username not found' });
+    }
+
+    // Check password
+    const match = await bcrypt.compare(password, existingUser.password);
+    if (!match) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    // Generate a token with _id
+    const token = createToken(existingUser._id.toString());
     res.status(200).json({ token: token, message: 'Login Successful' });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
