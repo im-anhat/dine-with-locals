@@ -23,34 +23,33 @@ const createToken = (_id: string): string => {
  * client
  */
 export const googleAuthenticate = async (req: Request, res: Response) => {
-  console.log('Get into google Authentication function');
-  //ID token sent from client
-  const { credential } = req.body;
-  //Google's verification client
-  const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
-
-  //Verifies that token with Google to ensure it's valid
-  const ticket = await client.verifyIdToken({
-    idToken: credential,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-  const userName = payload?.email?.replace('@gmail.com', '');
-  //Check if user's record already exist on MongoDB
-  let existing = await UserModel.findOne({ userName });
-
-  //If not, create a new record in MongoDB for user
-  if (!existing) {
-    existing = await UserModel.create({
-      userName: userName,
-      firstName: payload?.given_name,
-      lastName: payload?.family_name,
-      avatar: payload?.picture,
-      role: 'Guest',
-      provider: 'Google',
-    });
-  }
   try {
+    //ID token sent from client
+    const { credential } = req.body;
+    //Google's verification client
+    const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
+
+    //Verifies that token with Google to ensure it's valid
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const userName = payload?.email?.replace('@gmail.com', '');
+    //Check if user's record already exist on MongoDB
+    let existing = await UserModel.findOne({ userName });
+
+    //If not, create a new record in MongoDB for user
+    if (!existing) {
+      existing = await UserModel.create({
+        userName: userName,
+        firstName: payload?.given_name,
+        lastName: payload?.family_name,
+        avatar: payload?.picture,
+        role: 'Guest',
+        provider: 'Google',
+      });
+    }
     // Generate a token with userName and _id
     const token = createToken(existing._id.toString());
     res.status(200).json({ token: token, message: 'Login Successful' });
