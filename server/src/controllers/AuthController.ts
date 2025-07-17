@@ -54,6 +54,7 @@ export const googleAuthenticate = async (req: Request, res: Response) => {
     const token = createToken(existing._id.toString());
     res.status(200).json({ token: token, message: 'Login Successful' });
   } catch (error: any) {
+    console.error('Google Authenticate Error:', error.message);
     res.status(400).json({ error: error.message });
   }
 };
@@ -91,6 +92,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const token = createToken(existingUser._id.toString());
     res.status(200).json({ token: token, message: 'Login Successful' });
   } catch (error: any) {
+    console.error('Login Error:', error.message);
     res.status(400).json({ error: error.message });
   }
 };
